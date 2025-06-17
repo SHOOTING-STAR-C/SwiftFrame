@@ -29,7 +29,7 @@ public class MultiDataSourceTransactionManager extends DataSourceTransactionMana
             ds = DataSourceEnum.MASTER;
             DataSourceContextHolder.pushDataSource(ds);
         }
-        log.debug("事务锁定数据源: " + ds.getName());
+        log.debug("事务锁定数据源: {}", ds.getName());
         super.doBegin(transaction, definition);
     }
 
