@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <!-- 注册 Spring Boot 的颜色转换器 -->
+    <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter" />
+
+    <!-- 应用名称 -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="SwiftFrame"/>
+
+    <!-- 环境特定路径配置 -->
+    <springProfile name="dev">
+        <property name="ENV_LOG_PATH" value="E:\workspace\logs\SwiftFrame\dev"/>
+    </springProfile>
+    <springProfile name="test">
+        <property name="ENV_LOG_PATH" value="E:\workspace\logs\SwiftFrame\test"/>
+    </springProfile>
+    <springProfile name="prod">
+        <property name="ENV_LOG_PATH" value="E:\workspace\logs\SwiftFrame\prod"/>
+    </springProfile>
+
+    <!-- 基础配置 -->
+    <property name="CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{40}) - %msg%n"/>
+    <property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{40} - %msg%n"/>
+    <property name="MAX_HISTORY" value="30"/>
+    <property name="MAX_FILE_SIZE" value="100MB"/>
+    <property name="TOTAL_SIZE_CAP" value="2GB"/>
+    <property name="ENCODING" value="UTF-8"/>
+
+    <!-- 开发环境专用控制台输出 -->
+    <springProfile name="dev">
+        <appender name="DEV_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){blue} %clr(%-5level){green} %clr(%logger{400}){cyan} - %msg%n</pattern>
+                <charset>${ENCODING}</charset>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <!-- 非开发环境控制台输出 -->
+    <springProfile name="test, prod">
+        <appender name="PROD_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${CONSOLE_PATTERN}</pattern>
+                <charset>${ENCODING}</charset>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <!-- 文件输出（非开发环境使用） -->
+    <springProfile name="test, prod">
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${ENV_LOG_PATH}/${APP_NAME}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${ENV_LOG_PATH}/${APP_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+                <maxHistory>${MAX_HISTORY}</maxHistory>
+                <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            </rollingPolicy>
+            <encoder>
+                <pattern>${FILE_PATTERN}</pattern>
+                <charset>${ENCODING}</charset>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <!-- 开发环境根配置 -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="DEV_CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- 测试/生产环境根配置 -->
+    <springProfile name="test, prod">
+        <root level="INFO">
+            <appender-ref ref="PROD_CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- 开发环境专用 -->
+    <springProfile name="dev">
+        <logger name="ENV-LOGGER" level="INFO" additivity="false">
+            <appender-ref ref="DEV_CONSOLE"/>
+        </logger>
+    </springProfile>
+
+    <!-- 测试/生产环境专用 -->
+    <springProfile name="test, prod">
+        <logger name="ENV-LOGGER" level="INFO" additivity="false">
+            <appender-ref ref="PROD_CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </logger>
+    </springProfile>
+
+    <logger name="org.springframework" level="info"/>
+    <logger name="_org.springframework" level="info"/>
+    <logger name="org.apache" level="info"/>
+    <logger name="org.mybatis" level="info"/>
+    <logger name="sun.rmi" level="info"/>
+    <logger name="javax.management.remote.rmi" level="info"/>
+    <logger name="com.baomidou" level="info"/>
+    <logger name="jdk.event.security" level="info"/>
+    <logger name="java.lang.Runtime" level="info"/>
+</configuration>

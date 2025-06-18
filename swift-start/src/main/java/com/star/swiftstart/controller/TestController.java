@@ -1,5 +1,6 @@
 package com.star.swiftstart.controller;
 
+import com.star.swiftcommon.domain.PubResult;
 import com.star.swiftstart.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +13,8 @@ public class TestController {
     @Autowired
     private TestService testService;
     @GetMapping("/count")
-    public int test(){
-        return testService.testCount();
+    public PubResult<Integer> test(){
+        int i = testService.testCount();
+        return PubResult.success(i);
     }
 }

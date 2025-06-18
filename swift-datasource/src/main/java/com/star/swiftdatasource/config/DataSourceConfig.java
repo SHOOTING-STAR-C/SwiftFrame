@@ -7,6 +7,8 @@ import com.star.swiftdatasource.properties.DruidProperties;
 import com.star.swiftdatasource.routing.DynamicDataSource;
 import com.star.swiftdatasource.transaction.MultiDataSourceTransactionManager;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +37,6 @@ public class DataSourceConfig {
     @Primary
     public DynamicDataSource dynamicDataSource(
             @Qualifier("masterDataSource") DataSource master) {
-        log.info("正在加载数据源");
         Map<Object, Object> targetDataSources = new HashMap<>();
         targetDataSources.put(DataSourceEnum.MASTER.getName(), master);
 
@@ -45,6 +46,13 @@ public class DataSourceConfig {
 
         log.info("已加载数据源: {}", targetDataSources.keySet());
         return ds;
+    }
+
+    @Bean(name = "masterSqlSessionFactory")
+    public SqlSessionFactory sqlSessionFactory(DynamicDataSource dataSource) throws Exception {
+        SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource);
+        return sessionFactory.getObject();
     }
 
     @Bean(name = "transactionManager")

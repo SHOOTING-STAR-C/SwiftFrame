@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class}, scanBasePackages = {"com.star"})
-@MapperScan("com.star.*.mapper")
 public class SwiftStartApplication {
 
     public static void main(String[] args) {

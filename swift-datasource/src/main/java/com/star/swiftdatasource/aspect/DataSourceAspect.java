@@ -32,7 +32,7 @@ public class DataSourceAspect {
             txStatus = TransactionAspectSupport.currentTransactionStatus();
         } catch (Exception e) {
             // 无事务上下文时忽略
-            log.debug("无事务方法，已放行{}", e.getMessage());
+            log.debug("无事务方法，已放行：{}", e.getMessage());
         }
 
         // 存在事务且非新事务时禁止切换
