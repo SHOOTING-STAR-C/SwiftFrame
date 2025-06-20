@@ -5,6 +5,11 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+/**
+ * Druid读取配置文件
+ *
+ * @author SHOOTING_STAR_C
+ */
 @Component
 @Data
 @ConfigurationProperties(prefix = "spring.datasource.druid.master")

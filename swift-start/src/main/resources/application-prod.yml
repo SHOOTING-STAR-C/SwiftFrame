@@ -2,6 +2,7 @@ server:
   port: 8081
 
 spring:
+  #数据源
   datasource:
     druid:
       master:
@@ -10,6 +11,15 @@ spring:
         username: root
         password: root
         validation-query: SELECT 1 FROM DUAL
+#日志
 logging:
-  file:
-    path: E:\workspace\prod\logs
+  level:
+    root: info
+#加密
+crypto:
+  mode: aes
+  aes:
+    key: 123456
+  rsa:
+    public-key: 123456
+    private-key: 123456

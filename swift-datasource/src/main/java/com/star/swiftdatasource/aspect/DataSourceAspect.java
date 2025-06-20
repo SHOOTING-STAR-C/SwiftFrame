@@ -15,6 +15,8 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 /**
  * 切换数据源切面
+ *
+ * @author SHOOTING_STAR_C
  */
 @Aspect
 @Slf4j

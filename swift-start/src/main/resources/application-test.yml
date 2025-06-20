@@ -11,3 +11,13 @@ spring:
         password: root
         validation-query: SELECT 1 FROM DUAL
 logging:
+  level:
+    root: info
+
+crypto:
+  mode: aes
+  aes:
+    key: 123456
+  rsa:
+    public-key: 123456
+    private-key: 123456

@@ -17,15 +17,21 @@
         </processorPath>
         <module name="swift-datasource" />
         <module name="swift-start" />
+        <module name="swift-encrypt" />
         <module name="swift-common" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="encrypt" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="SwiftFrame" options="" />
+      <module name="encrypt" options="-parameters" />
       <module name="swift-common" options="-parameters" />
       <module name="swift-datasource" options="-parameters" />
+      <module name="swift-encrypt" options="-parameters" />
       <module name="swift-start" options="-parameters" />
     </option>
   </component>

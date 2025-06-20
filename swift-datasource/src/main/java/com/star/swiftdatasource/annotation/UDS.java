@@ -5,7 +5,9 @@ import com.star.swiftdatasource.constants.DataSourceEnum;
 import java.lang.annotation.*;
 
 /**
- * 数据库注解
+ * 切换数据源注解
+ *
+ * @author SHOOTING_STAR_C
  */
 @Target({ElementType.METHOD,ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

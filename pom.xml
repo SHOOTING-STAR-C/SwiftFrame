@@ -15,6 +15,7 @@
         <module>swift-start</module>
         <module>swift-datasource</module>
         <module>swift-common</module>
+        <module>swift-encrypt</module>
     </modules>
 
     <groupId>com.star</groupId>
@@ -30,6 +31,7 @@
         <mysql.version>8.4.0</mysql.version>
         <mybatis.version>3.5.12</mybatis.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
+        <jasypt.version>3.0.5</jasypt.version>
     </properties>
 
     <dependencies>
@@ -56,6 +58,11 @@
             <dependency>
                 <groupId>com.star</groupId>
                 <artifactId>swift-datasource</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-encrypt</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <!--常用依赖-->
@@ -91,7 +98,13 @@
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis.version}</version>
             </dependency>
-
+            <!--加密-->
+            <!-- Jasypt 加密库 -->
+            <dependency>
+                <groupId>com.github.ulisesbocchio</groupId>
+                <artifactId>jasypt-spring-boot-starter</artifactId>
+                <version>${jasypt.version}</version>
+            </dependency>
             <!--单元测试-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -127,7 +140,7 @@
                         </profiles>
                     </configuration>
                 </plugin>
-                                <plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${maven.resources.plugin.version}</version>
