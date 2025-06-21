@@ -3,8 +3,8 @@ package com.star.swiftencrypt.service.impl;
 import com.star.swiftencrypt.exception.CryptoException;
 import com.star.swiftencrypt.properties.CryptoEncryptProperties;
 import com.star.swiftencrypt.service.CryptoService;
-import com.star.swiftencrypt.util.AESUtil;
-import com.star.swiftencrypt.util.RSAUtil;
+import com.star.swiftencrypt.utils.AESUtil;
+import com.star.swiftencrypt.utils.RSAUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,7 +109,7 @@ public class CryptoServiceImpl implements CryptoService {
     /**
      * 生成并设置新的RSA密钥对
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     public void generateAndSetNewRsaKeys() throws Exception {
         KeyPair keyPair = generateRSAKeyPair();

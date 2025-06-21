@@ -10,10 +10,18 @@ spring:
         username: root
         password: root
         validation-query: SELECT 1 FROM DUAL
+  data:
+    redis:
+      host: 192.168.31.154
+      port: 6379
+      database: 0
 logging:
   level:
     root: info
-
+security:
+  auth:
+    login-path: /swift/auth/login
+    white-list: /swift/auth/**, /swagger-ui/**, /v3/api-docs/**
 crypto:
   mode: aes
   aes:

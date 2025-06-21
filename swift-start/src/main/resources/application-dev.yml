@@ -10,9 +10,22 @@ spring:
         username: root
         password: root
         validation-query: SELECT 1 FROM DUAL
+  data:
+    redis:
+      host: 192.168.31.154
+      port: 6379
+      database: 0
 logging:
   level:
     root: debug
+jwt:
+  secret: zxcvbnmmlkjhgfdsaqwertyuiopplplpl
+  expiration: 86400000 # 24小时有效期(毫秒)
+  refresh-expiration: 2592000000 # 30天刷新令牌有效期
+security:
+  auth:
+    login-path: /api/auth/login
+    white-list: /api/auth/**, /swagger-ui/**, /v3/api-docs/**
 crypto:
   mode: aes
   aes:

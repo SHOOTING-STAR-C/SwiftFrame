@@ -16,6 +16,10 @@
         <module>swift-datasource</module>
         <module>swift-common</module>
         <module>swift-encrypt</module>
+        <module>swift-redis</module>
+        <module>swift-jwt</module>
+        <module>swift-security</module>
+        <module>swift-login</module>
     </modules>
 
     <groupId>com.star</groupId>
@@ -27,11 +31,13 @@
         <java.version>21</java.version>
         <swift.version>1.0</swift.version>
         <spring.version>3.5.0</spring.version>
+        <spring-security-crypto.version>6.5.0</spring-security-crypto.version>
         <druid.version>1.2.23</druid.version>
         <mysql.version>8.4.0</mysql.version>
         <mybatis.version>3.5.12</mybatis.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
         <jasypt.version>3.0.5</jasypt.version>
+        <jwt.version>0.12.6</jwt.version>
     </properties>
 
     <dependencies>
@@ -65,6 +71,26 @@
                 <artifactId>swift-encrypt</artifactId>
                 <version>${swift.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-redis</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-jwt</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-security</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-login</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
             <!--常用依赖-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -74,6 +100,21 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-security</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-crypto</artifactId>
+                <version>${spring-security-crypto.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <!--数据源-->
@@ -105,12 +146,11 @@
                 <artifactId>jasypt-spring-boot-starter</artifactId>
                 <version>${jasypt.version}</version>
             </dependency>
-            <!--单元测试-->
+            <!-- JJWT for JWT -->
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>${spring.version}</version>
-                <scope>test</scope>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jwt.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

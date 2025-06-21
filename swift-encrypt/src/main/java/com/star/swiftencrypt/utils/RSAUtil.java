@@ -1,4 +1,4 @@
-package com.star.swiftencrypt.util;
+package com.star.swiftencrypt.utils;
 
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,7 @@ public class RSAUtil {
      * 生成RSA密钥对
      *
      * @return 密钥对
-     * @throws NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
      */
     public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
@@ -32,7 +32,7 @@ public class RSAUtil {
      *
      * @param base64PublicKey base64编码
      * @return 公钥
-     * @throws Exception
+     * @throws Exception Exception
      */
     private static PublicKey getPublicKey(String base64PublicKey) throws Exception {
         byte[] keyBytes = Base64.getDecoder().decode(base64PublicKey);
@@ -46,7 +46,7 @@ public class RSAUtil {
      *
      * @param base64PrivateKey base64编码
      * @return 密钥
-     * @throws Exception
+     * @throws Exception Exception
      */
     private static PrivateKey getPrivateKey(String base64PrivateKey) throws Exception {
         byte[] keyBytes = Base64.getDecoder().decode(base64PrivateKey);
@@ -61,7 +61,7 @@ public class RSAUtil {
      * @param data 明文
      * @param publicKey 公钥
      * @return 密文
-     * @throws Exception
+     * @throws Exception Exception
      */
     public static String encrypt(String data, String publicKey) throws Exception {
         PublicKey key = getPublicKey(publicKey);
@@ -77,7 +77,7 @@ public class RSAUtil {
      * @param encryptedData 密文
      * @param privateKey 私钥
      * @return 明文
-     * @throws Exception
+     * @throws Exception Exception
      */
     public static String decrypt(String encryptedData, String privateKey) throws Exception {
         PrivateKey key = getPrivateKey(privateKey);

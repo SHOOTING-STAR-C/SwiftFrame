@@ -7,6 +7,10 @@
     <file url="file://$PROJECT_DIR$/swift-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/swift-datasource/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/swift-encrypt/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/swift-jwt/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/swift-login/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/swift-redis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/swift-security/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/swift-start/src/main/java" charset="UTF-8" />
   </component>
 </project>

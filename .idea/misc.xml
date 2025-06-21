@@ -10,6 +10,10 @@
         <option value="$PROJECT_DIR$/swift-datasourse/pom.xml" />
         <option value="$PROJECT_DIR$/encrypt/pom.xml" />
         <option value="$PROJECT_DIR$/swift-encrypt/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-redis/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-jwt/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-security/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-login/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

@@ -16,7 +16,8 @@ public enum ResultCode {
     // 程序异常 (PUB-5XX-XX)
     INTERNAL_SERVER_ERROR("PUB-500-00", "服务器内部错误"),
     SERVICE_UNAVAILABLE("PUB-503-00", "服务不可用"),
-    DATABASE_ERROR("PUB-504-00", "数据库操作异常"),
+    DATABASE_ERROR("PUB-500-01", "数据库操作异常"),
+    ENCRYPT_ERROR("PUB-500-02", "加解密异常"),
     NETWORK_ERROR("PUB-505-00", "网络通信异常"),
     RESOURCE_NOT_FOUND("PUB-404-00", "资源不存在"),
 

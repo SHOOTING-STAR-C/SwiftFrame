@@ -22,11 +22,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.star</groupId>
-            <artifactId>swift-datasource</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
     </dependencies>
 
 </project>

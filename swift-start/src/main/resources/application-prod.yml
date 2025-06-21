@@ -11,10 +11,19 @@ spring:
         username: root
         password: root
         validation-query: SELECT 1 FROM DUAL
+  data:
+    redis:
+      host: 192.168.31.154
+      port: 6379
+      database: 0
 #日志
 logging:
   level:
     root: info
+security:
+  auth:
+    login-path: /api/auth/login
+    white-list: /api/auth/**, /swagger-ui/**, /v3/api-docs/**
 #加密
 crypto:
   mode: aes

@@ -1,4 +1,4 @@
-package com.star.swiftencrypt.util;
+package com.star.swiftencrypt.utils;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -25,7 +25,7 @@ public class AESUtil {
      * @param data 明文
      * @param key  密钥
      * @return 密文
-     * @throws Exception
+     * @throws Exception Exception
      */
     public static String encrypt(String data, String key) throws Exception {
         // 生成随机IV
@@ -58,7 +58,7 @@ public class AESUtil {
      * @param encryptedData 密文
      * @param key           密钥
      * @return 明文
-     * @throws Exception
+     * @throws Exception Exception
      */
     public static String decrypt(String encryptedData, String key) throws Exception {
         // 解码Base64
