@@ -30,6 +30,10 @@
         </dependency>
         <dependency>
             <groupId>com.star</groupId>
+            <artifactId>swift-encrypt-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.star</groupId>
             <artifactId>swift-login</artifactId>
         </dependency>
         <!--常用依赖-->
@@ -45,10 +49,28 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.star.swiftstart.SwiftStartApplication</mainClass>
+                    <mainClass>com.star.swiftStart.SwiftStartApplication</mainClass>
                     <!-- 添加分类器避免冲突 -->
                     <classifier>exec</classifier>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.star</groupId>
+                <artifactId>swift-encrypt-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-aes-key</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>generate</goal> <!-- 使用正确的目标名称 -->
+                        </goals>
+                        <configuration>
+                            <propertyName>encryption.aes-key</propertyName>
+                            <configFile>src/main/resources/application-${app.env}.yml</configFile>
+                            <encrypt>true</encrypt>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

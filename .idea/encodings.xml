@@ -6,6 +6,8 @@
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/swift-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/swift-datasource/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/swift-encrypt-plugin/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/swift-encrypt-plugin/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/swift-encrypt/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/swift-jwt/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/swift-login/src/main/java" charset="UTF-8" />

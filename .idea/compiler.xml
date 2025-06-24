@@ -13,13 +13,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$PROJECT_DIR$/../../java_tool/apache-maven-3.9.9/repo/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="swift-encrypt" />
         <module name="swift-jwt" />
         <module name="swift-login" />
         <module name="swift-datasource" />
         <module name="swift-start" />
+        <module name="swift-encrypt-plugin" />
         <module name="swift-common" />
         <module name="swift-security" />
         <module name="swift-redis" />
@@ -36,6 +37,7 @@
       <module name="swift-common" options="-parameters" />
       <module name="swift-datasource" options="-parameters" />
       <module name="swift-encrypt" options="-parameters" />
+      <module name="swift-encrypt-plugin" options="-parameters" />
       <module name="swift-jwt" options="-parameters" />
       <module name="swift-login" options="-parameters" />
       <module name="swift-redis" options="-parameters" />
