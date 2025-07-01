@@ -1,8 +1,6 @@
 package com.star.swiftEncrypt.service;
 
 
-import java.security.KeyPair;
-
 /**
  * 加密服务（整合AES和RSA）
  *
@@ -40,19 +38,6 @@ public interface CryptoService {
      * 混合解密
      */
     String hybridDecrypt(String encrypted);
-
-    /**
-     * 生成RSA密钥对（Base64编码）
-     */
-    KeyPair generateRSAKeyPair() throws Exception;
-
-
-    /**
-     * 生成并设置新的RSA密钥对
-     *
-     * @throws Exception
-     */
-    void generateAndSetNewRsaKeys() throws Exception;
 
     /**
      * 判断加密模式

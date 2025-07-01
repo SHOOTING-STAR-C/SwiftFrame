@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.security.KeyPair;
-import java.util.Base64;
 
 /**
  * 加密服务（整合AES和RSA）
@@ -29,7 +27,7 @@ public class CryptoServiceImpl implements CryptoService {
      */
     public String encryptWithAES(String data) {
         try {
-            return AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey());
+            return AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey(),cryptoEncryptProperties.getAes().getSize());
         } catch (Exception e) {
             throw new CryptoException("AES加密失败", e);
         }
@@ -40,7 +38,7 @@ public class CryptoServiceImpl implements CryptoService {
      */
     public String decryptWithAES(String encryptedData) {
         try {
-            return AesGmcUtil.decrypt(encryptedData, cryptoEncryptProperties.getAesKey());
+            return AesGmcUtil.decrypt(encryptedData, cryptoEncryptProperties.getAesKey(),cryptoEncryptProperties.getAes().getSize());
         } catch (Exception e) {
             throw new CryptoException("AES解密失败", e);
         }
@@ -76,7 +74,7 @@ public class CryptoServiceImpl implements CryptoService {
     public String hybridEncrypt(String data) {
         try {
             String encryptedAesKey = RsaUtil.encrypt(cryptoEncryptProperties.getAesKey(), cryptoEncryptProperties.getRsaPublicKey());
-            String encryptedData = AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey());
+            String encryptedData = AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey(), cryptoEncryptProperties.getAes().getSize());
             return encryptedAesKey + "|" + encryptedData;
         } catch (Exception e) {
             throw new CryptoException("混合加密失败", e);
@@ -92,30 +90,10 @@ public class CryptoServiceImpl implements CryptoService {
             if (parts.length != 2) throw new IllegalArgumentException("无效的加密格式");
 
             String decryptedAesKey = RsaUtil.decrypt(parts[0], cryptoEncryptProperties.getRsaPrivateKey());
-            return AesGmcUtil.decrypt(parts[1], decryptedAesKey);
+            return AesGmcUtil.decrypt(parts[1], decryptedAesKey,cryptoEncryptProperties.getAes().getSize());
         } catch (Exception e) {
             throw new CryptoException("混合解密失败", e);
         }
-    }
-
-    /**
-     * 生成RSA密钥对（Base64编码）
-     */
-    public KeyPair generateRSAKeyPair() throws Exception {
-        return RsaUtil.generateKeyPair();
-    }
-
-
-    /**
-     * 生成并设置新的RSA密钥对
-     *
-     * @throws Exception Exception
-     */
-    public void generateAndSetNewRsaKeys() throws Exception {
-        KeyPair keyPair = generateRSAKeyPair();
-        String rsaPublicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
-        String rsaPrivateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
-        cryptoEncryptProperties.getRsa().setKeys(rsaPublicKey, rsaPrivateKey);
     }
 
     /**

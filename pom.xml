@@ -79,11 +79,6 @@
             </dependency>
             <dependency>
                 <groupId>com.star</groupId>
-                <artifactId>swift-encrypt-plugin</artifactId>
-                <version>${swift.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.star</groupId>
                 <artifactId>swift-redis</artifactId>
                 <version>${swift.version}</version>
             </dependency>
@@ -205,6 +200,8 @@
                     <configuration>
                         <profiles>
                             <profile>${app.env}</profile>
+                            <profile>${aes.key.size}</profile>
+                            <profile>${rsa.key.size}</profile>
                         </profiles>
                     </configuration>
                 </plugin>
@@ -214,7 +211,7 @@
                     <version>${maven.resources.plugin.version}</version>
                     <configuration>
                         <delimiters>
-                            <delimiter>#</delimiter>
+                            <delimiter>@</delimiter>
                         </delimiters>
                         <useDefaultDelimiters>false</useDefaultDelimiters>
                     </configuration>
@@ -262,6 +259,8 @@
             <properties>
                 <build.profile.id>dev</build.profile.id>
                 <app.env>dev</app.env>
+                <aes.key.size>256</aes.key.size>
+                <rsa.key.size>2048</rsa.key.size>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -274,6 +273,8 @@
             <properties>
                 <build.profile.id>test</build.profile.id>
                 <app.env>test</app.env>
+                <aes.key.size>256</aes.key.size>
+                <rsa.key.size>2048</rsa.key.size>
             </properties>
         </profile>
 
@@ -283,6 +284,8 @@
             <properties>
                 <build.profile.id>prod</build.profile.id>
                 <app.env>prod</app.env>
+                <aes.key.size>256</aes.key.size>
+                <rsa.key.size>2048</rsa.key.size>
             </properties>
         </profile>
     </profiles>

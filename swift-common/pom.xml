@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>swift-common</artifactId>
+    <name>swift-common</name>
+    <description>swift-common</description>
 
     <dependencies>
         <!-- 库模块只需核心依赖 -->

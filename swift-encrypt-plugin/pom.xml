@@ -2,10 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>swift-encrypt-plugin</artifactId>
-    <name>swift-encrypt-plugin</name>
-    <description>swift-encrypt-plugin</description>
-    <packaging>maven-plugin</packaging>
     <parent>
         <groupId>com.star</groupId>
         <artifactId>SwiftFrame</artifactId>
@@ -13,21 +9,27 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <packaging>maven-plugin</packaging>
+
+    <artifactId>swift-encrypt-plugin</artifactId>
+    <name>swift-encrypt-plugin</name>
+    <description>swift-encrypt-plugin</description>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-encrypt</artifactId>
+        </dependency>
         <!-- 添加Spring环境支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
-        <!--<dependency>
-            <groupId>com.star</groupId>
-            <artifactId>swift-encrypt</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -35,7 +37,6 @@
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <scope>provided</scope>
         </dependency>
         <!-- YAML处理 -->
         <dependency>
@@ -49,28 +50,24 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>${maven.plugin.plugin}</version>
                 <configuration>
-                    <goalPrefix>aes</goalPrefix>
+                    <goalPrefix>encrypt</goalPrefix>
                 </configuration>
                 <executions>
                     <!-- 必须添加此执行生成插件描述符 -->
                     <execution>
                         <id>default-descriptor</id>
                         <phase>process-classes</phase>
-                        <goals>
+                        <!--<goals>
                             <goal>descriptor</goal>
-                        </goals>
+                        </goals>-->
                     </execution>
-                    <!-- 添加 help 目标支持 -->
-<!--                    <execution>-->
-<!--                        <id>generate-helpmojo</id>-->
-<!--                        <goals>-->
-<!--                            <goal>helpmojo</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
                 </executions>
             </plugin>
+            <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+        </plugin>
         </plugins>
     </build>
 

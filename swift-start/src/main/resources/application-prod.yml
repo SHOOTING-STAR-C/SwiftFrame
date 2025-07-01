@@ -1,8 +1,6 @@
 server:
   port: 8081
-
 spring:
-  #数据源
   datasource:
     druid:
       master:
@@ -16,7 +14,6 @@ spring:
       host: 192.168.31.154
       port: 6379
       database: 0
-#日志
 logging:
   level:
     root: info
@@ -24,11 +21,10 @@ security:
   auth:
     login-path: /api/auth/login
     white-list: /api/auth/**, /swagger-ui/**, /v3/api-docs/**
-#加密
 crypto:
   mode: aes
   aes:
-    key: 123456
+    key: UzZLeTFjOE1ram5XVm1ESzZCS1AzbHMzSDJsSTUvUmV0K2R1em1IOHVwdz0=
   rsa:
-    public-key: 123456
-    private-key: 123456
+    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0YPuoULpiTYinXz+F4T9SyjVGXIiiiaNKpyrtwtxWlNUR3yn1d8p8EJUFasaKLelhX+7Ket/uG/hqjoR9yxXEQAcqvJ5KqPJlra2V/15BWAQuo0k32ArKttwjS5UVHbSVIx7vdxo6ENsXylS7cG9V+QusvJqG0BDeHsS4Z05f99v1hT+6kHx0H7w071Gwdh7s4a7QGamerSCDKGcoM/j50oOLuTzgmLWeHKzbZAFfBVBV2sRka5IoH0gjLRO6htjJMBaeSDJpzjysX7Rte7DVEeqjDKXcTyCfRgbu+5lqrUCRula8cPJo6VjdnObUmG4V05zBpkkOi88f6tJvt7THQIDAQAB
+    private-key: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDRg+6hQumJNiKdfP4XhP1LKNUZciKKJo0qnKu3C3FaU1RHfKfV3ynwQlQVqxoot6WFf7sp63+4b+GqOhH3LFcRAByq8nkqo8mWtrZX/XkFYBC6jSTfYCsq23CNLlRUdtJUjHu93GjoQ2xfKVLtwb1X5C6y8mobQEN4exLhnTl/32/WFP7qQfHQfvDTvUbB2HuzhrtAZqZ6tIIMoZygz+PnSg4u5POCYtZ4crNtkAV8FUFXaxGRrkigfSCMtE7qG2MkwFp5IMmnOPKxftG17sNUR6qMMpdxPIJ9GBu77mWqtQJG6Vrxw8mjpWN2c5tSYbhXTnMGmSQ6Lzx/q0m+3tMdAgMBAAECggEADDgE8k/axayL+2zRzHEuV37ft16bapIB1hwcfJiffqcmSWQDosVjfAEA8ow6bT5RRNZJ8KbXbvF2yEzKMETcUArBC+wyX6en3FEMFINya9CU29ha7+cQesJLpQQwbrDzpnLUoveS1lww8AzS1WMLkJpnadAZmudrd+rk6JZY3ImXnUNjfhYUXsfzhq5dcid6kXqqIgBGIvwBEuHi5lOQrBvRs7oB6gnXU+LYII6VV2GVXut8g70SUh6aD0aKzVsQaFFquMDx3zMqGxTmaGXSgXTpFYTGa0WXql+Rhsqc46JXXOlWoBh/nRnYVFGiAjk2B2hruJ9EH7/iq6XbGfl8kQKBgQDm5AUZdD6s2A9+QXC2ehkbiwR9c0yym0X8SEpj+xcK0Nk4vjdqBryL3mcy+1F8IkT+ZGta36jvPn/q8+k0t0Lp/rjAW6lseM5i2B6G9Y/mXuTw7ko65VU1xvAft10yqIByFZTufDcHEdSPiaPOLCpPV+MkENaiOINfjzR8cHurEQKBgQDoTNMDCiB2zoSxX1GHPgvUH9Sc2xnGpP/swrgZU29Wo8AqoQdEv4V94xGRa8LYDcIUG7QxhSfjwpbkakZsK9U5Tvzxrz2qB70qdD4maul7paLD/f+sp/HXhzdNLZaSyf6OT79GexbztAzprqsyl+HTzJoijjX5gH19q50AooBvTQKBgDhpRYWujRGVyFNEkdFDi5bbJEGyRe7tWPAGiYZb9olB9ZCTiN5yvuY9dGFUXdhCVzEAP+p38sJhNsekyDmE/OhGv8TfoElMSsCDpRG8NWhHjw/+aExzc5or/McC+dZCrP8ynqyV1Kv5g0F+k3Lv/3ZbNre9FXOU8yQJzP0KTmzBAoGBAJuhlKFtsHBITggTZyinff9A0A3CkJNQShHSJsr45hfynzUwKxF5CrNbZJK70o8zMHqOUPv4TNA/tx4SwVmJSFIbxEUbdcGra6W8uUK9z+1B/Dk4u4lt/w25jmhLiZyQbdXkQa6zmp3tW9VXa2T68pYWdpF+G1UsK2b9ibM6K7flAoGBAKrNg8bA7kMcDHgZok4qflzIplLNplwj/wUP7GBqWmVRJ5YqQi3ehk8EZ+K3ylMrtHLJ+1sW6CGF/ghmY4kSPqYzeMCKlJWZ0mZffl+0kJ8b1+bAi7DtGOdYXCdiYGa7yUSzIW10tzgWL8CuVoEl70JYpX1bu/H5ZAYxSkL417S6

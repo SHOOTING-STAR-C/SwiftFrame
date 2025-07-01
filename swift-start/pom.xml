@@ -30,10 +30,6 @@
         </dependency>
         <dependency>
             <groupId>com.star</groupId>
-            <artifactId>swift-encrypt-plugin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.star</groupId>
             <artifactId>swift-login</artifactId>
         </dependency>
         <!--常用依赖-->
@@ -59,15 +55,17 @@
                 <artifactId>swift-encrypt-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>generate-aes-key</id>
                         <phase>initialize</phase>
+                        <id>generate-aes-key</id>
                         <goals>
-                            <goal>generate</goal> <!-- 使用正确的目标名称 -->
+                            <goal>generate</goal><!--生成指令-->
                         </goals>
                         <configuration>
-                            <propertyName>encryption.aes-key</propertyName>
-                            <configFile>src/main/resources/application-${app.env}.yml</configFile>
-                            <encrypt>true</encrypt>
+                            <configFilePath>${project.basedir}/src/main/resources/application-${app.env}.yml</configFilePath>
+                            <aesPropertyName>crypto.aes.key</aesPropertyName>
+                            <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
+                            <rsaPrivateKeyPropertyName>crypto.rsa.private-key</rsaPrivateKeyPropertyName>
+                            <format>yml</format>
                         </configuration>
                     </execution>
                 </executions>

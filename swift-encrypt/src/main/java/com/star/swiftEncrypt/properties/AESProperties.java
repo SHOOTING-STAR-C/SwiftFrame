@@ -12,4 +12,5 @@ import lombok.Setter;
 @Setter
 public class AESProperties {
     private String key;
+    private int size;
 }

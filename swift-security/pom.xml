@@ -8,6 +8,7 @@
         <version>1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+
     <artifactId>swift-security</artifactId>
     <name>swift-security</name>
     <description>swift-security</description>

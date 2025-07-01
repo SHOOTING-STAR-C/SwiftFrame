@@ -14,7 +14,7 @@ import java.util.Scanner;
  * @author SHOOTING_STAR_C
  */
 public class AesGcmKeyGenerator {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchAlgorithmException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("=== AES-GCM 密钥生成工具 ===");
@@ -27,7 +27,7 @@ public class AesGcmKeyGenerator {
         int formatChoice = scanner.nextInt();
 
         // 生成密钥
-        SecretKey secretKey = generateAesGcmKey(keySize);
+        SecretKey secretKey = AesGmcUtil.generateAesKey(keySize);
 
         // 输出结果
         printKey(secretKey, formatChoice);

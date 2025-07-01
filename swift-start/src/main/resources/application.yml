@@ -3,4 +3,10 @@ server:
 
 spring:
   profiles:
-    active: #app.env#
+    active: @app.env@
+
+crypto:
+  aes:
+    size: @aes.key.size@
+  rsa:
+    size: @rsa.key.size@

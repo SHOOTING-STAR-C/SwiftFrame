@@ -1,10 +1,12 @@
 package com.star.swiftEncrypt.utils;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -16,7 +18,6 @@ import java.util.Base64;
 public class AesGmcUtil {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
-    private static final int GCM_TAG_LENGTH = 256; // 128位认证标签
     private static final int GCM_IV_LENGTH = 12;   // 12字节初始化向量（推荐长度）
 
     /**
@@ -27,7 +28,7 @@ public class AesGmcUtil {
      * @return 密文
      * @throws Exception Exception
      */
-    public static String encrypt(String data, String key) throws Exception {
+    public static String encrypt(String data, String key, int size) throws Exception {
         // 生成随机IV
         byte[] iv = new byte[GCM_IV_LENGTH];
         SecureRandom secureRandom = new SecureRandom();
@@ -38,7 +39,7 @@ public class AesGmcUtil {
 
         // 初始化Cipher
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+        GCMParameterSpec parameterSpec = new GCMParameterSpec(size, iv);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
 
         // 加密数据
@@ -60,7 +61,7 @@ public class AesGmcUtil {
      * @return 明文
      * @throws Exception Exception
      */
-    public static String decrypt(String encryptedData, String key) throws Exception {
+    public static String decrypt(String encryptedData, String key, int size) throws Exception {
         // 解码Base64
         byte[] combined = Base64.getDecoder().decode(encryptedData);
 
@@ -75,11 +76,36 @@ public class AesGmcUtil {
 
         // 初始化Cipher
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+        GCMParameterSpec parameterSpec = new GCMParameterSpec(size, iv);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
 
         // 解密数据
         byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
         return new String(decryptedBytes, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 生成AES密钥
+     *
+     * @return SecretKey
+     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
+     */
+    public static SecretKey generateAesKey(int aesKeySize) throws NoSuchAlgorithmException {
+        validateKeySize(aesKeySize);
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(aesKeySize, SecureRandom.getInstanceStrong());
+        return keyGenerator.generateKey();
+    }
+
+    /**
+     * 校验密钥长度是否合规
+     *
+     * @param keySize keySize
+     */
+    private static void validateKeySize(int keySize) {
+        if (keySize != 128 && keySize != 192 && keySize != 256) {
+            throw new IllegalArgumentException("无效的密钥长度: " + keySize +
+                    ". 支持的长度: 128, 192, 256");
+        }
     }
 }
