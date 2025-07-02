@@ -24,22 +24,24 @@ public class AesGmcUtil {
      * 加密
      *
      * @param data 明文
-     * @param key  密钥
+     * @param base64Key  密钥
      * @return 密文
      * @throws Exception Exception
      */
-    public static String encrypt(String data, String key, int size) throws Exception {
+    public static String encrypt(String data, String base64Key) throws Exception {
         // 生成随机IV
         byte[] iv = new byte[GCM_IV_LENGTH];
         SecureRandom secureRandom = new SecureRandom();
         secureRandom.nextBytes(iv);
 
-        // 创建密钥规范
-        SecretKey secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+        // Base64解码密钥
+        byte[] keyBytes = Base64.getDecoder().decode(base64Key);
+        SecretKey secretKey = new SecretKeySpec(keyBytes, ALGORITHM);
 
-        // 初始化Cipher
+
+        // 初始化Cipher - 固定认证标签长度为128位
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        GCMParameterSpec parameterSpec = new GCMParameterSpec(size, iv);
+        GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv); // 固定128位标签
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
 
         // 加密数据
@@ -57,11 +59,11 @@ public class AesGmcUtil {
      * 解密
      *
      * @param encryptedData 密文
-     * @param key           密钥
+     * @param base64Key     密钥
      * @return 明文
      * @throws Exception Exception
      */
-    public static String decrypt(String encryptedData, String key, int size) throws Exception {
+    public static String decrypt(String encryptedData, String base64Key) throws Exception {
         // 解码Base64
         byte[] combined = Base64.getDecoder().decode(encryptedData);
 
@@ -71,12 +73,15 @@ public class AesGmcUtil {
         System.arraycopy(combined, 0, iv, 0, iv.length);
         System.arraycopy(combined, iv.length, encryptedBytes, 0, encryptedBytes.length);
 
-        // 创建密钥规范
-        SecretKey secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), ALGORITHM);
 
-        // 初始化Cipher
+        // Base64解码密钥
+        byte[] keyBytes = Base64.getDecoder().decode(base64Key);
+        SecretKey secretKey = new SecretKeySpec(keyBytes, ALGORITHM);
+
+
+        // 初始化Cipher - 固定认证标签长度为128位
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        GCMParameterSpec parameterSpec = new GCMParameterSpec(size, iv);
+        GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv); // 固定128位标签
         cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
 
         // 解密数据

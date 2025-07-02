@@ -27,7 +27,7 @@ public class CryptoServiceImpl implements CryptoService {
      */
     public String encryptWithAES(String data) {
         try {
-            return AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey(),cryptoEncryptProperties.getAes().getSize());
+            return AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey());
         } catch (Exception e) {
             throw new CryptoException("AES加密失败", e);
         }
@@ -38,7 +38,7 @@ public class CryptoServiceImpl implements CryptoService {
      */
     public String decryptWithAES(String encryptedData) {
         try {
-            return AesGmcUtil.decrypt(encryptedData, cryptoEncryptProperties.getAesKey(),cryptoEncryptProperties.getAes().getSize());
+            return AesGmcUtil.decrypt(encryptedData, cryptoEncryptProperties.getAesKey());
         } catch (Exception e) {
             throw new CryptoException("AES解密失败", e);
         }
@@ -74,7 +74,7 @@ public class CryptoServiceImpl implements CryptoService {
     public String hybridEncrypt(String data) {
         try {
             String encryptedAesKey = RsaUtil.encrypt(cryptoEncryptProperties.getAesKey(), cryptoEncryptProperties.getRsaPublicKey());
-            String encryptedData = AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey(), cryptoEncryptProperties.getAes().getSize());
+            String encryptedData = AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey());
             return encryptedAesKey + "|" + encryptedData;
         } catch (Exception e) {
             throw new CryptoException("混合加密失败", e);
@@ -90,7 +90,7 @@ public class CryptoServiceImpl implements CryptoService {
             if (parts.length != 2) throw new IllegalArgumentException("无效的加密格式");
 
             String decryptedAesKey = RsaUtil.decrypt(parts[0], cryptoEncryptProperties.getRsaPrivateKey());
-            return AesGmcUtil.decrypt(parts[1], decryptedAesKey,cryptoEncryptProperties.getAes().getSize());
+            return AesGmcUtil.decrypt(parts[1], decryptedAesKey);
         } catch (Exception e) {
             throw new CryptoException("混合解密失败", e);
         }

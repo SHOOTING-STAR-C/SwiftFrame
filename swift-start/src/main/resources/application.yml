@@ -7,6 +7,6 @@ spring:
 
 crypto:
   aes:
-    size: @aes.key.size@
+    size: @crypto.aes.size@
   rsa:
-    size: @rsa.key.size@
+    size: @crypto.rsa.size@

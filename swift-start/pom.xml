@@ -56,15 +56,36 @@
                 <executions>
                     <execution>
                         <phase>initialize</phase>
-                        <id>generate-aes-key</id>
+                        <id>generate-key-and-encrypt</id>
                         <goals>
-                            <goal>generate</goal><!--生成指令-->
+                            <goal>generate</goal><!--生成密钥指令-->
+                            <goal>encrypt-config</goal><!--生成密钥指令-->
                         </goals>
                         <configuration>
-                            <configFilePath>${project.basedir}/src/main/resources/application-${app.env}.yml</configFilePath>
+                            <configFilePath>${project.basedir}/src/main/resources/application-${app.env}.yml
+                            </configFilePath>
                             <aesPropertyName>crypto.aes.key</aesPropertyName>
                             <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
-                            <rsaPrivateKeyPropertyName>crypto.rsa.private-key</rsaPrivateKeyPropertyName>
+                            <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
+                            <aesKeySizePropertyName>crypto.aes.size</aesKeySizePropertyName>
+                            <rsaKeySizePropertyName>crypto.rsa.size</rsaKeySizePropertyName>
+                            <format>yml</format>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>clean</phase>
+                        <id>generate-key-and-decrypt</id>
+                        <goals>
+                            <goal>decrypt-config</goal><!--生成密钥指令-->
+                        </goals>
+                        <configuration>
+                            <configFilePath>${project.basedir}/src/main/resources/application-${app.env}.yml
+                            </configFilePath>
+                            <aesPropertyName>crypto.aes.key</aesPropertyName>
+                            <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
+                            <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
+                            <aesKeySizePropertyName>crypto.aes.size</aesKeySizePropertyName>
+                            <rsaKeySizePropertyName>crypto.rsa.size</rsaKeySizePropertyName>
                             <format>yml</format>
                         </configuration>
                     </execution>

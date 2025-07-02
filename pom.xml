@@ -16,7 +16,6 @@
         <module>swift-datasource</module>
         <module>swift-common</module>
         <module>swift-encrypt</module>
-        <module>swift-encrypt-plugin</module>
         <module>swift-redis</module>
         <module>swift-jwt</module>
         <module>swift-security</module>
@@ -168,6 +167,13 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
                 <version>${maven.plugin.api}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven.plugin.api}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven.plugin-tools</groupId>
@@ -200,8 +206,8 @@
                     <configuration>
                         <profiles>
                             <profile>${app.env}</profile>
-                            <profile>${aes.key.size}</profile>
-                            <profile>${rsa.key.size}</profile>
+                            <profile>${crypto.aes.size}</profile>
+                            <profile>${crypto.rsa.size}</profile>
                         </profiles>
                     </configuration>
                 </plugin>
@@ -259,8 +265,8 @@
             <properties>
                 <build.profile.id>dev</build.profile.id>
                 <app.env>dev</app.env>
-                <aes.key.size>256</aes.key.size>
-                <rsa.key.size>2048</rsa.key.size>
+                <crypto.aes.size>256</crypto.aes.size>
+                <crypto.rsa.size>2048</crypto.rsa.size>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -273,8 +279,8 @@
             <properties>
                 <build.profile.id>test</build.profile.id>
                 <app.env>test</app.env>
-                <aes.key.size>256</aes.key.size>
-                <rsa.key.size>2048</rsa.key.size>
+                <crypto.aes.size>256</crypto.aes.size>
+                <crypto.rsa.size>2048</crypto.rsa.size>
             </properties>
         </profile>
 
@@ -284,8 +290,8 @@
             <properties>
                 <build.profile.id>prod</build.profile.id>
                 <app.env>prod</app.env>
-                <aes.key.size>256</aes.key.size>
-                <rsa.key.size>2048</rsa.key.size>
+                <crypto.aes.size>256</crypto.aes.size>
+                <crypto.rsa.size>2048</crypto.rsa.size>
             </properties>
         </profile>
     </profiles>

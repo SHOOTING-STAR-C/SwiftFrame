@@ -3,7 +3,7 @@ package com.star.swiftEncrypt.utils;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -74,16 +74,16 @@ public class RsaUtil {
         cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
         byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
 
-        // 分段加密
-        PKCS1Padding(bytes, cipher, MAX_ENCRYPT_BLOCK);
+        // 使用分段加密方法
+        byte[] encryptedBytes = encryptInBlocks(bytes, cipher);
 
-        return Base64.getEncoder().encodeToString(bytes);
+        return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
     /**
-     * 私钥解密
+     * 私钥解密（修复版）
      *
-     * @param encryptedData 密文
+     * @param encryptedData 密文（Base64编码）
      * @param privateKey    私钥
      * @return 明文
      * @throws Exception Exception
@@ -92,31 +92,60 @@ public class RsaUtil {
         byte[] data = Base64.getDecoder().decode(encryptedData);
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
         cipher.init(Cipher.DECRYPT_MODE, getPrivateKey(privateKey));
-
         // 分段解密
-        PKCS1Padding(data, cipher, MAX_DECRYPT_BLOCK);
-        return Base64.getEncoder().encodeToString(data);
+        return new String(decryptInBlocks(data, cipher), StandardCharsets.UTF_8);
     }
 
-    private static void PKCS1Padding(byte[] data, Cipher cipher, int maxDecryptBlock) throws IllegalBlockSizeException, BadPaddingException {
+    /**
+     * 分段加密实现
+     *
+     * @param data   原始数据字节数组
+     * @param cipher 已初始化的Cipher对象
+     * @return 加密后的字节数组
+     */
+    private static byte[] encryptInBlocks(byte[] data, Cipher cipher)
+            throws IllegalBlockSizeException, BadPaddingException {
         int inputLen = data.length;
+        return getBytes(data, cipher, inputLen, RsaUtil.MAX_ENCRYPT_BLOCK);
+    }
+
+    /**
+     * 分段解密实现
+     *
+     * @param encryptedData 加密数据字节数组
+     * @param cipher        已初始化的Cipher对象
+     * @return 解密后的字节数组
+     */
+    private static byte[] decryptInBlocks(byte[] encryptedData, Cipher cipher)
+            throws IllegalBlockSizeException, BadPaddingException {
+        int inputLen = encryptedData.length;
+        int blockSize = cipher.getBlockSize(); // 获取实际块大小
+        int maxBlockSize = (blockSize > 0) ? blockSize : MAX_DECRYPT_BLOCK;
+
+        return getBytes(encryptedData, cipher, inputLen, maxBlockSize);
+    }
+
+    /**
+     * 提取Bytes
+     * @param encryptedData encryptedData
+     * @param cipher cipher
+     * @param inputLen inputLen
+     * @param maxBlockSize maxBlockSize
+     * @return byte[]
+     * @throws IllegalBlockSizeException IllegalBlockSizeException
+     * @throws BadPaddingException BadPaddingException
+     */
+    private static byte[] getBytes(byte[] encryptedData, Cipher cipher, int inputLen, int maxBlockSize) throws IllegalBlockSizeException, BadPaddingException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         int offset = 0;
-        byte[] cache;
-        byte[] decryptedData = new byte[0];
 
         while (inputLen - offset > 0) {
-            if (inputLen - offset > maxDecryptBlock) {
-                cache = cipher.doFinal(data, offset, maxDecryptBlock);
-            } else {
-                cache = cipher.doFinal(data, offset, inputLen - offset);
-            }
-            offset += maxDecryptBlock;
-
-            // 合并结果
-            byte[] temp = new byte[decryptedData.length + cache.length];
-            System.arraycopy(decryptedData, 0, temp, 0, decryptedData.length);
-            System.arraycopy(cache, 0, temp, decryptedData.length, cache.length);
-            decryptedData = temp;
+            int len = Math.min(inputLen - offset, maxBlockSize);
+            byte[] decryptedBlock = cipher.doFinal(encryptedData, offset, len);
+            outputStream.write(decryptedBlock, 0, decryptedBlock.length);
+            offset += len;
         }
+
+        return outputStream.toByteArray();
     }
 }
