@@ -1,8 +1,10 @@
 package com.star.swiftSecurity.conffig;
 
 import com.star.swiftSecurity.filter.JwtAuthenticationFilter;
+import com.star.swiftSecurity.properties.SecurityProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,22 +24,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  *
  * @author SHOOTING_STAR_C
  */
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-@Slf4j
+@EnableConfigurationProperties(SecurityProperties.class)
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final SecurityProperties securityProperties;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+        log.warn(securityProperties.getWhiteList());
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(securityProperties.getWhitelistArray()).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

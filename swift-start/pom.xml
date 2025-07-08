@@ -26,6 +26,10 @@
         </dependency>
         <dependency>
             <groupId>com.star</groupId>
+            <artifactId>swift-mybatis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.star</groupId>
             <artifactId>swift-encrypt</artifactId>
         </dependency>
         <dependency>
@@ -84,8 +88,6 @@
                             <aesPropertyName>crypto.aes.key</aesPropertyName>
                             <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
                             <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
-                            <aesKeySizePropertyName>crypto.aes.size</aesKeySizePropertyName>
-                            <rsaKeySizePropertyName>crypto.rsa.size</rsaKeySizePropertyName>
                             <format>yml</format>
                         </configuration>
                     </execution>

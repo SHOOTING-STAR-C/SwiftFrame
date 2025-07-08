@@ -81,7 +81,7 @@ public class RsaUtil {
     }
 
     /**
-     * 私钥解密（修复版）
+     * 私钥解密
      *
      * @param encryptedData 密文（Base64编码）
      * @param privateKey    私钥

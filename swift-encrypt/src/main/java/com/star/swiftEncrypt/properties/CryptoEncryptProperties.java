@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "crypto")
 public class CryptoEncryptProperties {
-    private String mode; // 加密模式
     private AESProperties aes; // 嵌套AES配置
     private RSAProperties rsa; // 嵌套RSA配置
 

@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>swift-datasource</artifactId>
-    <name>swift-datasource</name>
-    <description>swift-datasource</description>
+    <name>swift-datasource-mybatis</name>
+    <description>swift-datasource-mybatis</description>
 
     <dependencies>
         <dependency>
@@ -24,13 +24,13 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

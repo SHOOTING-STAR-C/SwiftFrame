@@ -27,7 +27,8 @@ public class CryptoServiceImpl implements CryptoService {
      */
     public String encryptWithAES(String data) {
         try {
-            return AesGmcUtil.encrypt(data, cryptoEncryptProperties.getAesKey());
+            String aesKey = RsaUtil.decrypt(cryptoEncryptProperties.getAesKey(), cryptoEncryptProperties.getAesKey());
+            return AesGmcUtil.encrypt(data, aesKey);
         } catch (Exception e) {
             throw new CryptoException("AES加密失败", e);
         }
@@ -38,7 +39,8 @@ public class CryptoServiceImpl implements CryptoService {
      */
     public String decryptWithAES(String encryptedData) {
         try {
-            return AesGmcUtil.decrypt(encryptedData, cryptoEncryptProperties.getAesKey());
+            String aesKey = RsaUtil.decrypt(cryptoEncryptProperties.getAesKey(), cryptoEncryptProperties.getRsaPrivateKey());
+            return AesGmcUtil.decrypt(encryptedData, aesKey);
         } catch (Exception e) {
             throw new CryptoException("AES解密失败", e);
         }
@@ -95,15 +97,4 @@ public class CryptoServiceImpl implements CryptoService {
             throw new CryptoException("混合解密失败", e);
         }
     }
-
-    /**
-     * 判断加密模式
-     *
-     * @return boolean
-     */
-    public boolean isRsaModeEnabled() {
-        return "rsa".equalsIgnoreCase(cryptoEncryptProperties.getMode());
-    }
-
-
 }
