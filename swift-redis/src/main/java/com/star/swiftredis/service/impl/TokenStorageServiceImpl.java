@@ -1,5 +1,6 @@
 package com.star.swiftredis.service.impl;
 
+import com.star.swiftCommon.properties.CommonProperties;
 import com.star.swiftredis.service.TokenStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,16 +18,22 @@ import java.util.concurrent.TimeUnit;
 public class TokenStorageServiceImpl implements TokenStorageService {
 
     private final RedisTemplate<String, String> redisTemplate;
+    private final CommonProperties commonProperties;
 
     /**
      * 持久化Token
      *
+     * @param type       类型
      * @param username   用户名
      * @param token      token
      * @param expiration 有效期
      */
-    public void storeToken(String username, String token, long expiration) {
-        redisTemplate.opsForValue().set(username, token, expiration, TimeUnit.MILLISECONDS);
+    public void storeToken(String type, String username, String token, long expiration) {
+        redisTemplate.opsForValue().set(
+                commonProperties.getName() + "_" + type + "_" + username,
+                token,
+                expiration,
+                TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -35,8 +42,8 @@ public class TokenStorageServiceImpl implements TokenStorageService {
      * @param username 用户名
      * @return Token
      */
-    public String getToken(String username) {
-        return redisTemplate.opsForValue().get(username);
+    public String getToken(String type, String username) {
+        return redisTemplate.opsForValue().get(commonProperties.getName() + "_" + type + "_" + username);
     }
 
     /**
@@ -44,8 +51,8 @@ public class TokenStorageServiceImpl implements TokenStorageService {
      *
      * @param username 用户名
      */
-    public void removeToken(String username) {
-        redisTemplate.delete(username);
+    public void removeToken(String type, String username) {
+        redisTemplate.delete(commonProperties.getName() + "_" + type + "_" + username);
     }
 
     /**
@@ -55,8 +62,8 @@ public class TokenStorageServiceImpl implements TokenStorageService {
      * @param token    Token
      * @return boolean
      */
-    public boolean validateToken(String username, String token) {
-        String storedToken = getToken(username);
+    public boolean validateToken(String type, String username, String token) {
+        String storedToken = getToken(type, username);
         return storedToken != null && storedToken.equals(token);
     }
 }

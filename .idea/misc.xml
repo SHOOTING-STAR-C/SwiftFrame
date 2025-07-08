@@ -20,7 +20,17 @@
         <option value="$PROJECT_DIR$/swift-security/pom.xml" />
         <option value="$PROJECT_DIR$/swift-login/pom.xml" />
         <option value="$PROJECT_DIR$/swift-encrypt-plugin/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-datasource-jpa/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-datasource/swift-mybatis/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-mybatis/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/swift-datasource-jpa/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-datasource/swift-mybatis/pom.xml" />
+        <option value="$PROJECT_DIR$/swift-jwt/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">

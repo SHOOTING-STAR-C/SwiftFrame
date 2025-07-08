@@ -5,6 +5,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
+
 /**
  * Druid读取配置文件
  *
@@ -31,8 +33,9 @@ public class DruidProperties {
     private boolean testWhileIdle = true;
     private boolean testOnBorrow = false;
     private boolean testOnReturn = false;
+    private String filters =  "stat";
 
-    public DruidDataSource dataSource(DruidDataSource datasource) {
+    public DruidDataSource dataSource(DruidDataSource datasource) throws SQLException {
         /* 配置基础连接 */
         datasource.setUrl(url);
         datasource.setUsername(username);
@@ -40,6 +43,7 @@ public class DruidProperties {
         datasource.setDriverClassName(driverClassName);
 
         /* 配置初始化大小、最小、最大 */
+        datasource.setAsyncInit(true);
         datasource.setInitialSize(initialSize);
         datasource.setMaxActive(maxActive);
         datasource.setMinIdle(minIdle);
@@ -64,6 +68,7 @@ public class DruidProperties {
         datasource.setTestOnBorrow(testOnBorrow);
         /* 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。 */
         datasource.setTestOnReturn(testOnReturn);
+        datasource.setFilters(filters);
         return datasource;
     }
 }

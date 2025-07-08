@@ -16,7 +16,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="swift-encrypt" />
-        <module name="swift-jwt" />
+        <module name="swift-mybatis" />
         <module name="swift-login" />
         <module name="swift-datasource" />
         <module name="swift-start" />
@@ -28,6 +28,8 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="encrypt" target="21" />
+      <module name="swift-datasource-jpa" target="21" />
+      <module name="swift-jwt" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -36,10 +38,12 @@
       <module name="encrypt" options="-parameters" />
       <module name="swift-common" options="-parameters" />
       <module name="swift-datasource" options="-parameters" />
+      <module name="swift-datasource-jpa" options="-parameters" />
       <module name="swift-encrypt" options="-parameters" />
       <module name="swift-encrypt-plugin" options="-parameters" />
       <module name="swift-jwt" options="-parameters" />
       <module name="swift-login" options="-parameters" />
+      <module name="swift-mybatis" options="-parameters" />
       <module name="swift-redis" options="-parameters" />
       <module name="swift-security" options="-parameters" />
       <module name="swift-start" options="-parameters" />

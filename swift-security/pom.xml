@@ -14,9 +14,18 @@
     <description>swift-security</description>
 
     <dependencies>
+        <!--本项目依赖-->
         <dependency>
             <groupId>com.star</groupId>
-            <artifactId>swift-jwt</artifactId>
+            <artifactId>swift-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-datasource</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-encrypt</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -30,11 +39,14 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
         </dependency>
     </dependencies>
 </project>

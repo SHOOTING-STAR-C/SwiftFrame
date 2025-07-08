@@ -1,17 +1,23 @@
 package com.star.swiftLogin.service.impl;
 
-import com.star.swiftJwt.properties.JwtProperties;
-import com.star.swiftJwt.utils.JwtUtil;
+import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftSecurity.domain.JwtToken;
+import com.star.swiftSecurity.entity.SwiftUserDetails;
+import com.star.swiftSecurity.exception.InvalidTokenException;
+import com.star.swiftSecurity.service.SwiftUserService;
+import com.star.swiftSecurity.utils.JwtUtil;
 import com.star.swiftLogin.service.AuthService;
-import com.star.swiftredis.service.TokenStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.security.auth.login.AccountLockedException;
 
 /**
  * 登录认证
@@ -22,58 +28,81 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    @Lazy
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final JwtProperties jwtProperties;
-    private final TokenStorageService tokenStorageService;
-    private final UserDetailsService userDetailsService;
+    private final SwiftUserService userService;
 
     /**
-     * 验证用户身份
-     * @param username 用户名
-     * @param password 密码
-     * @return Token
+     * 登录
+     *
+     * @param username username
+     * @param password password
+     * @return PubResult<Map < String, String>>
      */
-    public String authenticate(String username, String password) {
+    @Override
+    public PubResult<JwtToken> login(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         );
+        SwiftUserDetails userDetails = (SwiftUserDetails) authentication.getPrincipal();
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String accessToken = jwtUtil.generateAccessToken(userDetails);
-
-        // 存储到Redis
-        tokenStorageService.storeToken(
-                userDetails.getUsername(),
-                accessToken,
-                jwtProperties.getExpiration()
+        // 记录登录成功
+        userService.recordLoginSuccess(
+                userDetails.getUserId(),
+                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                        .getRequest().getRemoteAddr()
         );
 
-        return accessToken;
+        // 生成令牌
+        String accessToken = jwtUtil.generateAccessToken(userDetails);
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+        return PubResult.success(new JwtToken(accessToken, refreshToken));
     }
 
     /**
-     * 刷新Token
+     * 刷新token
      *
-     * @param refreshToken 待刷新token
-     * @return newAccessToken
+     * @param refreshToken refreshToken
+     * @return PubResult<Map < String, String>>
      */
-    public String refreshToken(String refreshToken) {
+    @Override
+    public PubResult<JwtToken> refreshToken(String refreshToken) throws AccountLockedException {
         if (!jwtUtil.validateToken(refreshToken)) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new InvalidTokenException("无效的刷新令牌");
         }
 
         String username = jwtUtil.extractUsername(refreshToken);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        String newAccessToken = jwtUtil.generateAccessToken(userDetails);
+        SwiftUserDetails user = userService.loadUserByUsername(username);
 
-        // 更新Redis中的令牌
-        tokenStorageService.storeToken(
-                username,
-                newAccessToken,
-                jwtProperties.getExpiration()
-        );
+        // 检查用户状态
+        if (!user.isAccountNonLocked() || !user.isEnabled()) {
+            throw new AccountLockedException("账户不可用");
+        }
 
-        return newAccessToken;
+        String newAccessToken = jwtUtil.generateAccessToken(user);
+
+        return PubResult.success(new JwtToken(newAccessToken, null)); // 不返回新refresh token
+    }
+
+    /**
+     * 登出
+     *
+     * @param token token
+     */
+    @Override
+    public void logoutUser(String type, String token) {
+        jwtUtil.removeToken(type, token);
+    }
+
+    /**
+     * 创建用户
+     *
+     * @param userDetails userDetails
+     * @return SwiftUserDetails
+     */
+    @Override
+    public SwiftUserDetails createUser(SwiftUserDetails userDetails) {
+        return userService.createUser(userDetails);
     }
 }

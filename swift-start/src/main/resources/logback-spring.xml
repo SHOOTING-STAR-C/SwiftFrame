@@ -29,7 +29,7 @@
     <springProfile name="dev">
         <appender name="DEV_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
-                <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){blue} %clr(%-5level){green} %clr(%logger{40}){cyan} - %msg%n</pattern>
+                <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){blue} %clr(%-5level) %clr(%logger{400}){cyan} - %msg%n</pattern>
                 <charset>${ENCODING}</charset>
             </encoder>
         </appender>
@@ -96,9 +96,15 @@
     <logger name="_org.springframework" level="info"/>
     <logger name="org.apache" level="info"/>
     <logger name="org.mybatis" level="info"/>
+    <logger name="org.hibernate" level="info"/>
+    <logger name="org.hibernate.orm.connections.pooling" level="warn"/>
     <logger name="sun.rmi" level="info"/>
-    <logger name="javax.management.remote.rmi" level="info"/>
     <logger name="com.baomidou" level="info"/>
+    <logger name="com.ulisesbocchio" level="warn"/>
+    <logger name="javax.management.remote.rmi" level="info"/>
     <logger name="jdk.event.security" level="info"/>
     <logger name="java.lang.Runtime" level="info"/>
+    <logger name="io.netty" level="info"/>
+    <logger name="druid.sql.Connection" level="info"/>
+    <logger name="druid.sql.ResultSet" level="info"/>
 </configuration>

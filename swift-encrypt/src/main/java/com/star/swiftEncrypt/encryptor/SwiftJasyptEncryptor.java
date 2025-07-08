@@ -3,6 +3,7 @@ package com.star.swiftEncrypt.encryptor;
 import com.star.swiftEncrypt.exception.CryptoException;
 import com.star.swiftEncrypt.service.CryptoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jasypt.encryption.StringEncryptor;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
  *
  * @author SHOOTING_STAR_C
  */
+@Slf4j
 @Component("SwiftJasyptEncryptor")
 @RequiredArgsConstructor
 public class SwiftJasyptEncryptor implements StringEncryptor {
@@ -28,17 +30,12 @@ public class SwiftJasyptEncryptor implements StringEncryptor {
     @Override
     public String encrypt(String message) {
         if (message == null || message.isEmpty()) return message;
-
-        // 判断加密模式
-        if (cryptoService.isRsaModeEnabled()) {
-            return RSA_PREFIX + cryptoService.encryptWithRSA(message);
-        } else {
-            return AES_PREFIX + cryptoService.encryptWithAES(message);
-        }
+        return cryptoService.encryptWithAES(message);
     }
 
     /**
-     *  解密
+     * 解密
+     *
      * @param encryptedMessage 密文
      * @return 明文
      */

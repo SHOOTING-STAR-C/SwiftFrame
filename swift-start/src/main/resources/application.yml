@@ -1,3 +1,5 @@
+app:
+  name: SWIFT
 server:
   port: 8081
 

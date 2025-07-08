@@ -14,10 +14,10 @@
     <modules>
         <module>swift-start</module>
         <module>swift-datasource</module>
+        <module>swift-mybatis</module>
         <module>swift-common</module>
         <module>swift-encrypt</module>
         <module>swift-redis</module>
-        <module>swift-jwt</module>
         <module>swift-security</module>
         <module>swift-login</module>
     </modules>
@@ -73,17 +73,17 @@
             </dependency>
             <dependency>
                 <groupId>com.star</groupId>
+                <artifactId>swift-mybatis</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
                 <artifactId>swift-encrypt</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.star</groupId>
                 <artifactId>swift-redis</artifactId>
-                <version>${swift.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.star</groupId>
-                <artifactId>swift-jwt</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <dependency>
@@ -123,6 +123,16 @@
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-validation</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
@@ -148,6 +158,18 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                <version>${spring.version}</version>
+                <exclusions>
+                    <!-- 排除 HikariCP -->
+                    <exclusion>
+                        <groupId>com.zaxxer</groupId>
+                        <artifactId>HikariCP</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!--加密-->
             <!-- Jasypt 加密库 -->

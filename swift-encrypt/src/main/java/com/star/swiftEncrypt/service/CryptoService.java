@@ -38,11 +38,4 @@ public interface CryptoService {
      * 混合解密
      */
     String hybridDecrypt(String encrypted);
-
-    /**
-     * 判断加密模式
-     *
-     * @return boolean
-     */
-    boolean isRsaModeEnabled();
 }
