@@ -6,8 +6,8 @@ spring:
       master:
         url: jdbc:mysql://192.168.31.154:3306/vagetable?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(HxVD1lGPaSO2FmAogDA+1hixaU8y08x5P8bd1QBXRDk=)
-        password: ENC(EZ88f4j+0uI4siCok3Ov3zUiUjb9WfgrpIsurN4rPmU=)
+        username: ENC(DRYPC7Cjbe4t0XrILLVNGVX/VQGqNqNSXyyuF31ET7s=)
+        password: ENC(WRhSWHv3X8RfDPkxjZkqsYf3hQ3xya+a/CKuevo9XDo=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
   jpa:

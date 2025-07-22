@@ -1,7 +1,6 @@
 package com.star.swiftSecurity.handler;
 
 import com.star.swiftCommon.domain.PubResult;
-import com.star.swiftCommon.exception.BusinessException;
 import com.star.swiftSecurity.constant.TokenReCode;
 import com.star.swiftSecurity.constant.UserReCode;
 import com.star.swiftSecurity.exception.DuplicateEntityException;
@@ -33,7 +32,7 @@ public class UserExceptionHandler {
      */
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public PubResult<?> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException e) {
-        log.error();
+        log.error(e.getMessage());
         return PubResult.error(UserReCode.USER_DUPLICATE.getCode(), e.getMessage());
     }
 
@@ -45,6 +44,7 @@ public class UserExceptionHandler {
      */
     @ExceptionHandler(DuplicateEntityException.class)
     public PubResult<?> handleUserException(DuplicateEntityException e) {
+        log.error(e.getMessage());
         return PubResult.error(UserReCode.USER_DUPLICATE.getCode(), e.getMessage());
     }
 
@@ -56,6 +56,7 @@ public class UserExceptionHandler {
      */
     @ExceptionHandler(OperationNotAllowedException.class)
     public PubResult<?> handleNotAllowedException(OperationNotAllowedException e) {
+        log.error(e.getMessage());
         return PubResult.error(UserReCode.USER_NOT_FOUND.getCode(), e.getMessage());
     }
 
@@ -67,6 +68,7 @@ public class UserExceptionHandler {
      */
     @ExceptionHandler(InvalidTokenException.class)
     public PubResult<?> handleInvalidTokenException(InvalidTokenException e) {
+        log.error(e.getMessage());
         return PubResult.error(TokenReCode.TOKEN_NOT_FOUND.getCode(), e.getMessage());
     }
 
@@ -78,6 +80,7 @@ public class UserExceptionHandler {
      */
     @ExceptionHandler(EntityNotFoundException.class)
     public PubResult<?> handleEntityNotFoundException(EntityNotFoundException e) {
+        log.error(e.getMessage());
         return PubResult.error(UserReCode.USER_NOT_FOUND.getCode(), e.getMessage());
     }
 
@@ -89,6 +92,7 @@ public class UserExceptionHandler {
      */
     @ExceptionHandler(AccountLockedException.class)
     public PubResult<?> handleAccountLockedException(AccountLockedException e) {
+        log.error(e.getMessage());
         return PubResult.error(UserReCode.USER_DISABLED.getCode(), e.getMessage());
     }
 }
