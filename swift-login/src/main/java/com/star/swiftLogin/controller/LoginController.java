@@ -6,6 +6,8 @@ import com.star.swiftLogin.dto.RegisterRequest;
 import com.star.swiftLogin.service.AuthService;
 import com.star.swiftSecurity.domain.JwtToken;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "鉴权管理", description = "登录和注册接口")
 public class LoginController {
     private final AuthService authService;
 
@@ -31,17 +34,19 @@ public class LoginController {
      * @return PubResult<JwtToken>PubResult<JwtToken>
      */
     @PostMapping("/login")
+    @Operation(summary = "用户登录", description = "通过用户名和密码获取 JWT Token")
     public PubResult<JwtToken> login(@Valid @RequestBody LoginRequest user) {
         return authService.login(user.getUsername(), user.getPassword());
     }
 
     /**
-     * 用户登录接口
+     * 用户注册接口
      *
      * @param registerRequest RegisterRequest
      * @return PubResult<SwiftUserDetails>
      */
     @PostMapping("/register")
+    @Operation(summary = "用户注册", description = "注册新用户")
     public PubResult<SwiftUserDetails> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         SwiftUserDetails user = new SwiftUserDetails();
         user.setUsername(registerRequest.getUsername());

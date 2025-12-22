@@ -10,8 +10,8 @@ spring:
       master:
         url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: DEC(swift_dba)
-        password: DEC(6bjaYc8xR4E4EQph)
+        username: ENC(P6ouDpTphpE+PSHGnAYdFAh+7E7iZc6sOhaow3kxz9D89JvutQ==)
+        password: ENC(QMoZDwCZHN7zfVmqfGYzdtILnhcQQ23pnZ+WRGOHcHolowuAspMbl4nWpQs=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
   security:
@@ -27,13 +27,14 @@ spring:
     redis:
       host: 24.233.1.242
       port: 6379
+      password: ENC(DEwfQjMb123KgJaifffE4rDS/66ELvoWVM/bHuR0XSAhSpkSTkUA6A==)
       database: 0
 logging:
   level:
     root: debug
 security:
   auth:
-    white-list: /auth/login,/auth/register
+    white-list: /auth/login,/auth/register,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html
 crypto:
   aes:
     key: Td/c5P7o1Hqp1IbQwaDw1O2DasSjkeBQSeTz4eQm96Lt0R6dEEhfJiqxpdfIrJcBLG02CkO3ELLCDTp7Chqzdx/JR0XejYgsf+7XczM4nUY2FnnqP5mdiR32+73O7sZg7RKFRDISlrHj7ptq+cnqgW2D+yQIyx9CAf2SKER424+qXgJKow6UzlaGT5UWr1I4pjCOKv1RqlfyFgTp2UKZvBAX4T4ZSoxWAL8uH91xnVtVhJsb9PnGDRdzU/nKNaVTHyyfodxxhZNI3I1osoCFzCVjWUXv3jgT9k1+NDZ+3wfPRTAK7jV6wqWS9ws7He/ZEFWlC14hRiTI+mSNfJNoVA==
