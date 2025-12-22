@@ -1,0 +1,96 @@
+package com.star.swiftSecurity.mapper;
+
+import com.star.swiftSecurity.entity.SwiftUserDetails;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * 用户Mapper接口
+ */
+@Mapper
+public interface SwiftUserMapper {
+
+    /**
+     * 根据ID查找用户
+     */
+    @Select("SELECT * FROM swift_users WHERE user_id = #{userId}")
+    SwiftUserDetails findById(@Param("userId") UUID userId);
+
+    /**
+     * 根据用户名查找用户
+     */
+    SwiftUserDetails findByUsername(@Param("username") String username);
+
+    /**
+     * 根据邮箱查找用户
+     */
+    @Select("SELECT * FROM swift_users WHERE email = #{email}")
+    SwiftUserDetails findByEmail(@Param("email") String email);
+
+    /**
+     * 检查用户名是否存在
+     */
+    @Select("SELECT COUNT(1) FROM swift_users WHERE username = #{username}")
+    boolean existsByUsername(@Param("username") String username);
+
+    /**
+     * 检查邮箱是否存在
+     */
+    @Select("SELECT COUNT(1) FROM swift_users WHERE email = #{email}")
+    boolean existsByEmail(@Param("email") String email);
+
+    /**
+     * 保存用户（新增）
+     */
+    @Insert("INSERT INTO swift_users(user_id, username, full_name, password, email, phone, enabled, " +
+            "account_non_expired, account_non_locked, credentials_non_expired, failed_login_attempts, " +
+            "lock_until, password_changed_at, last_login_at, last_login_ip, created_at) " +
+            "VALUES(#{userId}, #{username}, #{fullName}, #{password}, #{email}, #{phone}, #{enabled}, " +
+            "#{accountNonExpired}, #{accountNonLocked}, #{credentialsNonExpired}, #{failedLoginAttempts}, " +
+            "#{lockUntil}, #{passwordChangedAt}, #{lastLoginAt}, #{lastLoginIp}, #{createdAt})")
+    int insert(SwiftUserDetails user);
+
+    /**
+     * 更新用户
+     */
+    @Update("UPDATE swift_users SET username=#{username}, full_name=#{fullName}, password=#{password}, " +
+            "email=#{email}, phone=#{phone}, enabled=#{enabled}, account_non_expired=#{accountNonExpired}, " +
+            "account_non_locked=#{accountNonLocked}, credentials_non_expired=#{credentialsNonExpired}, " +
+            "failed_login_attempts=#{failedLoginAttempts}, lock_until=#{lockUntil}, " +
+            "password_changed_at=#{passwordChangedAt}, last_login_at=#{lastLoginAt}, " +
+            "last_login_ip=#{lastLoginIp} WHERE user_id=#{userId}")
+    int update(SwiftUserDetails user);
+
+    /**
+     * 删除用户
+     */
+    @Delete("DELETE FROM swift_users WHERE user_id=#{userId}")
+    int deleteById(@Param("userId") UUID userId);
+
+    /**
+     * 查找需要解锁的用户
+     */
+    @Select("SELECT * FROM swift_users WHERE lock_until IS NOT NULL AND lock_until <= CURRENT_TIMESTAMP")
+    List<SwiftUserDetails> findUsersToUnlock();
+
+    /**
+     * 查找密码过期的用户
+     */
+    @Select("SELECT * FROM swift_users WHERE password_changed_at IS NOT NULL AND password_changed_at <= #{expiryDate}")
+    List<SwiftUserDetails> findUsersWithExpiredPassword(@Param("expiryDate") LocalDateTime expiryDate);
+
+    /**
+     * 分页查询所有用户
+     */
+    @Select("SELECT * FROM swift_users")
+    List<SwiftUserDetails> findAll();
+}

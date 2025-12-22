@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.star.swiftSecurity.mapper.SwiftRoleMapper">
+    <resultMap id="RoleResultMap" type="com.star.swiftSecurity.entity.SwiftRole">
+        <id property="roleId" column="role_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <collection property="roleAuthorities" ofType="com.star.swiftSecurity.entity.SwiftRoleAuthority"
+                    select="com.star.swiftSecurity.mapper.SwiftRoleAuthorityMapper.findByRole" column="role_id"/>
+    </resultMap>
+
+    <select id="findByNameIn" resultMap="RoleResultMap">
+        SELECT * FROM swift_role WHERE name IN
+        <foreach item="item" collection="names" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

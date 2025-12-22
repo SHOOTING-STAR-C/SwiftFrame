@@ -2,10 +2,9 @@ package com.star.swiftSecurity.service;
 
 import com.star.swiftSecurity.entity.SwiftRole;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -57,10 +56,9 @@ public interface SwiftUserService extends UserDetailsService {
     /**
      * 获取所有用户
      *
-     * @param pageable pageable
-     * @return Page<SwiftUserDetails>
+     * @return List<SwiftUserDetails>
      */
-    Page<SwiftUserDetails> getAllUsers(Pageable pageable);
+    List<SwiftUserDetails> getAllUsers();
 
     /**
      * 更改密码

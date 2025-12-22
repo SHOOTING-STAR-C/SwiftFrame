@@ -1,7 +1,9 @@
 package com.star.swiftMybatis.config;
 
 import com.star.swiftDatasource.routing.DynamicDataSource;
+import com.star.swiftMybatis.handler.UuidTypeHandler;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,7 @@ public class MybatisConfig {
     public SqlSessionFactory sqlSessionFactory(DynamicDataSource dataSource) throws Exception {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
+        sessionFactory.setTypeHandlers(new TypeHandler[]{new UuidTypeHandler()});
         return sessionFactory.getObject();
     }
 }

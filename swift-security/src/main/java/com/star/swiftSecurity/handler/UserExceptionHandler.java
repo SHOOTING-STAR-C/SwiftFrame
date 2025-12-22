@@ -3,10 +3,10 @@ package com.star.swiftSecurity.handler;
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftSecurity.constant.TokenReCode;
 import com.star.swiftSecurity.constant.UserReCode;
+import com.star.swiftSecurity.exception.BusinessException;
 import com.star.swiftSecurity.exception.DuplicateEntityException;
 import com.star.swiftSecurity.exception.InvalidTokenException;
 import com.star.swiftSecurity.exception.OperationNotAllowedException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -73,13 +73,13 @@ public class UserExceptionHandler {
     }
 
     /**
-     * 用户不存在
+     * 业务异常
      *
-     * @param e EntityNotFoundException
+     * @param e BusinessException
      * @return PubResult<?>
      */
-    @ExceptionHandler(EntityNotFoundException.class)
-    public PubResult<?> handleEntityNotFoundException(EntityNotFoundException e) {
+    @ExceptionHandler(BusinessException.class)
+    public PubResult<?> handleBusinessException(BusinessException e) {
         log.error(e.getMessage());
         return PubResult.error(UserReCode.USER_NOT_FOUND.getCode(), e.getMessage());
     }

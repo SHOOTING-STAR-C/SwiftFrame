@@ -3,21 +3,21 @@ package com.star.swiftSecurity.service.impl;
 import com.star.swiftSecurity.entity.SwiftRole;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
 import com.star.swiftSecurity.entity.SwiftUserRole;
+import com.star.swiftSecurity.entity.SwiftUserRoleId;
+import com.star.swiftSecurity.exception.BusinessException;
 import com.star.swiftSecurity.exception.DuplicateEntityException;
-import com.star.swiftSecurity.repository.SwiftRoleRepository;
-import com.star.swiftSecurity.repository.SwiftUserRepository;
-import com.star.swiftSecurity.repository.SwiftUserRoleRepository;
+import com.star.swiftSecurity.mapper.SwiftRoleMapper;
+import com.star.swiftSecurity.mapper.SwiftUserMapper;
+import com.star.swiftSecurity.mapper.SwiftUserRoleMapper;
 import com.star.swiftSecurity.service.AccountStateService;
 import com.star.swiftSecurity.service.SwiftUserService;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class SwiftUserServiceImpl implements SwiftUserService {
-    private final SwiftUserRepository userRepository;
-    private final SwiftRoleRepository roleRepository;
-    private final SwiftUserRoleRepository userRoleRepository;
+    private final SwiftUserMapper userMapper;
+    private final SwiftRoleMapper roleMapper;
+    private final SwiftUserRoleMapper userRoleMapper;
     private final PasswordEncoder passwordEncoder;
     private final AccountStateService accountStateService;
 
@@ -45,18 +45,23 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      */
     @Override
     public SwiftUserDetails createUser(SwiftUserDetails user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
+        if (userMapper.existsByUsername(user.getUsername())) {
             throw new DuplicateEntityException("用户名已存在");
         }
 
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userMapper.existsByEmail(user.getEmail())) {
             throw new DuplicateEntityException("邮箱已存在");
         }
 
         // 加密密码
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setPasswordChangedAt(LocalDateTime.now());
-        return userRepository.save(user);
+        user.setCreatedAt(LocalDateTime.now());
+        if (user.getUserId() == null) {
+            user.setUserId(UUID.randomUUID());
+        }
+        userMapper.insert(user);
+        return user;
     }
 
     /**
@@ -74,7 +79,8 @@ public class SwiftUserServiceImpl implements SwiftUserService {
         existing.setFullName(user.getFullName());
         existing.setPhone(user.getPhone());
 
-        return userRepository.save(existing);
+        userMapper.update(existing);
+        return existing;
     }
 
     /**
@@ -84,8 +90,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      */
     @Override
     public void deleteUser(UUID userId) {
-        SwiftUserDetails user = getUserById(userId);
-        userRepository.delete(user);
+        userMapper.deleteById(userId);
     }
 
     /**
@@ -96,8 +101,11 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      */
     @Override
     public SwiftUserDetails getUserById(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("用户不存在"));
+        SwiftUserDetails user = userMapper.findById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        return user;
     }
 
     /**
@@ -108,19 +116,21 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      */
     @Override
     public SwiftUserDetails loadUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("用户不存在"));
+        SwiftUserDetails user = userMapper.findByUsername(username);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        return user;
     }
 
     /**
      * 获取所有用户
      *
      * @param pageable pageable
-     * @return Page<SwiftUserDetails>
+     * @return List<SwiftUserDetails>
      */
-    @Override
-    public Page<SwiftUserDetails> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    public List<SwiftUserDetails> getAllUsers() {
+        return userMapper.findAll();
     }
 
     /**
@@ -136,7 +146,8 @@ public class SwiftUserServiceImpl implements SwiftUserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setPasswordChangedAt(LocalDateTime.now());
         user.setCredentialsNonExpired(true);
-        return userRepository.save(user);
+        userMapper.update(user);
+        return user;
     }
 
     /**
@@ -149,18 +160,25 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     @Override
     public void assignRoleToUser(UUID userId, Long roleId, String assignedBy) {
         SwiftUserDetails user = getUserById(userId);
-        SwiftRole role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new EntityNotFoundException("角色不存在"));
+        SwiftRole role = roleMapper.findById(roleId);
+        if (role == null) {
+            throw new BusinessException("角色不存在");
+        }
 
-        if (userRoleRepository.existsByUserAndRole(user, role)) {
+        if (userRoleMapper.existsByUserAndRole(user.getUserId().toString(), roleId)) {
             throw new DuplicateEntityException("用户已拥有该角色");
         }
 
         SwiftUserRole userRole = new SwiftUserRole();
+        SwiftUserRoleId id = new SwiftUserRoleId();
+        id.setUserId(user.getUserId());
+        id.setRoleId(role.getRoleId());
+        userRole.setUserId(id);
         userRole.setUser(user);
         userRole.setRole(role);
         userRole.setAssignedBy(assignedBy);
-        userRoleRepository.save(userRole);
+        userRole.setAssignedAt(LocalDateTime.now());
+        userRoleMapper.insert(userRole);
     }
 
     /**
@@ -171,11 +189,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      */
     @Override
     public void removeRoleFromUser(UUID userId, Long roleId) {
-        SwiftUserDetails user = getUserById(userId);
-        SwiftRole role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new EntityNotFoundException("角色不存在"));
-
-        userRoleRepository.deleteByUserAndRole(user, role);
+        userRoleMapper.deleteByUserAndRole(userId.toString(), roleId);
     }
 
     /**
@@ -186,8 +200,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      */
     @Override
     public Set<SwiftRole> getUserRoles(UUID userId) {
-        SwiftUserDetails user = getUserById(userId);
-        return userRoleRepository.findByUser(user).stream()
+        return userRoleMapper.findByUser(userId.toString()).stream()
                 .map(SwiftUserRole::getRole)
                 .collect(Collectors.toSet());
     }
@@ -201,7 +214,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     public void enableUser(UUID userId) {
         SwiftUserDetails user = getUserById(userId);
         user.setEnabled(true);
-        userRepository.save(user);
+        userMapper.update(user);
     }
 
     /**
@@ -213,7 +226,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     public void disableUser(UUID userId) {
         SwiftUserDetails user = getUserById(userId);
         user.setEnabled(false);
-        userRepository.save(user);
+        userMapper.update(user);
     }
 
     /**
@@ -225,7 +238,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     public void unlockUser(UUID userId) {
         SwiftUserDetails user = getUserById(userId);
         accountStateService.unlockUserAccount(user);
-        userRepository.save(user);
+        userMapper.update(user);
     }
 
     /**
@@ -237,7 +250,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     public void lockUser(UUID userId) {
         SwiftUserDetails user = getUserById(userId);
         accountStateService.lockUserAccount(user);
-        userRepository.save(user);
+        userMapper.update(user);
     }
 
     /**
@@ -252,7 +265,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
         user.setLastLoginAt(LocalDateTime.now());
         user.setLastLoginIp(ipAddress);
         user.setFailedLoginAttempts(0); // 重置失败计数
-        userRepository.save(user);
+        userMapper.update(user);
     }
 
     /**
@@ -264,7 +277,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     public void recordLoginFailure(UUID userId) {
         SwiftUserDetails user = getUserById(userId);
         accountStateService.handleLoginFailure(user);
-        userRepository.save(user);
+        userMapper.update(user);
     }
 
     /**

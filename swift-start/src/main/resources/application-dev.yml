@@ -1,26 +1,19 @@
 server:
   port: 8081
 spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
   datasource:
     druid:
       master:
-        url: jdbc:mysql://192.168.31.154:3306/vagetable?characterEncoding=utf8&serverTimezone=UTC
+        url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(DRYPC7Cjbe4t0XrILLVNGVX/VQGqNqNSXyyuF31ET7s=)
-        password: ENC(WRhSWHv3X8RfDPkxjZkqsYf3hQ3xya+a/CKuevo9XDo=)
+        username: DEC(swift_dba)
+        password: DEC(6bjaYc8xR4E4EQph)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
-  jpa:
-    open-in-view: false
-    show-sql: true
-    properties:
-      hibernate:
-        packages-to-Scan: com.star.**.entity
-        hbm2ddl_auto: create
-        allow-jdbc-metadata-access: true
-        jdbc-batch-size: 30
-        order-inserts: true
-        order-updates: true
   security:
     jwt:
       secret: zxcvbnmmlkjhgfdsaqwertyuiopplplpl
@@ -32,7 +25,7 @@ spring:
       passwordExpiryDays: 30
   data:
     redis:
-      host: 192.168.31.154
+      host: 24.233.1.242
       port: 6379
       database: 0
 logging:

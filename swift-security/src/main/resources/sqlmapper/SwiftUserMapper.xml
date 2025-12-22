@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.star.swiftSecurity.mapper.SwiftUserMapper">
+    <resultMap id="UserResultMap" type="com.star.swiftSecurity.entity.SwiftUserDetails">
+        <id property="userId" column="user_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
+        <result property="username" column="username"/>
+        <result property="fullName" column="full_name"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="phone" column="phone"/>
+        <result property="enabled" column="enabled"/>
+        <result property="accountNonExpired" column="account_non_expired"/>
+        <result property="accountNonLocked" column="account_non_locked"/>
+        <result property="credentialsNonExpired" column="credentials_non_expired"/>
+        <result property="failedLoginAttempts" column="failed_login_attempts"/>
+        <result property="lockUntil" column="lock_until"/>
+        <result property="passwordChangedAt" column="password_changed_at"/>
+        <result property="lastLoginAt" column="last_login_at"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="createdAt" column="created_at"/>
+        <collection property="userRoles" ofType="com.star.swiftSecurity.entity.SwiftUserRole"
+                    select="com.star.swiftSecurity.mapper.SwiftUserRoleMapper.findByUser" column="user_id"/>
+    </resultMap>
+
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT * FROM swift_users WHERE username = #{username}
+    </select>
+</mapper>

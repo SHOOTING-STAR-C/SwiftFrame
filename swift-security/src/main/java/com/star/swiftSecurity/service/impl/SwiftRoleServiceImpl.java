@@ -1,17 +1,17 @@
 package com.star.swiftSecurity.service.impl;
 
 import com.star.swiftSecurity.entity.*;
+import com.star.swiftSecurity.exception.BusinessException;
 import com.star.swiftSecurity.exception.DuplicateEntityException;
 import com.star.swiftSecurity.exception.OperationNotAllowedException;
-import com.star.swiftSecurity.repository.SwiftAuthorityRepository;
-import com.star.swiftSecurity.repository.SwiftRoleAuthorityRepository;
-import com.star.swiftSecurity.repository.SwiftRoleRepository;
-import com.star.swiftSecurity.repository.SwiftUserRoleRepository;
+import com.star.swiftSecurity.mapper.SwiftAuthorityMapper;
+import com.star.swiftSecurity.mapper.SwiftRoleAuthorityMapper;
+import com.star.swiftSecurity.mapper.SwiftRoleMapper;
+import com.star.swiftSecurity.mapper.SwiftUserRoleMapper;
 import com.star.swiftSecurity.service.SwiftRoleService;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class SwiftRoleServiceImpl implements SwiftRoleService {
-    private final SwiftRoleRepository roleRepository;
-    private final SwiftAuthorityRepository authorityRepository;
-    private final SwiftRoleAuthorityRepository roleAuthorityRepository;
-    private final SwiftUserRoleRepository userRoleRepository;
+    private final SwiftRoleMapper roleMapper;
+    private final SwiftAuthorityMapper authorityMapper;
+    private final SwiftRoleAuthorityMapper roleAuthorityMapper;
+    private final SwiftUserRoleMapper userRoleMapper;
 
     /**
      * 创建角色
@@ -37,10 +37,11 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      */
     @Override
     public SwiftRole createRole(SwiftRole role) {
-        if (roleRepository.existsByName(role.getName())) {
+        if (roleMapper.existsByName(role.getName())) {
             throw new DuplicateEntityException("角色名称已存在");
         }
-        return roleRepository.save(role);
+        roleMapper.insert(role);
+        return role;
     }
 
     @Override
@@ -48,13 +49,14 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
         SwiftRole existing = getRoleById(role.getRoleId());
 
         if (!existing.getName().equals(role.getName()) &&
-                roleRepository.existsByName(role.getName())) {
+                roleMapper.existsByName(role.getName())) {
             throw new DuplicateEntityException("角色名称已存在");
         }
 
         existing.setName(role.getName());
         existing.setDescription(role.getDescription());
-        return roleRepository.save(existing);
+        roleMapper.update(existing);
+        return existing;
     }
 
     /**
@@ -64,14 +66,12 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      */
     @Override
     public void deleteRole(Long roleId) {
-        SwiftRole role = getRoleById(roleId);
-
         // 检查是否有用户关联
-        if (userRoleRepository.countByRole(role) > 0) {
+        if (userRoleMapper.countByRole(roleId) > 0) {
             throw new OperationNotAllowedException("无法删除已分配用户的角色");
         }
 
-        roleRepository.delete(role);
+        roleMapper.deleteById(roleId);
     }
 
     /**
@@ -82,8 +82,11 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      */
     @Override
     public SwiftRole getRoleById(Long roleId) {
-        return roleRepository.findById(roleId)
-                .orElseThrow(() -> new EntityNotFoundException("角色不存在"));
+        SwiftRole role = roleMapper.findById(roleId);
+        if (role == null) {
+            throw new BusinessException("角色不存在");
+        }
+        return role;
     }
 
     /**
@@ -93,7 +96,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      */
     @Override
     public List<SwiftRole> getAllRoles() {
-        return roleRepository.findAll();
+        return roleMapper.findAll();
     }
 
     /**
@@ -104,17 +107,24 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
     @Override
     public void grantAuthorityToRole(Long roleId, Long authorityId) {
         SwiftRole role = getRoleById(roleId);
-        SwiftAuthority authority = authorityRepository.findById(authorityId)
-                .orElseThrow(() -> new EntityNotFoundException("权限不存在"));
+        SwiftAuthority authority = authorityMapper.findById(authorityId);
+        if (authority == null) {
+            throw new BusinessException("权限不存在");
+        }
 
-        if (roleAuthorityRepository.existsByRoleAndAuthority(role, authority)) {
+        if (roleAuthorityMapper.existsByRoleAndAuthority(roleId, authorityId)) {
             throw new DuplicateEntityException("角色已拥有该权限");
         }
 
         SwiftRoleAuthority roleAuthority = new SwiftRoleAuthority();
+        SwiftRoleAuthorityId id = new SwiftRoleAuthorityId();
+        id.setRoleId(roleId);
+        id.setAuthorityId(authorityId);
+        roleAuthority.setId(id);
         roleAuthority.setRole(role);
         roleAuthority.setAuthority(authority);
-        roleAuthorityRepository.save(roleAuthority);
+        roleAuthority.setGrantedAt(java.time.LocalDateTime.now());
+        roleAuthorityMapper.insert(roleAuthority);
     }
 
     /**
@@ -124,11 +134,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      */
     @Override
     public void revokeAuthorityFromRole(Long roleId, Long authorityId) {
-        SwiftRole role = getRoleById(roleId);
-        SwiftAuthority authority = authorityRepository.findById(authorityId)
-                .orElseThrow(() -> new EntityNotFoundException("权限不存在"));
-
-        roleAuthorityRepository.deleteByRoleAndAuthority(role, authority);
+        roleAuthorityMapper.deleteByRoleAndAuthority(roleId, authorityId);
     }
 
     /**
@@ -138,8 +144,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      */
     @Override
     public Set<SwiftAuthority> getRoleAuthorities(Long roleId) {
-        SwiftRole role = getRoleById(roleId);
-        return roleAuthorityRepository.findByRole(role).stream()
+        return roleAuthorityMapper.findByRole(roleId).stream()
                 .map(SwiftRoleAuthority::getAuthority)
                 .collect(Collectors.toSet());
     }
@@ -151,8 +156,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      */
     @Override
     public Set<SwiftUserDetails> getUsersWithRole(Long roleId) {
-        SwiftRole role = getRoleById(roleId);
-        return userRoleRepository.findByRole(role).stream()
+        return userRoleMapper.findByRole(roleId).stream()
                 .map(SwiftUserRole::getUser)
                 .collect(Collectors.toSet());
     }

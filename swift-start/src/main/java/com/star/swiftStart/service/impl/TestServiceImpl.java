@@ -2,8 +2,8 @@ package com.star.swiftStart.service.impl;
 
 import com.star.swiftDatasource.annotation.UDS;
 import com.star.swiftStart.entity.Bussarea;
+import com.star.swiftStart.mapper.BussareaMapper;
 import com.star.swiftStart.mapper.TestMapper;
-import com.star.swiftStart.repository.BussareaRepository;
 import com.star.swiftStart.service.TestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class TestServiceImpl implements TestService {
 
     private final TestMapper testMapper;
 
-    private final BussareaRepository bussareaRepository;
+    private final BussareaMapper bussareaMapper;
 
     @UDS
     @Override
@@ -31,6 +31,6 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public List<Bussarea> getAllAreas() {
-        return bussareaRepository.findAll();
+        return bussareaMapper.findAll();
     }
 }

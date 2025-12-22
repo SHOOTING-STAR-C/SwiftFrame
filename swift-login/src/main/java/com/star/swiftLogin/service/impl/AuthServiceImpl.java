@@ -9,7 +9,7 @@ import com.star.swiftSecurity.utils.JwtUtil;
 import com.star.swiftLogin.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
