@@ -126,7 +126,6 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     /**
      * 获取所有用户
      *
-     * @param pageable pageable
      * @return List<SwiftUserDetails>
      */
     public List<SwiftUserDetails> getAllUsers() {

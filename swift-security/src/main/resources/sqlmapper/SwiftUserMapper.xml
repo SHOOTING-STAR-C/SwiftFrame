@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.star.swiftSecurity.mapper.SwiftUserMapper">
     <resultMap id="UserResultMap" type="com.star.swiftSecurity.entity.SwiftUserDetails">
-        <id property="userId" column="user_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
+        <id property="userId" column="user_id" javaType="java.util.UUID" typeHandler="com.star.swiftDatasource.handler.UuidTypeHandler"/>
         <result property="username" column="username"/>
         <result property="fullName" column="full_name"/>
         <result property="password" column="password"/>

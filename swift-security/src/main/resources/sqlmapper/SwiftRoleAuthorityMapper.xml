@@ -6,8 +6,8 @@
     <resultMap id="RoleAuthorityResultMap" type="com.star.swiftSecurity.entity.SwiftRoleAuthority">
         <result property="grantedAt" column="granted_at"/>
         <association property="id" javaType="com.star.swiftSecurity.entity.SwiftRoleAuthorityId">
-            <result property="roleId" column="role_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
-            <result property="authorityId" column="authority_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
+            <result property="roleId" column="role_id" javaType="java.util.UUID" typeHandler="com.star.swiftDatasource.handler.UuidTypeHandler"/>
+            <result property="authorityId" column="authority_id" javaType="java.util.UUID" typeHandler="com.star.swiftDatasource.handler.UuidTypeHandler"/>
         </association>
         <association property="authority" select="com.star.swiftSecurity.mapper.SwiftAuthorityMapper.findById" column="authority_id"/>
     </resultMap>

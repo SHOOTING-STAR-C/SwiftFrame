@@ -14,7 +14,6 @@
     <modules>
         <module>swift-start</module>
         <module>swift-datasource</module>
-        <module>swift-mybatis</module>
         <module>swift-common</module>
         <module>swift-encrypt</module>
         <module>swift-redis</module>
@@ -70,11 +69,6 @@
             <dependency>
                 <groupId>com.star</groupId>
                 <artifactId>swift-datasource</artifactId>
-                <version>${swift.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.star</groupId>
-                <artifactId>swift-mybatis</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <dependency>

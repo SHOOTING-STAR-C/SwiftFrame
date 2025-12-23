@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.star.swiftSecurity.mapper.SwiftRoleMapper">
     <resultMap id="RoleResultMap" type="com.star.swiftSecurity.entity.SwiftRole">
-        <id property="roleId" column="role_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
+        <id property="roleId" column="role_id" javaType="java.util.UUID" typeHandler="com.star.swiftDatasource.handler.UuidTypeHandler"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
         <collection property="roleAuthorities" ofType="com.star.swiftSecurity.entity.SwiftRoleAuthority"

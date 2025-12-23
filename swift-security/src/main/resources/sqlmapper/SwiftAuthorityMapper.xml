@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.star.swiftSecurity.mapper.SwiftAuthorityMapper">
     <resultMap id="AuthorityResultMap" type="com.star.swiftSecurity.entity.SwiftAuthority">
-        <id property="authorityId" column="authority_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
+        <id property="authorityId" column="authority_id" javaType="java.util.UUID" typeHandler="com.star.swiftDatasource.handler.UuidTypeHandler"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
     </resultMap>

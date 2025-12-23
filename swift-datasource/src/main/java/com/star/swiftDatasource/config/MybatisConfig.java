@@ -1,11 +1,13 @@
-package com.star.swiftMybatis.config;
+package com.star.swiftDatasource.config;
 
 import com.star.swiftDatasource.routing.DynamicDataSource;
-import com.star.swiftMybatis.handler.UuidTypeHandler;
+import com.star.swiftDatasource.handler.UuidTypeHandler;
+import com.star.swiftDatasource.properties.MybatisProperties;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +19,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @MapperScan(basePackages = "com.star.*.mapper", sqlSessionFactoryRef = "masterSqlSessionFactory")
 public class MybatisConfig {
+
+    @Autowired
+    private MybatisProperties mybatisProperties;
+
     /**
      * 主sql工厂
      *
@@ -30,7 +36,12 @@ public class MybatisConfig {
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setTypeHandlers(new TypeHandler[]{new UuidTypeHandler()});
         org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        sessionFactory.setMapperLocations(resolver.getResources("classpath*:sqlmapper/*.xml"));
+
+        String location = "classpath*:sqlmapper/*.xml";
+        if (mybatisProperties.getMapperLocations() != null && mybatisProperties.getMapperLocations().containsKey("master")) {
+            location = mybatisProperties.getMapperLocations().get("master");
+        }
+        sessionFactory.setMapperLocations(resolver.getResources(location));
         return sessionFactory.getObject();
     }
 }

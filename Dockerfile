@@ -9,7 +9,6 @@ COPY swift-datasource/pom.xml swift-datasource/
 COPY swift-encrypt/pom.xml swift-encrypt/
 COPY swift-encrypt-plugin/pom.xml swift-encrypt-plugin/
 COPY swift-login/pom.xml swift-login/
-COPY swift-mybatis/pom.xml swift-mybatis/
 COPY swift-redis/pom.xml swift-redis/
 COPY swift-security/pom.xml swift-security/
 COPY swift-start/pom.xml swift-start/

@@ -14,3 +14,8 @@ crypto:
     size: @crypto.aes.size@
   rsa:
     size: @crypto.rsa.size@
+
+swift:
+  mybatis:
+    mapper-locations:
+      master: classpath*:sqlmapper/*.xml

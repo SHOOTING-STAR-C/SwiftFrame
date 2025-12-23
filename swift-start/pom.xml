@@ -26,10 +26,6 @@
         </dependency>
         <dependency>
             <groupId>com.star</groupId>
-            <artifactId>swift-mybatis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.star</groupId>
             <artifactId>swift-encrypt</artifactId>
         </dependency>
         <dependency>

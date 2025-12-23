@@ -25,11 +25,63 @@ SwiftFrame/
 ├── swift-datasource/       # 数据源模块（动态数据源配置、多数据库驱动支持）
 ├── swift-encrypt/          # 加解密模块（AES/RSA 实现、Jasypt 配置）
 ├── swift-encrypt-plugin/   # 加解密 Maven 插件（用于自动化加密配置文件）
-├── swift-mybatis/          # MyBatis 增强配置（TypeHandler、MyBatis-Plus 配置）
 ├── swift-redis/            # Redis 缓存模块
 ├── swift-security/         # 安全认证模块（Security 配置、JWT 实现、权限控制）
 ├── swift-login/            # 业务模块：用户登录与授权
 └── swift-start/            # 启动模块（主启动类、配置文件、静态资源）
+```
+
+## 🏗️ 系统架构
+
+```mermaid
+graph TD
+    subgraph App[应用启动层]
+        START[swift-start]
+    end
+
+    subgraph Business[业务模块层]
+        LOGIN[swift-login]
+    end
+
+    subgraph Core[核心支撑层]
+        SECURITY[swift-security]
+        ENCRYPT[swift-encrypt]
+    end
+
+    subgraph Base[通用基础层]
+        DATASOURCE[swift-datasource]
+        REDIS[swift-redis]
+        COMMON[swift-common]
+    end
+
+    subgraph Infrastructure[基础设施]
+        MySQL[(MySQL)]
+        PostgreSQL[(PostgreSQL)]
+        Cache[(Redis)]
+    end
+
+    %% 依赖关系
+    START --> LOGIN
+    START --> SECURITY
+    START --> MYBATIS
+    START --> ENCRYPT
+    START --> COMMON
+
+    LOGIN --> SECURITY
+    LOGIN --> REDIS
+
+    SECURITY --> MYBATIS
+    SECURITY --> REDIS
+    SECURITY --> ENCRYPT
+    SECURITY --> DATASOURCE
+
+    MYBATIS --> DATASOURCE
+    ENCRYPT --> COMMON
+
+    %% 基础设施交互
+    DATASOURCE --> MySQL
+    DATASOURCE --> PostgreSQL
+    REDIS --> Cache
 ```
 
 ---

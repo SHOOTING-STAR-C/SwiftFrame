@@ -7,8 +7,8 @@
         <result property="assignedAt" column="assigned_at"/>
         <result property="assignedBy" column="assigned_by"/>
         <association property="userId" javaType="com.star.swiftSecurity.entity.SwiftUserRoleId">
-            <result property="userId" column="user_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
-            <result property="roleId" column="role_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
+            <result property="userId" column="user_id" javaType="java.util.UUID" typeHandler="com.star.swiftDatasource.handler.UuidTypeHandler"/>
+            <result property="roleId" column="role_id" javaType="java.util.UUID" typeHandler="com.star.swiftDatasource.handler.UuidTypeHandler"/>
         </association>
         <association property="role" select="com.star.swiftSecurity.mapper.SwiftRoleMapper.findById" column="role_id"/>
     </resultMap>
