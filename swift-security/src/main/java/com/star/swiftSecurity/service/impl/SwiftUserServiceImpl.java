@@ -158,14 +158,14 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param assignedBy assignedBy
      */
     @Override
-    public void assignRoleToUser(UUID userId, Long roleId, String assignedBy) {
+    public void assignRoleToUser(UUID userId, UUID roleId, String assignedBy) {
         SwiftUserDetails user = getUserById(userId);
         SwiftRole role = roleMapper.findById(roleId);
         if (role == null) {
             throw new BusinessException("角色不存在");
         }
 
-        if (userRoleMapper.existsByUserAndRole(user.getUserId().toString(), roleId)) {
+        if (userRoleMapper.existsByUserAndRole(user.getUserId(), roleId)) {
             throw new DuplicateEntityException("用户已拥有该角色");
         }
 
@@ -188,8 +188,8 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param roleId roleId
      */
     @Override
-    public void removeRoleFromUser(UUID userId, Long roleId) {
-        userRoleMapper.deleteByUserAndRole(userId.toString(), roleId);
+    public void removeRoleFromUser(UUID userId, UUID roleId) {
+        userRoleMapper.deleteByUserAndRole(userId, roleId);
     }
 
     /**
@@ -200,7 +200,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      */
     @Override
     public Set<SwiftRole> getUserRoles(UUID userId) {
-        return userRoleMapper.findByUser(userId.toString()).stream()
+        return userRoleMapper.findByUser(userId).stream()
                 .map(SwiftUserRole::getRole)
                 .collect(Collectors.toSet());
     }

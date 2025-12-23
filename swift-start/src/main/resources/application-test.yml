@@ -1,5 +1,7 @@
 server:
   port: 8081
+  servlet:
+    context-path: /swift
 spring:
   datasource:
     druid:
@@ -21,8 +23,8 @@ logging:
     root: info
 security:
   auth:
-    login-path: /swift/auth/login
-    white-list: /swift/auth/**, /swagger-ui/**, /v3/api-docs/**
+    login-path: /auth/login
+    white-list: /auth/**, /swagger-ui/**, /v3/api-docs/**
 crypto:
   aes:
     key: Td/c5P7o1Hqp1IbQwaDw1O2DasSjkeBQSeTz4eQm96Lt0R6dEEhfJiqxpdfIrJcBLG02CkO3ELLCDTp7Chqzdx/JR0XejYgsf+7XczM4nUY2FnnqP5mdiR32+73O7sZg7RKFRDISlrHj7ptq+cnqgW2D+yQIyx9CAf2SKER424+qXgJKow6UzlaGT5UWr1I4pjCOKv1RqlfyFgTp2UKZvBAX4T4ZSoxWAL8uH91xnVtVhJsb9PnGDRdzU/nKNaVTHyyfodxxhZNI3I1osoCFzCVjWUXv3jgT9k1+NDZ+3wfPRTAK7jV6wqWS9ws7He/ZEFWlC14hRiTI+mSNfJNoVA==

@@ -1,5 +1,7 @@
 server:
   port: 8081
+  servlet:
+    context-path: /swift
 spring:
   sql:
     init:
@@ -10,15 +12,15 @@ spring:
       master:
         url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(4NCTG/XOwbD44U4kR91qB0XAcLzHwFPtVavl45Blc+8SERTD8g==)
-        password: ENC(DQ70oRSaUXLe/mroblqIWkkgrYO0QP878ErJVRoeG2Ne+v6hL2af8ZdUGN0=)
+        username: ENC(Ae0uSBsL7shiBiGqhDkBmGYCVlb4jLreZE1EUoGXGgsBIvdwbw==)
+        password: ENC(FX+ixbNDSo0qLS0ZfKCnS9DzTJA9RuEEHyb3ViZyr5BWhqa4UBIbf2tqOog=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
       pg:
         url: jdbc:postgresql://24.233.1.242:5432/swift_bus
         driver-class-name: org.postgresql.Driver
-        username: ENC(AKEjg6GdwtqCBMf6VjN+bhlVQH+/OvGVSzxCzVS6g3TFdObnq/mFp6U=)
-        password: ENC(nYleBL2SCWz0/eAVLII9WaaOXoG1IZbrJ2wsBTZHShOVouLbM4DKj96p5eo=)
+        username: ENC(mKU0v+FiW4hkwZf1LuXjlB5Yi1CJ7j5AkuwYlU06F58R/5W7S+dBgQA=)
+        password: ENC(EYCbds+tVjGyWGrP80zvOtuxXaKSG8V3qYM9TxxPaTCi/TAthCykX9/49vs=)
         validation-query: SELECT 1
         filters: stat,wall,slf4j
   security:
@@ -34,14 +36,14 @@ spring:
     redis:
       host: 24.233.1.242
       port: 6379
-      password: ENC(noO+s6HBbhdp4+zRuVxJZgmn4adbp2RLQqvBmhQ4hlL8Hld0Z6WQzQ==)
+      password: ENC(O7jm17vPoH6hWRBeBDX7t9+r4JWzgTwF0roLDrGv4ABJ2yDrtFkRBw==)
       database: 0
 logging:
   level:
     root: debug
 security:
   auth:
-    white-list: /auth/login,/auth/register,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html
+    white-list: /auth/login,/auth/register,/auth/publicKey,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html
 crypto:
   aes:
     key: Td/c5P7o1Hqp1IbQwaDw1O2DasSjkeBQSeTz4eQm96Lt0R6dEEhfJiqxpdfIrJcBLG02CkO3ELLCDTp7Chqzdx/JR0XejYgsf+7XczM4nUY2FnnqP5mdiR32+73O7sZg7RKFRDISlrHj7ptq+cnqgW2D+yQIyx9CAf2SKER424+qXgJKow6UzlaGT5UWr1I4pjCOKv1RqlfyFgTp2UKZvBAX4T4ZSoxWAL8uH91xnVtVhJsb9PnGDRdzU/nKNaVTHyyfodxxhZNI3I1osoCFzCVjWUXv3jgT9k1+NDZ+3wfPRTAK7jV6wqWS9ws7He/ZEFWlC14hRiTI+mSNfJNoVA==

@@ -10,9 +10,16 @@ import java.util.Set;
  *
  * @author SHOOTING_STAR_C
  */
+import java.util.UUID;
+
+/**
+ * 权限实体
+ *
+ * @author SHOOTING_STAR_C
+ */
 @Data
 public class SwiftAuthority {
-    private Long authorityId;
+    private UUID authorityId;
 
     private String name;
 

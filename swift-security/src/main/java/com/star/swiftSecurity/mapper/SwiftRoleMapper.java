@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 角色Mapper接口
@@ -16,7 +17,7 @@ public interface SwiftRoleMapper {
      * 根据ID查找角色
      */
     @Select("SELECT * FROM swift_role WHERE role_id = #{roleId}")
-    SwiftRole findById(@Param("roleId") Long roleId);
+    SwiftRole findById(@Param("roleId") UUID roleId);
 
     /**
      * 根据角色名查找
@@ -38,8 +39,7 @@ public interface SwiftRoleMapper {
     /**
      * 保存角色
      */
-    @Insert("INSERT INTO swift_role(name, description) VALUES(#{name}, #{description})")
-    @Options(useGeneratedKeys = true, keyProperty = "roleId")
+    @Insert("INSERT INTO swift_role(role_id, name, description) VALUES(#{roleId}, #{name}, #{description})")
     int insert(SwiftRole role);
 
     /**
@@ -52,7 +52,7 @@ public interface SwiftRoleMapper {
      * 删除角色
      */
     @Delete("DELETE FROM swift_role WHERE role_id=#{roleId}")
-    int deleteById(@Param("roleId") Long roleId);
+    int deleteById(@Param("roleId") UUID roleId);
 
     /**
      * 查找所有角色

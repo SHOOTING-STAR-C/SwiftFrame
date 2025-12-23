@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 权限Mapper接口
@@ -16,7 +17,7 @@ public interface SwiftAuthorityMapper {
      * 根据ID查找权限
      */
     @Select("SELECT * FROM swift_authorities WHERE authority_id = #{authorityId}")
-    SwiftAuthority findById(@Param("authorityId") Long authorityId);
+    SwiftAuthority findById(@Param("authorityId") UUID authorityId);
 
     /**
      * 根据权限名查找
@@ -32,8 +33,7 @@ public interface SwiftAuthorityMapper {
     /**
      * 保存权限
      */
-    @Insert("INSERT INTO swift_authorities(name, description) VALUES(#{name}, #{description})")
-    @Options(useGeneratedKeys = true, keyProperty = "authorityId")
+    @Insert("INSERT INTO swift_authorities(authority_id, name, description) VALUES(#{authorityId}, #{name}, #{description})")
     int insert(SwiftAuthority authority);
 
     /**
@@ -46,7 +46,7 @@ public interface SwiftAuthorityMapper {
      * 删除权限
      */
     @Delete("DELETE FROM swift_authorities WHERE authority_id=#{authorityId}")
-    int deleteById(@Param("authorityId") Long authorityId);
+    int deleteById(@Param("authorityId") UUID authorityId);
 
     /**
      * 查找所有权限

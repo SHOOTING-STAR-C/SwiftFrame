@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * 角色权限复合主键类
@@ -13,6 +14,6 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class SwiftRoleAuthorityId implements Serializable {
-    private Long roleId;
-    private Long authorityId;
+    private UUID roleId;
+    private UUID authorityId;
 }

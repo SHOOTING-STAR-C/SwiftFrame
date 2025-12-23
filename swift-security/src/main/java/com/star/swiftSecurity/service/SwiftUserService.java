@@ -74,7 +74,7 @@ public interface SwiftUserService extends UserDetailsService {
      * @param roleId     roleId
      * @param assignedBy assignedBy
      */
-    void assignRoleToUser(UUID userId, Long roleId, String assignedBy);
+    void assignRoleToUser(UUID userId, UUID roleId, String assignedBy);
 
     /**
      * 收回角色
@@ -82,7 +82,7 @@ public interface SwiftUserService extends UserDetailsService {
      * @param userId userId
      * @param roleId roleId
      */
-    void removeRoleFromUser(UUID userId, Long roleId);
+    void removeRoleFromUser(UUID userId, UUID roleId);
 
     /**
      * 获取用户拥有的角色

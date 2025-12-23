@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +40,9 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
     public SwiftRole createRole(SwiftRole role) {
         if (roleMapper.existsByName(role.getName())) {
             throw new DuplicateEntityException("角色名称已存在");
+        }
+        if (role.getRoleId() == null) {
+            role.setRoleId(UUID.randomUUID());
         }
         roleMapper.insert(role);
         return role;
@@ -65,7 +69,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      * @param roleId roleId
      */
     @Override
-    public void deleteRole(Long roleId) {
+    public void deleteRole(UUID roleId) {
         // 检查是否有用户关联
         if (userRoleMapper.countByRole(roleId) > 0) {
             throw new OperationNotAllowedException("无法删除已分配用户的角色");
@@ -81,7 +85,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      * @return SwiftRole
      */
     @Override
-    public SwiftRole getRoleById(Long roleId) {
+    public SwiftRole getRoleById(UUID roleId) {
         SwiftRole role = roleMapper.findById(roleId);
         if (role == null) {
             throw new BusinessException("角色不存在");
@@ -105,7 +109,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      * @param authorityId authorityId
      */
     @Override
-    public void grantAuthorityToRole(Long roleId, Long authorityId) {
+    public void grantAuthorityToRole(UUID roleId, UUID authorityId) {
         SwiftRole role = getRoleById(roleId);
         SwiftAuthority authority = authorityMapper.findById(authorityId);
         if (authority == null) {
@@ -133,7 +137,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      * @param authorityId authorityId
      */
     @Override
-    public void revokeAuthorityFromRole(Long roleId, Long authorityId) {
+    public void revokeAuthorityFromRole(UUID roleId, UUID authorityId) {
         roleAuthorityMapper.deleteByRoleAndAuthority(roleId, authorityId);
     }
 
@@ -143,7 +147,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      * @return Set<SwiftAuthority>
      */
     @Override
-    public Set<SwiftAuthority> getRoleAuthorities(Long roleId) {
+    public Set<SwiftAuthority> getRoleAuthorities(UUID roleId) {
         return roleAuthorityMapper.findByRole(roleId).stream()
                 .map(SwiftRoleAuthority::getAuthority)
                 .collect(Collectors.toSet());
@@ -155,7 +159,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      * @return Set<SwiftUserDetails>
      */
     @Override
-    public Set<SwiftUserDetails> getUsersWithRole(Long roleId) {
+    public Set<SwiftUserDetails> getUsersWithRole(UUID roleId) {
         return userRoleMapper.findByRole(roleId).stream()
                 .map(SwiftUserRole::getUser)
                 .collect(Collectors.toSet());

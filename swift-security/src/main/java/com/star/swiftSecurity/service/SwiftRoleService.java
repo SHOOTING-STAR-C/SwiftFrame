@@ -6,6 +6,7 @@ import com.star.swiftSecurity.entity.SwiftUserDetails;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public interface SwiftRoleService {
     /**
@@ -29,7 +30,7 @@ public interface SwiftRoleService {
      *
      * @param roleId roleId
      */
-    void deleteRole(Long roleId);
+    void deleteRole(UUID roleId);
 
     /**
      * 根据io获取角色
@@ -37,7 +38,7 @@ public interface SwiftRoleService {
      * @param roleId roleId
      * @return SwiftRole
      */
-    SwiftRole getRoleById(Long roleId);
+    SwiftRole getRoleById(UUID roleId);
 
     /**
      * 获取所有角色
@@ -52,26 +53,26 @@ public interface SwiftRoleService {
      * @param roleId      roleId
      * @param authorityId authorityId
      */
-    void grantAuthorityToRole(Long roleId, Long authorityId);
+    void grantAuthorityToRole(UUID roleId, UUID authorityId);
 
     /**
      * 收回角色的权限
      * @param roleId roleId
      * @param authorityId authorityId
      */
-    void revokeAuthorityFromRole(Long roleId, Long authorityId);
+    void revokeAuthorityFromRole(UUID roleId, UUID authorityId);
 
     /**
      * 获取角色拥有的权限
      * @param roleId roleId
      * @return Set<SwiftAuthority>
      */
-    Set<SwiftAuthority> getRoleAuthorities(Long roleId);
+    Set<SwiftAuthority> getRoleAuthorities(UUID roleId);
 
     /**
      *
      * @param roleId roleId
      * @return Set<SwiftUserDetails>
      */
-    Set<SwiftUserDetails> getUsersWithRole(Long roleId);
+    Set<SwiftUserDetails> getUsersWithRole(UUID roleId);
 }

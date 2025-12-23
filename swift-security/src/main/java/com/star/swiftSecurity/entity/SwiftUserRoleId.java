@@ -15,5 +15,5 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = false)
 public class SwiftUserRoleId implements Serializable {
     private UUID userId;
-    private Long roleId;
+    private UUID roleId;
 }

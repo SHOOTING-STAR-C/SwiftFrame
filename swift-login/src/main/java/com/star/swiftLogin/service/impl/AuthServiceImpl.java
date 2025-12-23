@@ -4,9 +4,13 @@ import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftSecurity.domain.JwtToken;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
 import com.star.swiftSecurity.exception.InvalidTokenException;
+import com.star.swiftEncrypt.properties.CryptoEncryptProperties;
+import com.star.swiftEncrypt.utils.RsaUtil;
 import com.star.swiftSecurity.service.SwiftUserService;
 import com.star.swiftSecurity.utils.JwtUtil;
 import com.star.swiftLogin.service.AuthService;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -32,6 +36,8 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final SwiftUserService userService;
+    private final CryptoEncryptProperties cryptoEncryptProperties;
+    private final Validator validator;
 
     /**
      * 登录
@@ -42,8 +48,18 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public PubResult<JwtToken> login(String username, String password) {
+        // RSA 解密逻辑
+        String decryptUsername = username;
+        String decryptPassword = password;
+        try {
+            decryptUsername = RsaUtil.decrypt(username, cryptoEncryptProperties.getRsaPrivateKey());
+            decryptPassword = RsaUtil.decrypt(password, cryptoEncryptProperties.getRsaPrivateKey());
+        } catch (Exception e) {
+            log.error("RSA 解密失败: {}", e.getMessage());
+        }
+
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
+                new UsernamePasswordAuthenticationToken(decryptUsername, decryptPassword)
         );
         SwiftUserDetails userDetails = (SwiftUserDetails) authentication.getPrincipal();
 
@@ -103,6 +119,36 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public SwiftUserDetails createUser(SwiftUserDetails userDetails) {
+        // 注册字段 RSA 解密
+        try {
+            userDetails.setUsername(RsaUtil.decrypt(userDetails.getUsername(), cryptoEncryptProperties.getRsaPrivateKey()));
+            userDetails.setPassword(RsaUtil.decrypt(userDetails.getPassword(), cryptoEncryptProperties.getRsaPrivateKey()));
+            if (userDetails.getEmail() != null) {
+                userDetails.setEmail(RsaUtil.decrypt(userDetails.getEmail(), cryptoEncryptProperties.getRsaPrivateKey()));
+            }
+            if (userDetails.getPhone() != null) {
+                userDetails.setPhone(RsaUtil.decrypt(userDetails.getPhone(), cryptoEncryptProperties.getRsaPrivateKey()));
+            }
+        } catch (Exception e) {
+            log.error("注册信息解密失败: {}", e.getMessage());
+            // 如果解密失败，保留原值。实际生产环境下建议抛出业务异常。
+        }
+
+        // 解密后手动校验
+        validateUserDetails(userDetails);
+
         return userService.createUser(userDetails);
+    }
+
+    /**
+     * 手动校验用户信息
+     *
+     * @param userDetails 用户信息
+     */
+    private void validateUserDetails(SwiftUserDetails userDetails) {
+        var violations = validator.validate(userDetails);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
     }
 }

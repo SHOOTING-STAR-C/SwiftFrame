@@ -10,9 +10,16 @@ import java.util.Set;
  *
  * @author SHOOTING_STAR_C
  */
+import java.util.UUID;
+
+/**
+ * 角色实体
+ *
+ * @author SHOOTING_STAR_C
+ */
 @Data
 public class SwiftRole {
-    private Long roleId;
+    private UUID roleId;
 
     private String name;
 

@@ -6,6 +6,7 @@ import com.star.swiftSecurity.entity.SwiftUserRole;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 用户角色关联Mapper接口
@@ -16,36 +17,36 @@ public interface SwiftUserRoleMapper {
     /**
      * 查找用户的所有角色关联
      */
-    List<SwiftUserRole> findByUser(@Param("userId") String userId);
+    List<SwiftUserRole> findByUser(@Param("userId") UUID userId);
 
     /**
      * 查找拥有角色的用户
      */
-    List<SwiftUserRole> findByRole(@Param("roleId") Long roleId);
+    List<SwiftUserRole> findByRole(@Param("roleId") UUID roleId);
 
     /**
      * 查找用户的特定角色
      */
     @Select("SELECT COUNT(1) FROM swift_user_roles WHERE user_id = #{userId} AND role_id = #{roleId}")
-    boolean existsByUserAndRole(@Param("userId") String userId, @Param("roleId") Long roleId);
+    boolean existsByUserAndRole(@Param("userId") UUID userId, @Param("roleId") UUID roleId);
 
     /**
      * 删除用户的特定角色
      */
     @Delete("DELETE FROM swift_user_roles WHERE user_id = #{userId} AND role_id = #{roleId}")
-    int deleteByUserAndRole(@Param("userId") String userId, @Param("roleId") Long roleId);
+    int deleteByUserAndRole(@Param("userId") UUID userId, @Param("roleId") UUID roleId);
 
     /**
      * 统计用户拥有的角色数量
      */
     @Select("SELECT COUNT(1) FROM swift_user_roles WHERE user_id = #{userId}")
-    long countByUser(@Param("userId") String userId);
+    long countByUser(@Param("userId") UUID userId);
 
     /**
      * 统计拥有该角色的用户数量
      */
     @Select("SELECT COUNT(1) FROM swift_user_roles WHERE role_id = #{roleId}")
-    long countByRole(@Param("roleId") Long roleId);
+    long countByRole(@Param("roleId") UUID roleId);
 
     /**
      * 保存用户角色关联

@@ -1,6 +1,7 @@
 package com.star.swiftLogin.controller;
 
 import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftEncrypt.properties.CryptoEncryptProperties;
 import com.star.swiftLogin.dto.LoginRequest;
 import com.star.swiftLogin.dto.RegisterRequest;
 import com.star.swiftLogin.service.AuthService;
@@ -10,10 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 应用鉴权入口
@@ -26,6 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "鉴权管理", description = "登录和注册接口")
 public class LoginController {
     private final AuthService authService;
+    private final CryptoEncryptProperties cryptoEncryptProperties;
+
+    /**
+     * 获取RSA公钥
+     *
+     * @return 公钥字符串
+     */
+    @GetMapping("/publicKey")
+    @Operation(summary = "获取RSA公钥", description = "获取用于前端加密密码的RSA公钥")
+    public PubResult<String> getPublicKey() {
+        return PubResult.success(cryptoEncryptProperties.getRsaPublicKey());
+    }
 
     /**
      * 登录接口
@@ -35,7 +45,7 @@ public class LoginController {
      */
     @PostMapping("/login")
     @Operation(summary = "用户登录", description = "通过用户名和密码获取 JWT Token")
-    public PubResult<JwtToken> login(@Valid @RequestBody LoginRequest user) {
+    public PubResult<JwtToken> login(@RequestBody LoginRequest user) {
         return authService.login(user.getUsername(), user.getPassword());
     }
 
@@ -47,7 +57,7 @@ public class LoginController {
      */
     @PostMapping("/register")
     @Operation(summary = "用户注册", description = "注册新用户")
-    public PubResult<SwiftUserDetails> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+    public PubResult<SwiftUserDetails> registerUser(@RequestBody RegisterRequest registerRequest) {
         SwiftUserDetails user = new SwiftUserDetails();
         user.setUsername(registerRequest.getUsername());
         user.setPassword(registerRequest.getPassword());

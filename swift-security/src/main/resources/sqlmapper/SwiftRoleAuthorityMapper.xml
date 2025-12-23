@@ -4,11 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.star.swiftSecurity.mapper.SwiftRoleAuthorityMapper">
     <resultMap id="RoleAuthorityResultMap" type="com.star.swiftSecurity.entity.SwiftRoleAuthority">
-        <association property="id" javaType="com.star.swiftSecurity.entity.SwiftRoleAuthorityId">
-            <result property="roleId" column="role_id"/>
-            <result property="authorityId" column="authority_id"/>
-        </association>
         <result property="grantedAt" column="granted_at"/>
+        <association property="id" javaType="com.star.swiftSecurity.entity.SwiftRoleAuthorityId">
+            <result property="roleId" column="role_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
+            <result property="authorityId" column="authority_id" javaType="java.util.UUID" typeHandler="com.star.swiftMybatis.handler.UuidTypeHandler"/>
+        </association>
         <association property="authority" select="com.star.swiftSecurity.mapper.SwiftAuthorityMapper.findById" column="authority_id"/>
     </resultMap>
 
