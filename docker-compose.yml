@@ -1,0 +1,74 @@
+services:
+  swift-frame:
+    build: .
+    container_name: swift-frame
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_DRUID_MASTER_URL=jdbc:mysql://mysql:3306/swift?characterEncoding=utf8&serverTimezone=UTC
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATASOURCE_DRUID_PG_URL=jdbc:postgresql://postgres:5432/swift_pg
+      # 如果有 Jasypt 密码，可以通过环境变量传入
+      # - JASYPT_ENCRYPTOR_PASSWORD=your_password
+    depends_on:
+      mysql:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - swift-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: swift
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./swift-start/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - swift-net
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: swift_pg
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+      - ./swift-start/src/main/resources/schema-pg.sql:/docker-entrypoint-initdb.d/schema-pg.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - swift-net
+
+  redis:
+    image: redis:7.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+    networks:
+      - swift-net
+
+networks:
+  swift-net:
+    driver: bridge
