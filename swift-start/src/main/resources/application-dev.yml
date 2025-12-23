@@ -10,9 +10,16 @@ spring:
       master:
         url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(P6ouDpTphpE+PSHGnAYdFAh+7E7iZc6sOhaow3kxz9D89JvutQ==)
-        password: ENC(QMoZDwCZHN7zfVmqfGYzdtILnhcQQ23pnZ+WRGOHcHolowuAspMbl4nWpQs=)
+        username: ENC(4NCTG/XOwbD44U4kR91qB0XAcLzHwFPtVavl45Blc+8SERTD8g==)
+        password: ENC(DQ70oRSaUXLe/mroblqIWkkgrYO0QP878ErJVRoeG2Ne+v6hL2af8ZdUGN0=)
         validation-query: SELECT 1 from dual
+        filters: stat,wall,slf4j
+      pg:
+        url: jdbc:postgresql://24.233.1.242:5432/swift_bus
+        driver-class-name: org.postgresql.Driver
+        username: ENC(AKEjg6GdwtqCBMf6VjN+bhlVQH+/OvGVSzxCzVS6g3TFdObnq/mFp6U=)
+        password: ENC(nYleBL2SCWz0/eAVLII9WaaOXoG1IZbrJ2wsBTZHShOVouLbM4DKj96p5eo=)
+        validation-query: SELECT 1
         filters: stat,wall,slf4j
   security:
     jwt:
@@ -27,7 +34,7 @@ spring:
     redis:
       host: 24.233.1.242
       port: 6379
-      password: ENC(DEwfQjMb123KgJaifffE4rDS/66ELvoWVM/bHuR0XSAhSpkSTkUA6A==)
+      password: ENC(noO+s6HBbhdp4+zRuVxJZgmn4adbp2RLQqvBmhQ4hlL8Hld0Z6WQzQ==)
       database: 0
 logging:
   level:

@@ -10,7 +10,8 @@ import lombok.Getter;
 @Getter
 public enum DataSourceEnum {
 
-    MASTER("master", "主库", true);
+    MASTER("master", "主库", true),
+    PG("pg", "PostgreSQL库", true);
 
     private final String name;   // 数据源名称（对应配置）
     private final String desc;   // 描述信息
