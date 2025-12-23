@@ -4,7 +4,6 @@ import com.star.swiftDatasource.constants.DataSourceEnum;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -20,30 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class DynamicDataSource extends AbstractRoutingDataSource {
 
-    private static final ThreadLocal<String> dataSourceKey =
-            new InheritableThreadLocal<>(); // 支持线程间传递
-
     private static final Map<Object, Object> targetDataSources =
             new ConcurrentHashMap<>();
 
     @Override
     protected Object determineCurrentLookupKey() {
-        // 事务上下文中使用绑定数据源
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            String txDataSource = (String) TransactionSynchronizationManager.getResource(DynamicDataSource.class);
-            if (txDataSource != null) {
-                return txDataSource;
-            }
-        }
-        return dataSourceKey.get();
-    }
-
-    public static void setDataSource(String key) {
-        dataSourceKey.set(key);
-    }
-
-    public static void clearDataSource() {
-        dataSourceKey.remove();
+        DataSourceEnum ds = DataSourceContextHolder.getDataSource();
+        return ds != null ? ds.getName() : null;
     }
 
     /**

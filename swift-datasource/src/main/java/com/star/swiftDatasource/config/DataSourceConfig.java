@@ -6,7 +6,6 @@ import com.star.swiftDatasource.constants.DataSourceEnum;
 import com.star.swiftDatasource.properties.DruidProperties;
 import com.star.swiftDatasource.properties.PgDruidProperties;
 import com.star.swiftDatasource.routing.DynamicDataSource;
-import com.star.swiftDatasource.transaction.MultiDataSourceTransactionManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,6 +107,6 @@ public class DataSourceConfig {
     @Bean(name = "multiTransactionManager")
     @Primary
     public PlatformTransactionManager multiTransactionManager(DynamicDataSource dataSource) {
-        return new MultiDataSourceTransactionManager(dataSource);
+        return new org.springframework.jdbc.datasource.DataSourceTransactionManager(dataSource);
     }
 }
