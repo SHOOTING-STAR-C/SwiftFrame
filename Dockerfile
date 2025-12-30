@@ -1,5 +1,5 @@
 # 使用 Maven 镜像进行构建
-FROM maven:3.8.4-openjdk-17-slim AS build
+FROM maven:3.9.9-eclipse-temurin-21-jammy AS build
 WORKDIR /app
 
 # 复制 pom.xml 文件以利用 Docker 缓存
@@ -21,7 +21,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # 使用 JRE 镜像进行运行
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 WORKDIR /app
 
 # 从构建阶段复制打包好的 jar 文件

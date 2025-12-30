@@ -19,6 +19,7 @@
         <module>swift-redis</module>
         <module>swift-security</module>
         <module>swift-login</module>
+        <module>swift-ai</module>
     </modules>
 
     <groupId>com.star</groupId>
@@ -89,6 +90,11 @@
             <dependency>
                 <groupId>com.star</groupId>
                 <artifactId>swift-login</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-ai</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <!--常用依赖-->

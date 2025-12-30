@@ -19,3 +19,31 @@ swift:
   mybatis:
     mapper-locations:
       master: classpath*:sqlmapper/*.xml
+  ai:
+    enabled: true
+    default-provider: openai
+    providers:
+      openai:
+        enabled: false
+        api-key: ${OPENAI_API_KEY:your-openai-api-key}
+        base-url: https://api.openai.com
+        model: gpt-4o
+        timeout: 30
+        temperature: 0.7
+        max-retries: 3
+      deepseek:
+        enabled: false
+        api-key: ${DEEPSEEK_API_KEY:your-deepseek-api-key}
+        base-url: https://api.deepseek.com
+        model: deepseek-chat
+        timeout: 30
+        temperature: 0.7
+        max-retries: 3
+      custom:
+        enabled: false
+        api-key: ${CUSTOM_API_KEY:your-custom-api-key}
+        base-url: ${CUSTOM_BASE_URL:}
+        model: custom-model
+        timeout: 30
+        temperature: 0.7
+        max-retries: 3
