@@ -24,6 +24,10 @@
             <groupId>com.star</groupId>
             <artifactId>swift-login</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-monitor</artifactId>
+        </dependency>
         <!--常用依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

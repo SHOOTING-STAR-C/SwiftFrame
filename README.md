@@ -27,6 +27,7 @@ SwiftFrame/
 ├── swift-encrypt/          # 加解密模块（AES/RSA 实现、Jasypt 配置）
 ├── swift-encrypt-plugin/   # 加解密 Maven 插件（用于自动化加密配置文件）
 ├── swift-redis/            # Redis 缓存模块
+├── swift-monitor/          # 系统监控模块（健康检查、性能指标、Prometheus集成）
 ├── swift-security/         # 安全认证模块（Security 配置、JWT 实现、权限控制）
 ├── swift-ai/               # AI 通用调用模块（支持 OpenAI 兼容接口）
 ├── swift-login/            # 登录业务模块（用户认证、登录接口）
@@ -54,6 +55,7 @@ graph TB
     subgraph DataServiceLayer ["数据服务层 (Data Services)"]
         DATASOURCE["swift-datasource<br/>数据源管理"]
         REDIS["swift-redis<br/>缓存服务"]
+        MONITOR["swift-monitor<br/>系统监控"]
     end
 
     subgraph FoundationLayer ["基础层 (Foundation)"]
@@ -81,6 +83,7 @@ graph TB
     BUSINESS --> LOGIN
     LOGIN --> SECURITY
     LOGIN --> REDIS
+    LOGIN --> MONITOR
     SECURITY --> REDIS
     SECURITY --> DATASOURCE
     SECURITY --> ENCRYPT
@@ -88,6 +91,7 @@ graph TB
     REDIS --> COMMON
     ENCRYPT --> COMMON
     AI --> COMMON
+    MONITOR --> COMMON
     
     %% 外部依赖
     DATASOURCE --> MySQL
@@ -101,6 +105,7 @@ graph TB
     style SECURITY fill:#e74c3c,stroke:#c0392b,stroke-width:2px
     style DATASOURCE fill:#2ecc71,stroke:#27ae60,stroke-width:2px
     style REDIS fill:#2ecc71,stroke:#27ae60,stroke-width:2px
+    style MONITOR fill:#2ecc71,stroke:#27ae60,stroke-width:2px
     style COMMON fill:#9b59b6,stroke:#8e44ad,stroke-width:2px
     style ENCRYPT fill:#9b59b6,stroke:#8e44ad,stroke-width:2px
     style AI fill:#9b59b6,stroke:#8e44ad,stroke-width:2px
@@ -124,6 +129,8 @@ graph TB
   - **swift-datasource**: 多数据源动态切换（MySQL/PostgreSQL）、MyBatis Plus 集成
     - 依赖：swift-common
   - **swift-redis**: Redis 缓存服务封装
+    - 依赖：swift-common
+  - **swift-monitor**: 系统监控模块，基于 Spring Boot Actuator 提供健康检查、性能指标采集、Prometheus集成
     - 依赖：swift-common
 
 - **基础层**

@@ -24,6 +24,18 @@ public interface SwiftRoleAuthorityMapper {
     boolean existsByRoleAndAuthority(@Param("roleId") UUID roleId, @Param("authorityId") UUID authorityId);
 
     /**
+     * 检查角色权限关联是否存在（简化方法）
+     */
+    @Select("SELECT COUNT(1) FROM swift_role_authorities WHERE role_id = #{roleId} AND authority_id = #{authorityId}")
+    boolean exists(@Param("roleId") UUID roleId, @Param("authorityId") UUID authorityId);
+
+    /**
+     * 插入角色权限关联（简化方法）
+     */
+    @Insert("INSERT INTO swift_role_authorities(role_id, authority_id) VALUES(#{roleId}, #{authorityId})")
+    int insert(@Param("roleId") UUID roleId, @Param("authorityId") UUID authorityId);
+
+    /**
      * 删除角色的特定权限
      */
     @Delete("DELETE FROM swift_role_authorities WHERE role_id = #{roleId} AND authority_id = #{authorityId}")

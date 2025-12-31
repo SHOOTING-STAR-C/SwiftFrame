@@ -16,6 +16,7 @@
         <module>swift-datasource</module>
         <module>swift-encrypt</module>
         <module>swift-redis</module>
+        <module>swift-monitor</module>
         <module>swift-security</module>
         <module>swift-ai</module>
         <module>swift-login</module>
@@ -101,6 +102,11 @@
             <dependency>
                 <groupId>com.star</groupId>
                 <artifactId>swift-business</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-monitor</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <!--常用依赖-->
