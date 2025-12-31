@@ -1,8 +1,8 @@
-package com.star.swiftStart.controller;
+package com.star.swiftBusiness.controller;
 
 import com.star.swiftCommon.domain.PubResult;
-import com.star.swiftStart.entity.Bussarea;
-import com.star.swiftStart.service.TestService;
+import com.star.swiftBusiness.entity.Bussarea;
+import com.star.swiftBusiness.service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

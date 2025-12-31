@@ -1,4 +1,4 @@
-package com.star.swiftSecurity.conffig;
+package com.star.swiftSecurity.config;
 
 import com.star.swiftSecurity.filter.JwtAuthenticationFilter;
 import com.star.swiftSecurity.properties.SecurityProperties;

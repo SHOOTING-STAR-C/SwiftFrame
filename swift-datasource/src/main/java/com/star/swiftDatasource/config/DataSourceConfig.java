@@ -8,11 +8,13 @@ import com.star.swiftDatasource.properties.PgDruidProperties;
 import com.star.swiftDatasource.routing.DynamicDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -57,20 +59,40 @@ public class DataSourceConfig {
         return pgDruidProperties.dataSource(dataSource);
     }
 
-    @Value("classpath:schema-pg.sql")
-    private Resource pgSchemaScript;
-
+    /**
+     * PG数据源初始化器（可选）
+     *
+     * @param pgDataSource      PG数据源
+     * @param pgDruidProperties PG配置
+     * @return DataSourceInitializer
+     */
     @Bean
-    public DataSourceInitializer pgDataSourceInitializer(@Qualifier("pgDataSource") DataSource pgDataSource) {
+    @ConditionalOnProperty(
+            prefix = "spring.datasource.druid.pg",
+            name = "initializeSchema",
+            havingValue = "true",
+            matchIfMissing = true
+    )
+    public DataSourceInitializer pgDataSourceInitializer(
+            @Qualifier("pgDataSource") DataSource pgDataSource,
+            PgDruidProperties pgDruidProperties) {
         DataSourceInitializer initializer = new DataSourceInitializer();
         initializer.setDataSource(pgDataSource);
-        initializer.setDatabasePopulator(pgDatabasePopulator());
+        initializer.setDatabasePopulator(pgDatabasePopulator(pgDruidProperties));
         return initializer;
     }
 
-    private DatabasePopulator pgDatabasePopulator() {
+    /**
+     * PG数据库初始化脚本
+     *
+     * @param pgDruidProperties PG配置
+     * @return DatabasePopulator
+     */
+    private DatabasePopulator pgDatabasePopulator(PgDruidProperties pgDruidProperties) {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(pgSchemaScript);
+        ResourceLoader resourceLoader = new DefaultResourceLoader();
+        Resource scriptResource = resourceLoader.getResource(pgDruidProperties.getSchemaScript());
+        populator.addScript(scriptResource);
         populator.setContinueOnError(true);
         return populator;
     }

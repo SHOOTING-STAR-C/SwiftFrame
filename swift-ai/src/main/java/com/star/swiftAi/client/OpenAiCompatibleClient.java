@@ -123,20 +123,22 @@ public class OpenAiCompatibleClient implements AiClient {
             HttpResponse<Stream<String>> response = httpClient.send(httpRequest, 
                     HttpResponse.BodyHandlers.ofLines());
             
-            response.body().forEach(line -> {
-                if (line.startsWith("data: ")) {
-                    String data = line.substring(6);
-                    if ("[DONE]".equals(data)) {
-                        return;
+            try (Stream<String> lines = response.body()) {
+                lines.forEach(line -> {
+                    if (line.startsWith("data: ")) {
+                        String data = line.substring(6);
+                        if ("[DONE]".equals(data)) {
+                            return;
+                        }
+                        try {
+                            ChatResponse chunk = objectMapper.readValue(data, ChatResponse.class);
+                            consumer.accept(chunk);
+                        } catch (Exception e) {
+                            log.error("Failed to parse streaming response chunk: {}", data, e);
+                        }
                     }
-                    try {
-                        ChatResponse chunk = objectMapper.readValue(data, ChatResponse.class);
-                        consumer.accept(chunk);
-                    } catch (Exception e) {
-                        log.error("Failed to parse streaming response chunk: {}", data, e);
-                    }
-                }
-            });
+                });
+            }
 
         } catch (IOException | InterruptedException e) {
             log.error("Streaming request failed for " + config.getProvider(), e);

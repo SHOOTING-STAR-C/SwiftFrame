@@ -14,6 +14,7 @@ SwiftFrame 是一个基于 **Spring Boot 3.5** 和 **Java 21** 构建的多模�
 -   **高效 ORM 增强**：集成 MyBatis-Plus 3.5+，提供更简洁的数据库操作体验。
 -   **容器化部署**：全套 Docker / Docker-Compose 部署方案，支持一键启动应用及其依赖环境。
 -   **API 文档自动化**：集成 SpringDoc OpenAPI 3 (Swagger UI)，自动生成交互式 API 接口文档。
+-   **完善的响应封装**：统一的响应结果封装，支持普通响应和分页响应。
 
 ---
 
@@ -27,62 +28,118 @@ SwiftFrame/
 ├── swift-encrypt-plugin/   # 加解密 Maven 插件（用于自动化加密配置文件）
 ├── swift-redis/            # Redis 缓存模块
 ├── swift-security/         # 安全认证模块（Security 配置、JWT 实现、权限控制）
-├── swift-login/            # 业务模块：用户登录与授权
+├── swift-ai/               # AI 通用调用模块（支持 OpenAI 兼容接口）
+├── swift-login/            # 登录业务模块（用户认证、登录接口）
+├── swift-business/         # 默认业务模块（业务逻辑实现）
 └── swift-start/            # 启动模块（主启动类、配置文件、静态资源）
 ```
 
 ## 🏗️ 系统架构
 
 ```mermaid
-graph TD
-    subgraph App[应用启动层]
-        START[swift-start]
+graph TB
+    subgraph AppLayer ["应用层 (Application)"]
+        START["swift-start<br/>启动入口"]
     end
 
-    subgraph Business[业务模块层]
-        LOGIN[swift-login]
+    subgraph BusinessLayer ["业务层 (Business)"]
+        LOGIN["swift-login<br/>登录业务"]
+        BUSINESS["swift-business<br/>业务模块"]
     end
 
-    subgraph Core[核心支撑层]
-        SECURITY[swift-security]
-        ENCRYPT[swift-encrypt]
+    subgraph SecurityLayer ["安全层 (Security)"]
+        SECURITY["swift-security<br/>安全认证"]
     end
 
-    subgraph Base[通用基础层]
-        DATASOURCE[swift-datasource]
-        REDIS[swift-redis]
-        COMMON[swift-common]
+    subgraph DataServiceLayer ["数据服务层 (Data Services)"]
+        DATASOURCE["swift-datasource<br/>数据源管理"]
+        REDIS["swift-redis<br/>缓存服务"]
     end
 
-    subgraph Infrastructure[基础设施]
-        MySQL[(MySQL)]
-        PostgreSQL[(PostgreSQL)]
-        Cache[(Redis)]
+    subgraph FoundationLayer ["基础层 (Foundation)"]
+        COMMON["swift-common<br/>通用组件"]
+        ENCRYPT["swift-encrypt<br/>加密服务"]
+        AI["swift-ai<br/>AI服务"]
+    end
+
+    subgraph DevTools ["开发工具 (DevTools)"]
+        PLUGIN["swift-encrypt-plugin<br/>加密插件"]
+    end
+
+    subgraph Infrastructure ["基础设施 (Infrastructure)"]
+        MySQL[("MySQL")]
+        PostgreSQL[("PostgreSQL")]
+        Cache[("Redis")]
+        AI_API(["AI APIs"])
     end
 
     %% 依赖关系
     START --> LOGIN
-    START --> SECURITY
-    START --> MYBATIS
-    START --> ENCRYPT
     START --> COMMON
-
+    BUSINESS --> COMMON
+    BUSINESS --> SECURITY
+    BUSINESS --> LOGIN
     LOGIN --> SECURITY
     LOGIN --> REDIS
-
-    SECURITY --> MYBATIS
     SECURITY --> REDIS
-    SECURITY --> ENCRYPT
     SECURITY --> DATASOURCE
-
-    MYBATIS --> DATASOURCE
+    SECURITY --> ENCRYPT
+    DATASOURCE --> COMMON
+    REDIS --> COMMON
     ENCRYPT --> COMMON
-
-    %% 基础设施交互
+    AI --> COMMON
+    
+    %% 外部依赖
     DATASOURCE --> MySQL
     DATASOURCE --> PostgreSQL
     REDIS --> Cache
+    AI --> AI_API
+
+    style START fill:#4a90d9,stroke:#2c5aa0,stroke-width:2px
+    style LOGIN fill:#f5a623,stroke:#d48806,stroke-width:2px
+    style BUSINESS fill:#f5a623,stroke:#d48806,stroke-width:2px
+    style SECURITY fill:#e74c3c,stroke:#c0392b,stroke-width:2px
+    style DATASOURCE fill:#2ecc71,stroke:#27ae60,stroke-width:2px
+    style REDIS fill:#2ecc71,stroke:#27ae60,stroke-width:2px
+    style COMMON fill:#9b59b6,stroke:#8e44ad,stroke-width:2px
+    style ENCRYPT fill:#9b59b6,stroke:#8e44ad,stroke-width:2px
+    style AI fill:#9b59b6,stroke:#8e44ad,stroke-width:2px
+    style PLUGIN fill:#95a5a6,stroke:#7f8c8d,stroke-width:2px
 ```
+
+### 分层说明
+
+- **应用层**
+  - **swift-start**: 应用启动入口，依赖业务层和基础层模块
+
+- **业务层**
+  - **swift-login**: 用户登录、认证等业务逻辑
+  - **swift-business**: 默认业务模块，提供业务逻辑实现
+
+- **安全层**
+  - **swift-security**: 基于 Spring Security 和 JWT 的认证授权、权限控制
+    - 依赖：swift-redis、swift-datasource、swift-encrypt
+
+- **数据服务层**
+  - **swift-datasource**: 多数据源动态切换（MySQL/PostgreSQL）、MyBatis Plus 集成
+    - 依赖：swift-common
+  - **swift-redis**: Redis 缓存服务封装
+    - 依赖：swift-common
+
+- **基础层**
+  - **swift-common**: 通用工具类、统一响应结果（PubResult、PageResult）、全局异常处理、OpenAPI 配置
+  - **swift-encrypt**: AES/RSA 加解密工具、Jasypt 配置加密
+    - 依赖：swift-common
+  - **swift-ai**: OpenAI 兼容接口的 AI 通用调用工具，支持流式响应
+    - 依赖：swift-common
+
+- **开发工具**
+  - **swift-encrypt-plugin**: Maven 插件，用于构建时配置文件的自动加解密
+
+**架构原则**: 
+- 依赖单向向下，高层模块依赖低层模块，禁止跨层调用
+- 各模块内部集成自动配置能力，开箱即用
+- 模块职责单一，高内聚低耦合
 
 ---
 
@@ -154,6 +211,12 @@ public List<User> selectFromPg() {
 ### 配置文件加密
 
 可以使用 `swift-encrypt-plugin` 插件对配置文件中的敏感信息进行加密，确保代码托管平台的安全性。
+
+---
+
+## 📋 更新日志
+
+详细的版本更新和Bug修复记录请查看：[CHANGELOG.md](CHANGELOG.md)
 
 ---
 

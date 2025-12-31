@@ -1,7 +1,6 @@
 package com.star.swiftCommon.domain;
 
 import com.star.swiftCommon.constant.ResultCode;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,12 +12,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Data
-@AllArgsConstructor
 public class PubResult<T> {
     private String code; // 状态码
     private String msg;  // 消息
     private T data;      // 响应数据
-    private int total;   // 总数
 
     /**
      * 成功响应
@@ -29,16 +26,6 @@ public class PubResult<T> {
         return new PubResult<>(ResultCode.SUCCESS, data);
     }
 
-    /**
-     * 成功返回列表数据
-     *
-     * @param data  数据
-     * @param total 总数
-     * @return PubResult
-     */
-    public static <T> PubResult<T> success(T data, int total) {
-        return new PubResult<>(ResultCode.SUCCESS, data, total);
-    }
 
     /**
      * 失败响应
@@ -87,12 +74,6 @@ public class PubResult<T> {
         this.data = data;
     }
 
-    public PubResult(ResultCode resultCode, T data, int total) {
-        this.code = resultCode.getCode();
-        this.msg = resultCode.getMessage();
-        this.data = data;
-        this.total = total;
-    }
 
     public PubResult(ResultCode resultCode, String msg) {
         this.code = resultCode.getCode();

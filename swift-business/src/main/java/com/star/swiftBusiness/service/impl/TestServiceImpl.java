@@ -1,10 +1,9 @@
-package com.star.swiftStart.service.impl;
+package com.star.swiftBusiness.service.impl;
 
-import com.star.swiftDatasource.annotation.UDS;
-import com.star.swiftStart.entity.Bussarea;
-import com.star.swiftStart.mapper.BussareaMapper;
-import com.star.swiftStart.mapper.TestMapper;
-import com.star.swiftStart.service.TestService;
+import com.star.swiftBusiness.entity.Bussarea;
+import com.star.swiftBusiness.mapper.BussareaMapper;
+import com.star.swiftBusiness.mapper.TestMapper;
+import com.star.swiftBusiness.service.TestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ public class TestServiceImpl implements TestService {
 
     private final BussareaMapper bussareaMapper;
 
-    @UDS
     @Override
     public int testCount() {
         log.info("testCount");

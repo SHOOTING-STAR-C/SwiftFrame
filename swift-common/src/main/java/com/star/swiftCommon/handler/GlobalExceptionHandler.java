@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
         StringBuilder errorMsg = new StringBuilder("参数验证失败：");
         e.getBindingResult().getFieldErrors().forEach(error -> errorMsg.append(error.getDefaultMessage()).append("；"));
         // 移除最后一个分号
-        if (!errorMsg.isEmpty()) {
+        if (errorMsg.length() > 0 && errorMsg.charAt(errorMsg.length() - 1) == '；') {
             errorMsg.deleteCharAt(errorMsg.length() - 1);
         }
         log.error(errorMsg.toString());

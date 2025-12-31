@@ -1,6 +1,6 @@
-package com.star.swiftStart.mapper;
+package com.star.swiftBusiness.mapper;
 
-import com.star.swiftStart.entity.Bussarea;
+import com.star.swiftBusiness.entity.Bussarea;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

@@ -1,4 +1,4 @@
-package com.star.swiftStart.mapper;
+package com.star.swiftBusiness.mapper;
 
 import org.apache.ibatis.annotations.Select;
 

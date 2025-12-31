@@ -1,4 +1,4 @@
-package com.star.swiftStart.entity;
+package com.star.swiftBusiness.entity;
 
 import lombok.Data;
 

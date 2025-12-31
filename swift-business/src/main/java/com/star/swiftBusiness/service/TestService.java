@@ -1,6 +1,6 @@
-package com.star.swiftStart.service;
+package com.star.swiftBusiness.service;
 
-import com.star.swiftStart.entity.Bussarea;
+import com.star.swiftBusiness.entity.Bussarea;
 
 import java.util.List;
 

@@ -15,18 +15,10 @@
     <name>swift-start</name>
 
     <dependencies>
-        <!--系统模块-->
+        <!--系统模块 - 启动层只依赖业务层和基础层-->
         <dependency>
             <groupId>com.star</groupId>
             <artifactId>swift-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.star</groupId>
-            <artifactId>swift-datasource</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.star</groupId>
-            <artifactId>swift-encrypt</artifactId>
         </dependency>
         <dependency>
             <groupId>com.star</groupId>

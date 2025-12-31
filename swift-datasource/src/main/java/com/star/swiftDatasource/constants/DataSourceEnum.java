@@ -7,7 +7,6 @@ import lombok.Getter;
  *
  * @author SHOOTING_STAR_C
  */
-@Getter
 public enum DataSourceEnum {
 
     MASTER("master", "主库", true),
@@ -21,6 +20,18 @@ public enum DataSourceEnum {
         this.name = name;
         this.desc = desc;
         this.writable = writable;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public boolean isWritable() {
+        return writable;
     }
 
     /**

@@ -4,8 +4,7 @@ import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftSecurity.domain.JwtToken;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
 import com.star.swiftSecurity.exception.InvalidTokenException;
-import com.star.swiftEncrypt.properties.CryptoEncryptProperties;
-import com.star.swiftEncrypt.utils.RsaUtil;
+import com.star.swiftSecurity.service.CryptoService;
 import com.star.swiftSecurity.service.SwiftUserService;
 import com.star.swiftSecurity.utils.JwtUtil;
 import com.star.swiftLogin.service.AuthService;
@@ -36,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final SwiftUserService userService;
-    private final CryptoEncryptProperties cryptoEncryptProperties;
+    private final CryptoService cryptoService;
     private final Validator validator;
 
     /**
@@ -48,14 +47,14 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public PubResult<JwtToken> login(String username, String password) {
-        // RSA 解密逻辑
+        // 解密用户名和密码
         String decryptUsername = username;
         String decryptPassword = password;
         try {
-            decryptUsername = RsaUtil.decrypt(username, cryptoEncryptProperties.getRsaPrivateKey());
-            decryptPassword = RsaUtil.decrypt(password, cryptoEncryptProperties.getRsaPrivateKey());
+            decryptUsername = cryptoService.decryptUsername(username);
+            decryptPassword = cryptoService.decryptPassword(password);
         } catch (Exception e) {
-            log.error("RSA 解密失败: {}", e.getMessage());
+            log.error("解密失败: {}", e.getMessage());
         }
 
         Authentication authentication = authenticationManager.authenticate(
@@ -119,15 +118,22 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public SwiftUserDetails createUser(SwiftUserDetails userDetails) {
-        // 注册字段 RSA 解密
+        // 解密注册字段
         try {
-            userDetails.setUsername(RsaUtil.decrypt(userDetails.getUsername(), cryptoEncryptProperties.getRsaPrivateKey()));
-            userDetails.setPassword(RsaUtil.decrypt(userDetails.getPassword(), cryptoEncryptProperties.getRsaPrivateKey()));
-            if (userDetails.getEmail() != null) {
-                userDetails.setEmail(RsaUtil.decrypt(userDetails.getEmail(), cryptoEncryptProperties.getRsaPrivateKey()));
+            String[] decryptedInfo = cryptoService.decryptRegistrationInfo(
+                    userDetails.getUsername(),
+                    userDetails.getPassword(),
+                    userDetails.getEmail(),
+                    userDetails.getPhone()
+            );
+            
+            userDetails.setUsername(decryptedInfo[0]);
+            userDetails.setPassword(decryptedInfo[1]);
+            if (decryptedInfo[2] != null) {
+                userDetails.setEmail(decryptedInfo[2]);
             }
-            if (userDetails.getPhone() != null) {
-                userDetails.setPhone(RsaUtil.decrypt(userDetails.getPhone(), cryptoEncryptProperties.getRsaPrivateKey()));
+            if (decryptedInfo[3] != null) {
+                userDetails.setPhone(decryptedInfo[3]);
             }
         } catch (Exception e) {
             log.error("注册信息解密失败: {}", e.getMessage());

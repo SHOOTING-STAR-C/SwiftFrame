@@ -12,14 +12,15 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>swift-start</module>
-        <module>swift-datasource</module>
         <module>swift-common</module>
+        <module>swift-datasource</module>
         <module>swift-encrypt</module>
         <module>swift-redis</module>
         <module>swift-security</module>
-        <module>swift-login</module>
         <module>swift-ai</module>
+        <module>swift-login</module>
+        <module>swift-business</module>
+        <module>swift-start</module>
     </modules>
 
     <groupId>com.star</groupId>
@@ -89,12 +90,17 @@
             </dependency>
             <dependency>
                 <groupId>com.star</groupId>
+                <artifactId>swift-ai</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
                 <artifactId>swift-login</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.star</groupId>
-                <artifactId>swift-ai</artifactId>
+                <artifactId>swift-business</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <!--常用依赖-->

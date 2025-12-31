@@ -34,6 +34,10 @@ public class PgDruidProperties {
     private boolean testOnBorrow = false;
     private boolean testOnReturn = false;
     private String filters = "stat";
+    
+    // 初始化脚本配置
+    private String schemaScript = "classpath:schema-pg.sql";
+    private boolean initializeSchema = true;
 
     public DruidDataSource dataSource(DruidDataSource datasource) throws SQLException {
         /* 配置基础连接 */

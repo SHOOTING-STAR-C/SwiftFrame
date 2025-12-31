@@ -70,7 +70,7 @@ public class JwtUtil {
     public String generateRefreshToken(SwiftUserDetails userDetails) {
         Map<String, String> claims = new HashMap<>();
         String refreshToken = buildToken(claims, userDetails.getUserId().toString(), jwtProperties.getRefreshExpiration());
-        tokenStorageService.storeToken(TokenConstants.refreshToken, userDetails.getUsername(), refreshToken, jwtProperties.getExpiration());
+        tokenStorageService.storeToken(TokenConstants.refreshToken, userDetails.getUsername(), refreshToken, jwtProperties.getRefreshExpiration());
         return refreshToken;
     }
 
