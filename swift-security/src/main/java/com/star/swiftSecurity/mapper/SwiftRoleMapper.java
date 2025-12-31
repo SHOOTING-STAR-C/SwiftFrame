@@ -1,11 +1,11 @@
 package com.star.swiftSecurity.mapper;
 
 import com.star.swiftSecurity.entity.SwiftRole;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 角色Mapper接口
@@ -16,13 +16,11 @@ public interface SwiftRoleMapper {
     /**
      * 根据ID查找角色
      */
-    @Select("SELECT * FROM swift_role WHERE role_id = #{roleId}")
-    SwiftRole findById(@Param("roleId") UUID roleId);
+    SwiftRole findById(@Param("roleId") Long roleId);
 
     /**
      * 根据角色名查找
      */
-    @Select("SELECT * FROM swift_role WHERE name = #{name}")
     SwiftRole findByName(@Param("name") String name);
 
     /**
@@ -33,30 +31,25 @@ public interface SwiftRoleMapper {
     /**
      * 检查角色名是否存在
      */
-    @Select("SELECT COUNT(1) FROM swift_role WHERE name = #{name}")
     boolean existsByName(@Param("name") String name);
 
     /**
      * 保存角色
      */
-    @Insert("INSERT INTO swift_role(role_id, name, description) VALUES(#{roleId}, #{name}, #{description})")
     int insert(SwiftRole role);
 
     /**
      * 更新角色
      */
-    @Update("UPDATE swift_role SET name=#{name}, description=#{description} WHERE role_id=#{roleId}")
     int update(SwiftRole role);
 
     /**
      * 删除角色
      */
-    @Delete("DELETE FROM swift_role WHERE role_id=#{roleId}")
-    int deleteById(@Param("roleId") UUID roleId);
+    int deleteById(@Param("roleId") Long roleId);
 
     /**
      * 查找所有角色
      */
-    @Select("SELECT * FROM swift_role")
     List<SwiftRole> findAll();
 }

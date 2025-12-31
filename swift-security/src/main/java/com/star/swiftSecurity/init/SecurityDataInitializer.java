@@ -4,15 +4,23 @@ import com.star.swiftSecurity.constant.AuthorityConstants;
 import com.star.swiftSecurity.constant.RoleConstants;
 import com.star.swiftSecurity.entity.SwiftAuthority;
 import com.star.swiftSecurity.entity.SwiftRole;
+import com.star.swiftSecurity.entity.SwiftUserDetails;
+import com.star.swiftSecurity.entity.SwiftUserRole;
+import com.star.swiftSecurity.entity.SwiftUserRoleId;
 import com.star.swiftSecurity.mapper.SwiftAuthorityMapper;
 import com.star.swiftSecurity.mapper.SwiftRoleAuthorityMapper;
 import com.star.swiftSecurity.mapper.SwiftRoleMapper;
+import com.star.swiftSecurity.mapper.SwiftUserMapper;
+import com.star.swiftSecurity.mapper.SwiftUserRoleMapper;
+import com.star.swiftCommon.utils.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -29,6 +37,9 @@ public class SecurityDataInitializer implements CommandLineRunner {
     private final SwiftRoleMapper roleMapper;
     private final SwiftAuthorityMapper authorityMapper;
     private final SwiftRoleAuthorityMapper roleAuthorityMapper;
+    private final SwiftUserMapper userMapper;
+    private final SwiftUserRoleMapper userRoleMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -43,6 +54,9 @@ public class SecurityDataInitializer implements CommandLineRunner {
         
         // 为角色分配权限
         assignAuthoritiesToRoles();
+        
+        // 初始化默认用户
+        initDefaultUsers();
         
         log.info("安全数据初始化完成");
     }
@@ -108,6 +122,95 @@ public class SecurityDataInitializer implements CommandLineRunner {
     }
 
     /**
+     * 初始化默认用户
+     */
+    private void initDefaultUsers() {
+        log.info("初始化默认用户...");
+        
+        // 创建默认超级管理员用户
+        createDefaultAdminUser();
+        
+        // 创建默认普通用户
+        createDefaultNormalUser();
+        
+        log.info("默认用户初始化完成");
+    }
+
+    /**
+     * 创建默认超级管理员用户
+     */
+    private void createDefaultAdminUser() {
+        SwiftUserDetails adminUser = userMapper.findByUsername("admin");
+        if (adminUser == null) {
+            adminUser = new SwiftUserDetails();
+            adminUser.setUserId(SnowflakeIdGenerator.generateId());
+            adminUser.setUsername("admin");
+            adminUser.setFullName("系统管理员");
+            adminUser.setPassword(passwordEncoder.encode("admin123"));
+            adminUser.setEmail("admin@swift.com");
+            adminUser.setEnabled(true);
+            adminUser.setAccountNonExpired(true);
+            adminUser.setAccountNonLocked(true);
+            adminUser.setCredentialsNonExpired(true);
+            adminUser.setFailedLoginAttempts(0);
+            adminUser.setPasswordChangedAt(LocalDateTime.now());
+            adminUser.setCreatedAt(LocalDateTime.now());
+            
+            userMapper.insert(adminUser);
+            log.info("创建默认管理员用户: admin");
+            
+            // 为管理员分配超级管理员角色
+            SwiftRole superAdminRole = roleMapper.findByName(RoleConstants.ROLE_SUPER_ADMIN);
+            if (superAdminRole != null) {
+                SwiftUserRole userRole = new SwiftUserRole();
+                SwiftUserRoleId id = new SwiftUserRoleId();
+                id.setUserId(adminUser.getUserId());
+                id.setRoleId(superAdminRole.getRoleId());
+                userRole.setUserId(id);
+                userRoleMapper.insert(userRole);
+                log.info("为管理员分配超级管理员角色");
+            }
+        }
+    }
+
+    /**
+     * 创建默认普通用户
+     */
+    private void createDefaultNormalUser() {
+        SwiftUserDetails normalUser = userMapper.findByUsername("user");
+        if (normalUser == null) {
+            normalUser = new SwiftUserDetails();
+            normalUser.setUserId(SnowflakeIdGenerator.generateId());
+            normalUser.setUsername("user");
+            normalUser.setFullName("普通用户");
+            normalUser.setPassword(passwordEncoder.encode("user123"));
+            normalUser.setEmail("user@swift.com");
+            normalUser.setEnabled(true);
+            normalUser.setAccountNonExpired(true);
+            normalUser.setAccountNonLocked(true);
+            normalUser.setCredentialsNonExpired(true);
+            normalUser.setFailedLoginAttempts(0);
+            normalUser.setPasswordChangedAt(LocalDateTime.now());
+            normalUser.setCreatedAt(LocalDateTime.now());
+            
+            userMapper.insert(normalUser);
+            log.info("创建默认普通用户: user");
+            
+            // 为普通用户分配用户角色
+            SwiftRole userRole = roleMapper.findByName(RoleConstants.ROLE_USER);
+            if (userRole != null) {
+                SwiftUserRole userRoleMapping = new SwiftUserRole();
+                SwiftUserRoleId id = new SwiftUserRoleId();
+                id.setUserId(normalUser.getUserId());
+                id.setRoleId(userRole.getRoleId());
+                userRoleMapping.setUserId(id);
+                userRoleMapper.insert(userRoleMapping);
+                log.info("为普通用户分配用户角色");
+            }
+        }
+    }
+
+    /**
      * 为角色分配权限
      */
     private void assignAuthoritiesToRoles() {
@@ -137,7 +240,7 @@ public class SecurityDataInitializer implements CommandLineRunner {
         SwiftAuthority authority = authorityMapper.findByName(name);
         if (authority == null) {
             authority = new SwiftAuthority();
-            authority.setAuthorityId(UUID.randomUUID());
+            authority.setAuthorityId(SnowflakeIdGenerator.generateId());
             authority.setName(name);
             authority.setDescription(description);
             authorityMapper.insert(authority);
@@ -152,7 +255,7 @@ public class SecurityDataInitializer implements CommandLineRunner {
         SwiftRole role = roleMapper.findByName(name);
         if (role == null) {
             role = new SwiftRole();
-            role.setRoleId(UUID.randomUUID());
+            role.setRoleId(SnowflakeIdGenerator.generateId());
             role.setName(name);
             role.setDescription(description);
             roleMapper.insert(role);

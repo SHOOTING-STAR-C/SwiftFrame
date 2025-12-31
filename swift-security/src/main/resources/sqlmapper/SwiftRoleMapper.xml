@@ -4,17 +4,45 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.star.swiftSecurity.mapper.SwiftRoleMapper">
     <resultMap id="RoleResultMap" type="com.star.swiftSecurity.entity.SwiftRole">
-        <id property="roleId" column="role_id" javaType="java.util.UUID" typeHandler="com.star.swiftDatasource.handler.UuidTypeHandler"/>
+        <result property="roleId" column="role_id" javaType="java.lang.Long"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
-        <collection property="roleAuthorities" ofType="com.star.swiftSecurity.entity.SwiftRoleAuthority"
-                    select="com.star.swiftSecurity.mapper.SwiftRoleAuthorityMapper.findByRole" column="role_id"/>
     </resultMap>
 
+    <select id="findById" resultMap="RoleResultMap">
+        SELECT * FROM swift_roles WHERE role_id = #{roleId}
+    </select>
+
+    <select id="findByName" resultMap="RoleResultMap">
+        SELECT * FROM swift_roles WHERE name = #{name}
+    </select>
+
     <select id="findByNameIn" resultMap="RoleResultMap">
-        SELECT * FROM swift_role WHERE name IN
-        <foreach item="item" collection="names" open="(" separator="," close=")">
-            #{item}
+        SELECT * FROM swift_roles WHERE name IN
+        <foreach collection="names" item="name" open="(" separator="," close=")">
+            #{name}
         </foreach>
+    </select>
+
+    <select id="existsByName" resultType="boolean">
+        SELECT COUNT(1) > 0 FROM swift_roles WHERE name = #{name}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO swift_roles(role_id, name, description) 
+        VALUES(#{roleId}, #{name}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE swift_roles SET name=#{name}, description=#{description} 
+        WHERE role_id=#{roleId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM swift_roles WHERE role_id=#{roleId}
+    </delete>
+
+    <select id="findAll" resultMap="RoleResultMap">
+        SELECT * FROM swift_roles
     </select>
 </mapper>

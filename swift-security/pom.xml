@@ -17,6 +17,10 @@
         <!--本项目依赖-->
         <dependency>
             <groupId>com.star</groupId>
+            <artifactId>swift-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.star</groupId>
             <artifactId>swift-redis</artifactId>
         </dependency>
         <dependency>

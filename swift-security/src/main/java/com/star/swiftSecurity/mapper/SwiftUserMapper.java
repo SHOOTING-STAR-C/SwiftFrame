@@ -11,7 +11,6 @@ import org.apache.ibatis.annotations.Insert;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * 用户Mapper接口
@@ -23,7 +22,7 @@ public interface SwiftUserMapper {
      * 根据ID查找用户
      */
     @Select("SELECT * FROM swift_users WHERE user_id = #{userId}")
-    SwiftUserDetails findById(@Param("userId") UUID userId);
+    SwiftUserDetails findById(@Param("userId") Long userId);
 
     /**
      * 根据用户名查找用户
@@ -74,7 +73,7 @@ public interface SwiftUserMapper {
      * 删除用户
      */
     @Delete("DELETE FROM swift_users WHERE user_id=#{userId}")
-    int deleteById(@Param("userId") UUID userId);
+    int deleteById(@Param("userId") Long userId);
 
     /**
      * 查找需要解锁的用户

@@ -11,6 +11,7 @@ import com.star.swiftSecurity.mapper.SwiftUserMapper;
 import com.star.swiftSecurity.mapper.SwiftUserRoleMapper;
 import com.star.swiftSecurity.service.AccountStateService;
 import com.star.swiftSecurity.service.SwiftUserService;
+import com.star.swiftCommon.utils.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -58,7 +58,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
         user.setPasswordChangedAt(LocalDateTime.now());
         user.setCreatedAt(LocalDateTime.now());
         if (user.getUserId() == null) {
-            user.setUserId(UUID.randomUUID());
+            user.setUserId(SnowflakeIdGenerator.generateId());
         }
         userMapper.insert(user);
         return user;
@@ -89,7 +89,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param userId userId
      */
     @Override
-    public void deleteUser(UUID userId) {
+    public void deleteUser(Long userId) {
         userMapper.deleteById(userId);
     }
 
@@ -100,7 +100,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @return SwiftUserDetails
      */
     @Override
-    public SwiftUserDetails getUserById(UUID userId) {
+    public SwiftUserDetails getUserById(Long userId) {
         SwiftUserDetails user = userMapper.findById(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
@@ -140,7 +140,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @return SwiftUserDetails
      */
     @Override
-    public SwiftUserDetails changePassword(UUID userId, String newPassword) {
+    public SwiftUserDetails changePassword(Long userId, String newPassword) {
         SwiftUserDetails user = getUserById(userId);
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setPasswordChangedAt(LocalDateTime.now());
@@ -157,7 +157,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param assignedBy assignedBy
      */
     @Override
-    public void assignRoleToUser(UUID userId, UUID roleId, String assignedBy) {
+    public void assignRoleToUser(Long userId, Long roleId, String assignedBy) {
         SwiftUserDetails user = getUserById(userId);
         SwiftRole role = roleMapper.findById(roleId);
         if (role == null) {
@@ -187,7 +187,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param roleId roleId
      */
     @Override
-    public void removeRoleFromUser(UUID userId, UUID roleId) {
+    public void removeRoleFromUser(Long userId, Long roleId) {
         userRoleMapper.deleteByUserAndRole(userId, roleId);
     }
 
@@ -198,7 +198,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @return Set<SwiftRole>
      */
     @Override
-    public Set<SwiftRole> getUserRoles(UUID userId) {
+    public Set<SwiftRole> getUserRoles(Long userId) {
         return userRoleMapper.findByUser(userId).stream()
                 .map(SwiftUserRole::getRole)
                 .collect(Collectors.toSet());
@@ -210,7 +210,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param userId userId
      */
     @Override
-    public void enableUser(UUID userId) {
+    public void enableUser(Long userId) {
         SwiftUserDetails user = getUserById(userId);
         user.setEnabled(true);
         userMapper.update(user);
@@ -222,7 +222,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param userId userId
      */
     @Override
-    public void disableUser(UUID userId) {
+    public void disableUser(Long userId) {
         SwiftUserDetails user = getUserById(userId);
         user.setEnabled(false);
         userMapper.update(user);
@@ -234,7 +234,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param userId userId
      */
     @Override
-    public void unlockUser(UUID userId) {
+    public void unlockUser(Long userId) {
         SwiftUserDetails user = getUserById(userId);
         accountStateService.unlockUserAccount(user);
         userMapper.update(user);
@@ -246,7 +246,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param userId userId
      */
     @Override
-    public void lockUser(UUID userId) {
+    public void lockUser(Long userId) {
         SwiftUserDetails user = getUserById(userId);
         accountStateService.lockUserAccount(user);
         userMapper.update(user);
@@ -259,7 +259,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param ipAddress ipAddress
      */
     @Override
-    public void recordLoginSuccess(UUID userId, String ipAddress) {
+    public void recordLoginSuccess(Long userId, String ipAddress) {
         SwiftUserDetails user = getUserById(userId);
         user.setLastLoginAt(LocalDateTime.now());
         user.setLastLoginIp(ipAddress);
@@ -273,7 +273,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @param userId userId
      */
     @Override
-    public void recordLoginFailure(UUID userId) {
+    public void recordLoginFailure(Long userId) {
         SwiftUserDetails user = getUserById(userId);
         accountStateService.handleLoginFailure(user);
         userMapper.update(user);
@@ -286,7 +286,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      * @return boolean
      */
     @Override
-    public boolean isPasswordExpired(UUID userId) {
+    public boolean isPasswordExpired(Long userId) {
         SwiftUserDetails user = getUserById(userId);
         return accountStateService.isPasswordExpired(user);
     }

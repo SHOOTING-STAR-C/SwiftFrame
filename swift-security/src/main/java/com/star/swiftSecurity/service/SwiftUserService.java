@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * 用户服务
@@ -35,7 +34,7 @@ public interface SwiftUserService extends UserDetailsService {
      *
      * @param userId userId
      */
-    void deleteUser(UUID userId);
+    void deleteUser(Long userId);
 
     /**
      * 根据用户名ID获取用户信息
@@ -43,7 +42,7 @@ public interface SwiftUserService extends UserDetailsService {
      * @param userId userId
      * @return SwiftUserDetails
      */
-    SwiftUserDetails getUserById(UUID userId);
+    SwiftUserDetails getUserById(Long userId);
 
     /**
      * 根据用户名获取用户信息
@@ -67,14 +66,14 @@ public interface SwiftUserService extends UserDetailsService {
      * @param newPassword newPassword
      * @return SwiftUserDetails
      */
-    SwiftUserDetails changePassword(UUID userId, String newPassword);
+    SwiftUserDetails changePassword(Long userId, String newPassword);
 
     /**
      * @param userId     userId
      * @param roleId     roleId
      * @param assignedBy assignedBy
      */
-    void assignRoleToUser(UUID userId, UUID roleId, String assignedBy);
+    void assignRoleToUser(Long userId, Long roleId, String assignedBy);
 
     /**
      * 收回角色
@@ -82,7 +81,7 @@ public interface SwiftUserService extends UserDetailsService {
      * @param userId userId
      * @param roleId roleId
      */
-    void removeRoleFromUser(UUID userId, UUID roleId);
+    void removeRoleFromUser(Long userId, Long roleId);
 
     /**
      * 获取用户拥有的角色
@@ -90,35 +89,35 @@ public interface SwiftUserService extends UserDetailsService {
      * @param userId userId
      * @return Set<SwiftRole>
      */
-    Set<SwiftRole> getUserRoles(UUID userId);
+    Set<SwiftRole> getUserRoles(Long userId);
 
     /**
      * 启用用户
      *
      * @param userId userId
      */
-    void enableUser(UUID userId);
+    void enableUser(Long userId);
 
     /**
      * 禁用账户
      *
      * @param userId userId
      */
-    void disableUser(UUID userId);
+    void disableUser(Long userId);
 
     /**
      * 解锁账户
      *
      * @param userId userId
      */
-    void unlockUser(UUID userId);
+    void unlockUser(Long userId);
 
     /**
      * 锁定用户
      *
      * @param userId userId
      */
-    void lockUser(UUID userId);
+    void lockUser(Long userId);
 
     /**
      * 记录登录成功
@@ -126,14 +125,14 @@ public interface SwiftUserService extends UserDetailsService {
      * @param userId    userId
      * @param ipAddress ipAddress
      */
-    void recordLoginSuccess(UUID userId, String ipAddress);
+    void recordLoginSuccess(Long userId, String ipAddress);
 
     /**
      * 记录登录失败
      *
      * @param userId userId
      */
-    void recordLoginFailure(UUID userId);
+    void recordLoginFailure(Long userId);
 
     /**
      * 密码是否过期
@@ -141,6 +140,6 @@ public interface SwiftUserService extends UserDetailsService {
      * @param userId userId
      * @return boolean
      */
-    boolean isPasswordExpired(UUID userId);
+    boolean isPasswordExpired(Long userId);
 
 }

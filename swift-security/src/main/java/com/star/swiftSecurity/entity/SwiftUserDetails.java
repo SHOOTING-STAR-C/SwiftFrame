@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Data
 public class SwiftUserDetails implements UserDetails {
     //================= 用户基础信息 =================
-    private UUID userId;
+    private Long userId;
 
     @NotBlank(message = "用户名不能为空")
     @Size(min = 4, max = 20, message = "用户名长度需在4-20个字符之间")

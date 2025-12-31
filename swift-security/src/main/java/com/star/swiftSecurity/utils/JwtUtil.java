@@ -99,7 +99,8 @@ public class JwtUtil {
      * @return 用户名
      */
     public String extractUsername(String token) {
-        return extractClaim(token).getSubject();
+        Claims claims = extractClaim(token);
+        return claims.get("username", String.class);
     }
 
     /**

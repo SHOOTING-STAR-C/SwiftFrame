@@ -26,6 +26,15 @@ public class PubResult<T> {
         return new PubResult<>(ResultCode.SUCCESS, data);
     }
 
+    /**
+     * 成功响应（无数据）
+     *
+     * @return PubResult
+     */
+    public static <T> PubResult<T> success() {
+        return new PubResult<>(ResultCode.SUCCESS);
+    }
+
 
     /**
      * 失败响应

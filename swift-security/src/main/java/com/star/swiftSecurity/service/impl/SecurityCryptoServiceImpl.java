@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CryptoServiceImpl implements CryptoService {
+public class SecurityCryptoServiceImpl implements CryptoService {
 
     private final CryptoEncryptProperties cryptoEncryptProperties;
 
