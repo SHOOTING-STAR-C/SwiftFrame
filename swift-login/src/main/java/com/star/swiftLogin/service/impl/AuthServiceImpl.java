@@ -198,31 +198,54 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public PubResult<String> resetPassword(String email, String verificationCode, String newPassword) {
+        // 解密邮箱、验证码和密码
+        String decryptedEmail = email;
+        String decryptedCode = verificationCode;
+        String decryptedPassword = newPassword;
+        
+        try {
+            decryptedEmail = cryptoService.decrypt(email);
+            decryptedCode = cryptoService.decrypt(verificationCode);
+            decryptedPassword = cryptoService.decryptPassword(newPassword);
+        } catch (Exception e) {
+            log.error("重置密码信息解密失败: {}", e.getMessage());
+            return PubResult.error("信息格式错误");
+        }
+
+        // 手动校验解密后的参数
+        try {
+            // 创建临时对象用于校验
+            com.star.swiftLogin.dto.ResetPasswordRequest resetRequest = 
+                new com.star.swiftLogin.dto.ResetPasswordRequest();
+            resetRequest.setEmail(decryptedEmail);
+            resetRequest.setVerificationCode(decryptedCode);
+            resetRequest.setNewPassword(decryptedPassword);
+            
+            var violations = validator.validate(resetRequest);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+        } catch (ConstraintViolationException e) {
+            log.error("重置密码参数校验失败: {}", e.getMessage());
+            return PubResult.error("参数校验失败: " + e.getMessage());
+        }
+
         // 验证验证码
-        if (!verificationCodeService.verifyVerificationCode(email, verificationCode)) {
+        if (!verificationCodeService.verifyVerificationCode(decryptedEmail, decryptedCode)) {
             return PubResult.error("验证码错误或已过期");
         }
 
         // 查找用户
-        SwiftUserDetails user = userService.getUserByEmail(email);
+        SwiftUserDetails user = userService.getUserByEmail(decryptedEmail);
         if (user == null) {
             return PubResult.error("该邮箱未注册");
-        }
-
-        // 解密新密码
-        String decryptedPassword = newPassword;
-        try {
-            decryptedPassword = cryptoService.decryptPassword(newPassword);
-        } catch (Exception e) {
-            log.error("密码解密失败: {}", e.getMessage());
-            return PubResult.error("密码格式错误");
         }
 
         // 重置密码
         userService.changePassword(user.getUserId(), decryptedPassword);
 
         // 删除验证码
-        verificationCodeService.deleteVerificationCode(email);
+        verificationCodeService.deleteVerificationCode(decryptedEmail);
 
         return PubResult.success("密码重置成功");
     }

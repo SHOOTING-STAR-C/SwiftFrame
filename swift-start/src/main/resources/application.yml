@@ -18,6 +18,7 @@ spring:
     default-encoding: UTF-8
     properties:
       mail:
+        # 禁用 mime.types 文件读取，解决 JDK21 找不到文件的问题
         mime:
           content:
             type:
@@ -27,6 +28,10 @@ spring:
           starttls:
             enable: true
             required: true
+        # 禁用 JavaMail 的自动 MIME 类型检测
+        contenttypehandler: false
+        # 禁用 JavaMail 读取 mime.types 文件
+        mime.types: ""
 
 crypto:
   aes:
@@ -78,6 +83,10 @@ swift:
   mybatis:
     mapper-locations:
       master: classpath*:sqlmapper/*.xml
+    map-underscore-to-camel-case: true
+  security:
+    auth:
+      white-list: /auth/publicKey,/auth/login,/auth/register,/auth/forgot-password/**
   ai:
     enabled: true
     default-provider: openai

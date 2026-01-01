@@ -33,7 +33,7 @@ public class ResetPasswordRequest {
     @NotBlank(message = "密码不能为空")
     @Size(min = 8, max = 30, message = "密码长度需在8-30个字符之间")
     @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#_+])[A-Za-z\\d@$!%*?&#_+]+$",
             message = "密码必须包含大小写字母、数字和特殊字符"
     )
     private String newPassword;

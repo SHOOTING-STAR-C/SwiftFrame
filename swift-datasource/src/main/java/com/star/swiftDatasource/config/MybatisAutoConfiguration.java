@@ -4,21 +4,22 @@ import com.star.swiftDatasource.routing.DynamicDataSource;
 import com.star.swiftDatasource.handler.UuidTypeHandler;
 import com.star.swiftDatasource.properties.MybatisProperties;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
- * 配置mybatis配置类
+ * MyBatis 自动配置类
  *
  * @author SHOOTING_STAR_C
  */
-@Configuration
+@AutoConfiguration
 @MapperScan(basePackages = "com.star.*.mapper", sqlSessionFactoryRef = "masterSqlSessionFactory")
-public class MybatisConfig {
+public class MybatisAutoConfiguration {
 
     @Autowired
     private MybatisProperties mybatisProperties;
@@ -42,6 +43,12 @@ public class MybatisConfig {
             location = mybatisProperties.getMapperLocations().get("master");
         }
         sessionFactory.setMapperLocations(resolver.getResources(location));
+        
+        // 配置 MyBatis 设置
+        Configuration configuration = new Configuration();
+        configuration.setMapUnderscoreToCamelCase(mybatisProperties.isMapUnderscoreToCamelCase());
+        sessionFactory.setConfiguration(configuration);
+        
         return sessionFactory.getObject();
     }
 }

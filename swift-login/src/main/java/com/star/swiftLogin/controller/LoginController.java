@@ -106,7 +106,7 @@ public class LoginController {
      */
     @PostMapping("/forgot-password/reset")
     @Operation(summary = "重置密码", description = "使用验证码重置密码")
-    public PubResult<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    public PubResult<String> resetPassword(@RequestBody ResetPasswordRequest request) {
         return authService.resetPassword(request.getEmail(), request.getVerificationCode(), request.getNewPassword());
     }
 

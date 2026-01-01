@@ -3,6 +3,11 @@ server:
   servlet:
     context-path: /swift
 spring:
+  mail:
+    host: ENC(0zzzF91NoWyAH74LTaX3KYOjcB9DdTz5+P/d0poLEsvhjIhujQk8)
+    port: 587
+    username: ENC(IQLuEFw9Qp3y9a9va2rPkFZKloJqhnb3V079haY8EOTKVgR/ZerBmdjUzr9v)
+    password: ENC(FbPhZ2D84sTIhqZPW29iFtLTCY90n1FRvy5860oneE0rrlrq58BpvWs/gj4=)
   sql:
     init:
       mode: always
@@ -13,15 +18,15 @@ spring:
       master:
         url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(u0yaJqx+1Wnc0E0Mk+4kxu62AxSi1xHTcxG77U+/LOXW1ISIBw==)
-        password: ENC(wwi4G4JJqjaST0WWaopvr1bNrNvNiKIcoIORqw9BGBpPr2RkEqW50gk0Flw=)
+        username: ENC(Gs80/YydNRE5I65WmAAxI4e8lT8r0fIbb/jfT48GaYECj+jleA==)
+        password: ENC(NYjwDpxA1FVj8M7hf2qBJ9XaKNDWpwONTbyf0ktGqNPT0XZPuGUgzn8ec7Q=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
       pg:
         url: jdbc:postgresql://24.233.1.242:5432/swift_bus
         driver-class-name: org.postgresql.Driver
-        username: ENC(PtWX8FZKn7HhSyKyLk37s14kK/h+Jx//NxZFX1xKuhEtd2B0GugF9Gs=)
-        password: ENC(0FsOVEvdJnERh1x29MEobOVv+HplyInktEPYU9IGS0tJMWrzE6dHGIZrA4c=)
+        username: ENC(/4o8TQ/QXN+0dmDBEJNo3WoPgpjTO74ptxv91mWD9+vNaU4OYyjXkoI=)
+        password: ENC(BrUdT5NLogPR9N34hGbLH1Rbqq8GNhsHVajIq4j6awmMW1tM5nXadsUyMz4=)
         validation-query: SELECT 1
         filters: stat,wall,slf4j
   security:
@@ -37,14 +42,14 @@ spring:
     redis:
       host: 24.233.1.242
       port: 6379
-      password: ENC(OEuwq+2Tw4mLReNisLQjKVLBsuHFI5qQRNC603+LUuQLddRCu8KQWw==)
+      password: ENC(VYgsNUw59V4kBG0YtR/++V03k57cySEGwQ5fNY894HcJir0kqveNQA==)
       database: 0
 logging:
   level:
     root: debug
 security:
   auth:
-    white-list: /auth/login,/auth/register,/auth/publicKey,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html
+    white-list: /auth/login,/auth/register,/auth/publicKey,/auth/forgot-password/**,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html
 crypto:
   aes:
     key: Td/c5P7o1Hqp1IbQwaDw1O2DasSjkeBQSeTz4eQm96Lt0R6dEEhfJiqxpdfIrJcBLG02CkO3ELLCDTp7Chqzdx/JR0XejYgsf+7XczM4nUY2FnnqP5mdiR32+73O7sZg7RKFRDISlrHj7ptq+cnqgW2D+yQIyx9CAf2SKER424+qXgJKow6UzlaGT5UWr1I4pjCOKv1RqlfyFgTp2UKZvBAX4T4ZSoxWAL8uH91xnVtVhJsb9PnGDRdzU/nKNaVTHyyfodxxhZNI3I1osoCFzCVjWUXv3jgT9k1+NDZ+3wfPRTAK7jV6wqWS9ws7He/ZEFWlC14hRiTI+mSNfJNoVA==
