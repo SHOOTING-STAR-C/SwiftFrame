@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>swift-datasource</artifactId>
-    <name>swift-datasource-mybatis</name>
-    <description>swift-datasource-mybatis</description>
+    <name>swift-datasource</name>
+    <description>swift-datasource</description>
 
     <dependencies>
         <dependency>

@@ -36,6 +36,12 @@ public interface SwiftUserMapper {
     SwiftUserDetails findByEmail(@Param("email") String email);
 
     /**
+     * 根据手机号查找用户
+     */
+    @Select("SELECT * FROM swift_users WHERE phone = #{phone}")
+    SwiftUserDetails findByPhone(@Param("phone") String phone);
+
+    /**
      * 检查用户名是否存在
      */
     @Select("SELECT COUNT(1) FROM swift_users WHERE username = #{username}")

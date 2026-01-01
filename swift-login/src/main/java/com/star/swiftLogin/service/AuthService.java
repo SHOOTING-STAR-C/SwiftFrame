@@ -45,4 +45,22 @@ public interface AuthService {
      * @return SwiftUserDetails
      */
     SwiftUserDetails createUser(SwiftUserDetails userDetails);
+
+    /**
+     * 发送忘记密码验证码
+     *
+     * @param email 邮箱
+     * @return PubResult<String>
+     */
+    PubResult<String> sendForgotPasswordCode(String email);
+
+    /**
+     * 重置密码
+     *
+     * @param email            邮箱
+     * @param verificationCode 验证码
+     * @param newPassword      新密码
+     * @return PubResult<String>
+     */
+    PubResult<String> resetPassword(String email, String verificationCode, String newPassword);
 }

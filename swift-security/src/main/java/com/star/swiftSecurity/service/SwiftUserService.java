@@ -142,4 +142,20 @@ public interface SwiftUserService extends UserDetailsService {
      */
     boolean isPasswordExpired(Long userId);
 
+    /**
+     * 根据邮箱查找用户
+     *
+     * @param email email
+     * @return SwiftUserDetails
+     */
+    SwiftUserDetails getUserByEmail(String email);
+
+    /**
+     * 根据手机号查找用户
+     *
+     * @param phone phone
+     * @return SwiftUserDetails
+     */
+    SwiftUserDetails getUserByPhone(String phone);
+
 }

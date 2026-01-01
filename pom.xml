@@ -21,6 +21,7 @@
         <module>swift-ai</module>
         <module>swift-login</module>
         <module>swift-business</module>
+        <module>swift-mail</module>
         <module>swift-start</module>
     </modules>
 
@@ -107,6 +108,11 @@
             <dependency>
                 <groupId>com.star</groupId>
                 <artifactId>swift-monitor</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-mail</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <!--常用依赖-->

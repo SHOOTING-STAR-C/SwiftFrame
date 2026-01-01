@@ -2,8 +2,10 @@ package com.star.swiftLogin.controller;
 
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftEncrypt.properties.CryptoEncryptProperties;
+import com.star.swiftLogin.dto.ForgotPasswordRequest;
 import com.star.swiftLogin.dto.LoginRequest;
 import com.star.swiftLogin.dto.RegisterRequest;
+import com.star.swiftLogin.dto.ResetPasswordRequest;
 import com.star.swiftLogin.service.AuthService;
 import com.star.swiftSecurity.domain.JwtToken;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
@@ -67,5 +69,45 @@ public class LoginController {
 
     }
 
+    /**
+     * 登出接口
+     *
+     * @param token token
+     * @return PubResult<String>
+     */
+    @PostMapping("/logout")
+    @Operation(summary = "用户登出", description = "用户退出登录，使token失效")
+    public PubResult<String> logout(@RequestHeader("Authorization") String token) {
+        // 提取Bearer token
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        authService.logoutUser("access", token);
+        return PubResult.success("登出成功");
+    }
+
+    /**
+     * 发送忘记密码验证码
+     *
+     * @param request ForgotPasswordRequest
+     * @return PubResult<String>
+     */
+    @PostMapping("/forgot-password/send-code")
+    @Operation(summary = "发送忘记密码验证码", description = "向邮箱发送密码重置验证码")
+    public PubResult<String> sendForgotPasswordCode(@Valid @RequestBody ForgotPasswordRequest request) {
+        return authService.sendForgotPasswordCode(request.getEmail());
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param request ResetPasswordRequest
+     * @return PubResult<String>
+     */
+    @PostMapping("/forgot-password/reset")
+    @Operation(summary = "重置密码", description = "使用验证码重置密码")
+    public PubResult<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        return authService.resetPassword(request.getEmail(), request.getVerificationCode(), request.getNewPassword());
+    }
 
 }

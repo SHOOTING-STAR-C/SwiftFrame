@@ -290,4 +290,26 @@ public class SwiftUserServiceImpl implements SwiftUserService {
         SwiftUserDetails user = getUserById(userId);
         return accountStateService.isPasswordExpired(user);
     }
+
+    /**
+     * 根据邮箱查找用户
+     *
+     * @param email email
+     * @return SwiftUserDetails
+     */
+    @Override
+    public SwiftUserDetails getUserByEmail(String email) {
+        return userMapper.findByEmail(email);
+    }
+
+    /**
+     * 根据手机号查找用户
+     *
+     * @param phone phone
+     * @return SwiftUserDetails
+     */
+    @Override
+    public SwiftUserDetails getUserByPhone(String phone) {
+        return userMapper.findByPhone(phone);
+    }
 }
