@@ -11,7 +11,6 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -53,7 +52,7 @@ public class MysqlMybatisConfig {
         log.info("初始化 MySQL MyBatis SqlSessionFactory...");
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(masterDataSource);
-        sessionFactory.setTypeHandlers(new TypeHandler[]{new UuidTypeHandler()});
+        sessionFactory.setTypeHandlers(new UuidTypeHandler());
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
         // 从 master 数据源配置中读取 mapper-locations

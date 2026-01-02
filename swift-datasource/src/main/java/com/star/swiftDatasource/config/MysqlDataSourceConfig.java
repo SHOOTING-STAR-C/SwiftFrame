@@ -4,10 +4,19 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.star.swiftDatasource.properties.DruidProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.jdbc.datasource.init.DatabasePopulator;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -40,5 +49,54 @@ public class MysqlDataSourceConfig {
         log.info("初始化 MySQL 主数据源...");
         DruidDataSource dataSource = new DruidDataSource();
         return druidProperties.dataSource(dataSource);
+    }
+
+    /**
+     * MySQL数据源初始化器
+     *
+     * @param masterDataSource MySQL主数据源
+     * @return DataSourceInitializer
+     */
+    @Bean
+    @org.springframework.core.annotation.Order(1)
+    @ConditionalOnProperty(
+            prefix = "spring.datasource.druid.master",
+            name = "initializeSchema",
+            havingValue = "true",
+            matchIfMissing = true
+    )
+    public DataSourceInitializer mysqlDataSourceInitializer(@Qualifier("masterDataSource")DataSource masterDataSource) {
+        log.info("初始化 MySQL 数据源初始化器...");
+        DataSourceInitializer initializer = new DataSourceInitializer();
+        initializer.setDataSource(masterDataSource);
+        initializer.setDatabasePopulator(mysqlDatabasePopulator());
+        return initializer;
+    }
+
+    /**
+     * MySQL数据库初始化脚本（支持通配符）
+     *
+     * @return DatabasePopulator
+     */
+    private DatabasePopulator mysqlDatabasePopulator() {
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        
+        try {
+            // 加载 SQL 脚本（支持通配符，例如：classpath:sql/mysql/*.sql）
+            if (druidProperties.getSqlScripts() != null) {
+                Resource[] resources = resourcePatternResolver.getResources(druidProperties.getSqlScripts());
+                for (Resource resource : resources) {
+                    log.info("加载 MySQL SQL 脚本: {}", resource.getFilename());
+                    populator.addScript(resource);
+                }
+            }
+        } catch (Exception e) {
+            log.error("加载 SQL 脚本失败", e);
+            throw new RuntimeException("加载 SQL 脚本失败", e);
+        }
+        
+        populator.setContinueOnError(true);
+        return populator;
     }
 }

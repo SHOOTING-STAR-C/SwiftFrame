@@ -4,35 +4,35 @@ server:
     context-path: /swift
 spring:
   mail:
-    host: ENC(M7Wbmzqma52P/07Oxzpoy6dQtkw+sVyiXs5yOjOgsWiMqjeU4070)
+    host: ENC(TCq2PkG0T4u+1qy/d6UOwmtZ2iVuE17IYpGQPx/9KVZtPwpxaPqP)
     port: 587
-    username: ENC(bNJX5jj1mj9S5m0vxfl1Wn6T6gAS3ujCmlxHeBPuljQpeKrEE7a+Ls1scWk1)
-    password: ENC(XuVvyrrIGLtL/Jg7MnDZ9yIaWgFHQjOB2I66Bv2nBZRGn5uQL6qOLMs5I9g=)
+    username: ENC(g2SM+PGbWe/J+MB2UKyIlojttnRqf8BkVKFwDYUiUNVPg5ubvjhnyoO5vevk)
+    password: ENC(CphPFIDFusGuBwuRV2eGPgYvCUmVcYHjf5G40uT2xsJH0g4jgzUv/Z1SCS0=)
   sql:
     init:
-      mode: always
-      schema-locations: classpath:sql/mysql/schema.sql
-      data-locations: classpath:sql/mysql/data.sql
+      mode: never
   datasource:
     druid:
       master:
         url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(G5Occ+Nk6W5vd1Z6SNZFSkV7/Y+xPTtEo8JqfB3PPaHTuYQF+A==)
-        password: ENC(oZOXFr8xqJfOKoacvRAexTDTuxV/+w+jlLNH50bDw2gHK81+Owec+EHxsRo=)
+        username: ENC(DL4IlMR5QC92qEunHm/SfYaFSZCLlXAS9uzv0+WS4n/Mr/2Jrw==)
+        password: ENC(9s8n4q1X2Mc8CeQDo8vgpyM/V9YBMadzzGxoGZlMR8ZM3QlttsokeNKJu40=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
         mapper-locations: classpath*:sqlmapper/mysql/*.xml
+        initialize-schema: true
+        sql-scripts: classpath:sql/mysql/*.sql
       pg:
         url: jdbc:postgresql://24.233.1.242:5432/swift_bus
         driver-class-name: org.postgresql.Driver
-        username: ENC(iIp33a4mYhKdufj1ysp2bW4wohPTCmBiJOuI3aRtQ3kHXQONQE3il/M=)
-        password: ENC(252/qZ8vxUju82HKXs7iuttM+8Wz4d0TZvvIQv6Goy5veNgVaRwvD8LAvVI=)
+        username: ENC(Xj60KUJX0HEl4JG62i1If/xx7wE/Ct2UtXawBoOU09WWNWDmctXE628=)
+        password: ENC(ctJLWlY3EpxSq1BHU87U+iT/TyJGs+W43m3yoYfi9FqaeAV41eILtext7P4=)
         validation-query: SELECT 1
         filters: stat,wall,slf4j
         mapper-locations: classpath*:sqlmapper/pg/*.xml
         initialize-schema: true
-        schema-script: classpath:sql/postgresql/schema.sql
+        sql-scripts: classpath:sql/postgresql/*.sql
   security:
     jwt:
       secret: zxcvbnmmlkjhgfdsaqwertyuiopplplpl
@@ -46,7 +46,7 @@ spring:
     redis:
       host: 24.233.1.242
       port: 6379
-      password: ENC(esDsdSfAW7eBqemaq9IsNP02oiUnfSYwgz8WlM/E0YLLXbxY7YRYFQ==)
+      password: ENC(qjKC9Xk5UZi3ecW8tBC+2W6iWPaAKmU36U4dXFWGqXOAfT+xXXSKaQ==)
       database: 0
 logging:
   level:

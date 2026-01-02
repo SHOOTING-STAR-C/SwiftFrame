@@ -4,12 +4,15 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.star.swiftDatasource.properties.PgDruidProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -42,8 +45,8 @@ public class PostgreSqlDataSourceConfig {
     @Bean(name = "pgDataSource")
     public DataSource pgDataSource() throws SQLException {
         log.info("初始化 PostgreSQL 数据源...");
-        DruidDataSource dataSource = new DruidDataSource();
-        return pgDruidProperties.dataSource(dataSource);
+        DruidDataSource pgDataSource = new DruidDataSource();
+        return pgDruidProperties.dataSource(pgDataSource);
     }
 
     /**
@@ -53,13 +56,14 @@ public class PostgreSqlDataSourceConfig {
      * @return DataSourceInitializer
      */
     @Bean
+    @org.springframework.core.annotation.Order(2)
     @ConditionalOnProperty(
             prefix = "spring.datasource.druid.pg",
             name = "initializeSchema",
             havingValue = "true",
             matchIfMissing = true
     )
-    public DataSourceInitializer pgDataSourceInitializer(DataSource pgDataSource) {
+    public DataSourceInitializer pgDataSourceInitializer(@Qualifier("pgDataSource") DataSource pgDataSource) {
         log.info("初始化 PostgreSQL 数据源初始化器...");
         DataSourceInitializer initializer = new DataSourceInitializer();
         initializer.setDataSource(pgDataSource);
@@ -68,15 +72,28 @@ public class PostgreSqlDataSourceConfig {
     }
 
     /**
-     * PG数据库初始化脚本
+     * PG数据库初始化脚本（支持通配符）
      *
      * @return DatabasePopulator
      */
     private DatabasePopulator pgDatabasePopulator() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        ResourceLoader resourceLoader = new DefaultResourceLoader();
-        Resource scriptResource = resourceLoader.getResource(pgDruidProperties.getSchemaScript());
-        populator.addScript(scriptResource);
+        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        
+        try {
+            // 加载 SQL 脚本（支持通配符，例如：classpath:sql/postgresql/*.sql）
+            if (pgDruidProperties.getSqlScripts() != null) {
+                Resource[] resources = resourcePatternResolver.getResources(pgDruidProperties.getSqlScripts());
+                for (Resource resource : resources) {
+                    log.info("加载 PostgreSQL SQL 脚本: {}", resource.getFilename());
+                    populator.addScript(resource);
+                }
+            }
+        } catch (Exception e) {
+            log.error("加载 SQL 脚本失败", e);
+            throw new RuntimeException("加载 SQL 脚本失败", e);
+        }
+        
         populator.setContinueOnError(true);
         return populator;
     }

@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
     <parent>
         <groupId>com.star</groupId>
         <artifactId>SwiftFrame</artifactId>
@@ -9,26 +10,30 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>swift-business</artifactId>
-    <name>swift-business</name>
-    <description>默认业务层模块</description>
+    <artifactId>swift-config</artifactId>
+    <name>swift-config</name>
+    <description>系统配置模块</description>
 
     <dependencies>
+        <!-- 依赖基础模块 -->
         <dependency>
             <groupId>com.star</groupId>
             <artifactId>swift-common</artifactId>
         </dependency>
+        <!-- 依赖数据源模块 -->
         <dependency>
             <groupId>com.star</groupId>
-            <artifactId>swift-config</artifactId>
+            <artifactId>swift-datasource</artifactId>
         </dependency>
+        <!-- 依赖加密模块 -->
         <dependency>
             <groupId>com.star</groupId>
-            <artifactId>swift-security</artifactId>
+            <artifactId>swift-encrypt</artifactId>
         </dependency>
+        <!-- 依赖Redis模块 -->
         <dependency>
             <groupId>com.star</groupId>
-            <artifactId>swift-login</artifactId>
+            <artifactId>swift-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -37,6 +42,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
     </dependencies>
 

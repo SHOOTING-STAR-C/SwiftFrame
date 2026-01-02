@@ -130,9 +130,6 @@ public class SecurityDataInitializer implements CommandLineRunner {
         // 创建默认超级管理员用户
         createDefaultAdminUser();
         
-        // 创建默认普通用户
-        createDefaultNormalUser();
-        
         log.info("默认用户初始化完成");
     }
 
@@ -173,42 +170,6 @@ public class SecurityDataInitializer implements CommandLineRunner {
         }
     }
 
-    /**
-     * 创建默认普通用户
-     */
-    private void createDefaultNormalUser() {
-        SwiftUserDetails normalUser = userMapper.findByUsername("user");
-        if (normalUser == null) {
-            normalUser = new SwiftUserDetails();
-            normalUser.setUserId(SnowflakeIdGenerator.generateId());
-            normalUser.setUsername("user");
-            normalUser.setFullName("普通用户");
-            normalUser.setPassword(passwordEncoder.encode("user123"));
-            normalUser.setEmail("user@swift.com");
-            normalUser.setEnabled(true);
-            normalUser.setAccountNonExpired(true);
-            normalUser.setAccountNonLocked(true);
-            normalUser.setCredentialsNonExpired(true);
-            normalUser.setFailedLoginAttempts(0);
-            normalUser.setPasswordChangedAt(LocalDateTime.now());
-            normalUser.setCreatedAt(LocalDateTime.now());
-            
-            userMapper.insert(normalUser);
-            log.info("创建默认普通用户: user");
-            
-            // 为普通用户分配用户角色
-            SwiftRole userRole = roleMapper.findByName(RoleConstants.ROLE_USER);
-            if (userRole != null) {
-                SwiftUserRole userRoleMapping = new SwiftUserRole();
-                SwiftUserRoleId id = new SwiftUserRoleId();
-                id.setUserId(normalUser.getUserId());
-                id.setRoleId(userRole.getRoleId());
-                userRoleMapping.setUserId(id);
-                userRoleMapper.insert(userRoleMapping);
-                log.info("为普通用户分配用户角色");
-            }
-        }
-    }
 
     /**
      * 为角色分配权限

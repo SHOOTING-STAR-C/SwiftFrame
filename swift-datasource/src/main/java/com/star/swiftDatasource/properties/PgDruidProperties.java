@@ -35,8 +35,8 @@ public class PgDruidProperties {
     private boolean testOnReturn = false;
     private String filters = "stat";
     
-    // 初始化脚本配置
-    private String schemaScript = "classpath:schema-pg.sql";
+    // SQL 初始化脚本配置（支持通配符，例如：classpath:sql/postgresql/*.sql）
+    private String sqlScripts;
     private boolean initializeSchema = true;
     
     // Mapper XML 路径配置

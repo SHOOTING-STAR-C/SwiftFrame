@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.1</version>
         <relativePath/>
     </parent>
 
@@ -16,6 +16,7 @@
         <module>swift-datasource</module>
         <module>swift-encrypt</module>
         <module>swift-redis</module>
+        <module>swift-config</module>
         <module>swift-monitor</module>
         <module>swift-security</module>
         <module>swift-ai</module>
@@ -36,7 +37,7 @@
         <spring.version>3.5.0</spring.version>
         <spring-security-crypto.version>6.5.0</spring-security-crypto.version>
         <druid.version>1.2.23</druid.version>
-        <mysql.version>8.4.0</mysql.version>
+        <mysql.version>9.3.0</mysql.version>
         <mybatis.version>3.5.12</mybatis.version>
         <jasypt.version>3.0.5</jasypt.version>
         <jwt.version>0.12.6</jwt.version>
@@ -83,6 +84,11 @@
             <dependency>
                 <groupId>com.star</groupId>
                 <artifactId>swift-redis</artifactId>
+                <version>${swift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.star</groupId>
+                <artifactId>swift-config</artifactId>
                 <version>${swift.version}</version>
             </dependency>
             <dependency>

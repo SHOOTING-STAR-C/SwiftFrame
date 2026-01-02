@@ -15,6 +15,10 @@
     <description>AI 通用调用工具模块 - 支持 OpenAI 兼容接口</description>
 
     <dependencies>
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-config</artifactId>
+        </dependency>
         <!-- Spring Boot 基础依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

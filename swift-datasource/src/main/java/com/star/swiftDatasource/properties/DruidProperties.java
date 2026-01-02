@@ -37,6 +37,10 @@ public class DruidProperties {
     
     // Mapper XML 路径配置
     private String mapperLocations;
+    
+    // SQL 初始化脚本配置（支持通配符，例如：classpath:sql/mysql/*.sql）
+    private String sqlScripts;
+    private Boolean initializeSchema = true;
 
     public DruidDataSource dataSource(DruidDataSource datasource) throws SQLException {
         /* 配置基础连接 */
