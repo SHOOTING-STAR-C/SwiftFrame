@@ -3,15 +3,11 @@ package com.star.swiftDatasource.config;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.star.swiftDatasource.properties.DruidProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
@@ -22,20 +18,23 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /**
- * MySQL 数据源配置类
+ * MySQL 数据源自动配置类
  *
  * @author SHOOTING_STAR_C
  */
-@Configuration
 @Slf4j
+@AutoConfiguration
 @ConditionalOnProperty(
         prefix = "spring.datasource.druid.master",
         name = "url"
 )
 public class MysqlDataSourceConfig {
 
-    @Autowired
-    private DruidProperties druidProperties;
+    private final DruidProperties druidProperties;
+
+    public MysqlDataSourceConfig(DruidProperties druidProperties) {
+        this.druidProperties = druidProperties;
+    }
 
     /**
      * 加载 MySQL 主数据源
@@ -65,7 +64,7 @@ public class MysqlDataSourceConfig {
             havingValue = "true",
             matchIfMissing = true
     )
-    public DataSourceInitializer mysqlDataSourceInitializer(@Qualifier("masterDataSource")DataSource masterDataSource) {
+    public DataSourceInitializer mysqlDataSourceInitializer(DataSource masterDataSource) {
         log.info("初始化 MySQL 数据源初始化器...");
         DataSourceInitializer initializer = new DataSourceInitializer();
         initializer.setDataSource(masterDataSource);

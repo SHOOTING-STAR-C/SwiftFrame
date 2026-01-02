@@ -1,26 +1,39 @@
 package com.star.swiftMail.config;
 
+import com.star.swiftConfig.config.ConfigAutoConfiguration;
 import com.star.swiftConfig.service.SysConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
 /**
- * 邮件配置类
+ * 邮件自动配置类
  * 从配置表读取邮件配置并创建JavaMailSender
+ * 确保在数据源和配置模块加载完成后再加载
  *
  * @author SHOOTING_STAR_C
  */
 @Slf4j
-@Configuration
+@AutoConfiguration
+@AutoConfigureAfter(ConfigAutoConfiguration.class)
+@ConditionalOnClass(JavaMailSender.class)
+@ConditionalOnProperty(
+        prefix = "spring.mail",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 @RequiredArgsConstructor
-public class MailConfig {
+public class MailAutoConfiguration {
 
     private final SysConfigService sysConfigService;
 

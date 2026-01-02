@@ -1,11 +1,10 @@
 package com.star.swiftDatasource.config;
 
 import com.star.swiftDatasource.handler.UuidTypeHandler;
+import com.star.swiftDatasource.properties.DruidProperties;
 import com.star.swiftDatasource.properties.MybatisProperties;
-import com.star.swiftDatasource.properties.PgDruidProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 @ConditionalOnBean(name = "pgDataSource")
 @MapperScan(
     basePackages = {"com.star.**.mapper.postgresql"},
-    sqlSessionFactoryRef = "pgSqlSessionFactory"
+    sqlSessionFactoryRef = "postgreSqlSqlSessionFactory"
 )
 public class PostgreSqlMybatisConfig {
 
@@ -35,28 +35,28 @@ public class PostgreSqlMybatisConfig {
     private MybatisProperties mybatisProperties;
 
     @Autowired
-    private PgDruidProperties pgDruidProperties;
+    private DruidProperties druidProperties;
 
     /**
-     * PG 数据源的 SqlSessionFactory (PostgreSQL)
+     * PostgreSQL 数据源的 SqlSessionFactory
      *
-     * @param pgDataSource pg数据源
+     * @param postgreSqlDataSource PostgreSQL数据源
      * @return SqlSessionFactory
      * @throws Exception Exception
      */
-    @Bean(name = "pgSqlSessionFactory")
-    public SqlSessionFactory pgSqlSessionFactory(
+    @Bean(name = "postgreSqlSqlSessionFactory")
+    public SqlSessionFactory postgreSqlSqlSessionFactory(
             @Qualifier("pgDataSource") DataSource pgDataSource) throws Exception {
         log.info("初始化 PostgreSQL MyBatis SqlSessionFactory...");
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(pgDataSource);
-        sessionFactory.setTypeHandlers(new TypeHandler[]{new UuidTypeHandler()});
+        sessionFactory.setTypeHandlers(new UuidTypeHandler());
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
-        // 从 pg 数据源配置中读取 mapper-locations
+        // 从 PostgreSQL 数据源配置中读取 mapper-locations
         String location = "classpath*:sqlmapper/postgresql/*.xml";
-        if (pgDruidProperties.getMapperLocations() != null && !pgDruidProperties.getMapperLocations().isEmpty()) {
-            location = pgDruidProperties.getMapperLocations();
+        if (druidProperties.getMapperLocations() != null && !druidProperties.getMapperLocations().isEmpty()) {
+            location = druidProperties.getMapperLocations();
         }
         sessionFactory.setMapperLocations(resolver.getResources(location));
 

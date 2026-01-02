@@ -1,6 +1,7 @@
 package com.star.swiftLogin.service.impl;
 
 import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftSecurity.constant.TokenReCode;
 import com.star.swiftSecurity.domain.JwtToken;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
 import com.star.swiftSecurity.exception.InvalidTokenException;
@@ -88,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public PubResult<JwtToken> refreshToken(String refreshToken) throws AccountLockedException {
         if (!jwtUtil.validateToken(refreshToken)) {
-            throw new InvalidTokenException("无效的刷新令牌");
+            throw new InvalidTokenException(TokenReCode.TOKEN_INVALID);
         }
 
         String username = jwtUtil.extractUsername(refreshToken);

@@ -55,32 +55,34 @@
                         <id>generate-key-and-encrypt</id>
                         <goals>
                             <goal>generate</goal><!--生成密钥指令-->
-                            <goal>encrypt-config</goal><!--生成密钥指令-->
+                            <goal>encrypt-config</goal><!--加密配置文件-->
+                            <goal>encrypt-sql</goal><!--加密SQL文件-->
                         </goals>
                         <configuration>
                             <configFilePath>${project.basedir}/src/main/resources/application-${app.env}.yml
                             </configFilePath>
                             <aesPropertyName>crypto.aes.key</aesPropertyName>
                             <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
-                            <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
                             <aesKeySizePropertyName>crypto.aes.size</aesKeySizePropertyName>
                             <rsaKeySizePropertyName>crypto.rsa.size</rsaKeySizePropertyName>
                             <format>yml</format>
+                            <sqlDirPath>${project.basedir}/src/main/resources/sql</sqlDirPath>
                         </configuration>
                     </execution>
                     <execution>
                         <phase>clean</phase>
                         <id>generate-key-and-decrypt</id>
                         <goals>
-                            <goal>decrypt-config</goal><!--生成密钥指令-->
+                            <goal>decrypt-config</goal><!--解密配置文件-->
+                            <goal>decrypt-sql</goal><!--解密SQL文件-->
                         </goals>
                         <configuration>
                             <configFilePath>${project.basedir}/src/main/resources/application-${app.env}.yml
                             </configFilePath>
                             <aesPropertyName>crypto.aes.key</aesPropertyName>
                             <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
-                            <rsaPublicKeyPropertyName>crypto.rsa.public-key</rsaPublicKeyPropertyName>
                             <format>yml</format>
+                            <sqlDirPath>${project.basedir}/src/main/resources/sql</sqlDirPath>
                         </configuration>
                     </execution>
                 </executions>

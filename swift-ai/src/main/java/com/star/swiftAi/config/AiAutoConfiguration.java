@@ -4,9 +4,12 @@ import com.star.swiftAi.client.AiClient;
 import com.star.swiftAi.client.AiClientManager;
 import com.star.swiftAi.client.OpenAiCompatibleClient;
 import com.star.swiftAi.enums.AiProvider;
+import com.star.swiftConfig.config.ConfigAutoConfiguration;
 import com.star.swiftConfig.service.SysConfigService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -19,15 +22,19 @@ import java.util.Optional;
 /**
  * AI 自动配置类
  * 从配置表读取配置并创建和管理 AI 客户端实例
+ * 确保在配置模块加载完成后再加载
  */
 @Slf4j
 @AutoConfiguration
+@AutoConfigureAfter(ConfigAutoConfiguration.class)
 @ConditionalOnClass(AiClient.class)
 public class AiAutoConfiguration {
+    @Autowired
+    SysConfigService sysConfigService;
 
     @Bean
     @ConditionalOnMissingBean
-    public AiClientManager aiClientManager(SysConfigService sysConfigService) {
+    public AiClientManager aiClientManager() {
         Map<String, AiClient> clients = new HashMap<>();
         AiProvider defaultProvider = AiProvider.CUSTOM;
 

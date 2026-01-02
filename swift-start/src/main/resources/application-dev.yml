@@ -4,10 +4,10 @@ server:
     context-path: /swift
 spring:
   mail:
-    host: ENC(TCq2PkG0T4u+1qy/d6UOwmtZ2iVuE17IYpGQPx/9KVZtPwpxaPqP)
+    host: ENC(ufNtRYg0KekNPuvoeb1qzXGUUDd4RGJETZNakk9j40Z6SI6cEuK2)
     port: 587
-    username: ENC(g2SM+PGbWe/J+MB2UKyIlojttnRqf8BkVKFwDYUiUNVPg5ubvjhnyoO5vevk)
-    password: ENC(CphPFIDFusGuBwuRV2eGPgYvCUmVcYHjf5G40uT2xsJH0g4jgzUv/Z1SCS0=)
+    username: ENC(amFQl9ngN7LjSJ6MVKVuL8BpQS0nuWXJn2kAU4eFtFlvB6PUgCw23qxwpned)
+    password: ENC(hpA0Ths74PMdNnQ0bLLoSgw5V39BS+xAaG5tCWikApmV8/b+mcm/K+tULMU=)
   sql:
     init:
       mode: never
@@ -16,8 +16,8 @@ spring:
       master:
         url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(DL4IlMR5QC92qEunHm/SfYaFSZCLlXAS9uzv0+WS4n/Mr/2Jrw==)
-        password: ENC(9s8n4q1X2Mc8CeQDo8vgpyM/V9YBMadzzGxoGZlMR8ZM3QlttsokeNKJu40=)
+        username: ENC(pc6w+KCgsvdzGJ0PrA5HvDmp3OT4Q1ZcGBppWA2wNDlQdbd5Dw==)
+        password: ENC(itjo86DjTKB/uWPZWLgdyn8bBZupwf/5dB40H7tkvb6PfYZPA+07A3cYbfQ=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
         mapper-locations: classpath*:sqlmapper/mysql/*.xml
@@ -26,8 +26,8 @@ spring:
       pg:
         url: jdbc:postgresql://24.233.1.242:5432/swift_bus
         driver-class-name: org.postgresql.Driver
-        username: ENC(Xj60KUJX0HEl4JG62i1If/xx7wE/Ct2UtXawBoOU09WWNWDmctXE628=)
-        password: ENC(ctJLWlY3EpxSq1BHU87U+iT/TyJGs+W43m3yoYfi9FqaeAV41eILtext7P4=)
+        username: ENC(f/aiNu3iEgUZkpwqdSvHaCYiWYc/ND05+61pffecCV5rIv7adm2Zb6A=)
+        password: ENC(EnFIEOT/Lpn5rr8JQzizaH1wNij1fJzFt1TP+tWqLKKvL7lJiY4SWczzHJY=)
         validation-query: SELECT 1
         filters: stat,wall,slf4j
         mapper-locations: classpath*:sqlmapper/pg/*.xml
@@ -46,7 +46,7 @@ spring:
     redis:
       host: 24.233.1.242
       port: 6379
-      password: ENC(qjKC9Xk5UZi3ecW8tBC+2W6iWPaAKmU36U4dXFWGqXOAfT+xXXSKaQ==)
+      password: ENC(e4C8/+GOXdillSC/qhGpTnUAb+fZynrBQ+SlAFuV21kToDF4kC2ZNQ==)
       database: 0
 logging:
   level:

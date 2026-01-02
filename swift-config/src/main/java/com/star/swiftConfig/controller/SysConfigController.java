@@ -1,6 +1,5 @@
 package com.star.swiftConfig.controller;
 
-import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftConfig.domain.SysConfig;
 import com.star.swiftConfig.service.SysConfigService;

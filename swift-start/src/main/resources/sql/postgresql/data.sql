@@ -26,103 +26,30 @@
 -- 注意：执行此脚本前请确保sys_config表已创建
 
 -- ========================================
--- AI配置
--- ========================================
-
--- AI模块启用状态
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.enabled', 'true', 'AI', '是否启用AI模块', true, 'system', 'system');
-
--- 默认AI服务商
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.default-provider', 'CUSTOM', 'AI', '默认AI服务商', true, 'system', 'system');
-
--- OpenAI配置
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.openai.enabled', 'false', 'AI', '是否启用OpenAI', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.openai.api-key', 'DEC()', 'AI', 'OpenAI API密钥', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.openai.base-url', '', 'AI', 'OpenAI Base URL', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.openai.model', 'gpt-4o', 'AI', 'OpenAI默认模型', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.openai.timeout', '30', 'AI', 'OpenAI超时时间（秒）', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.openai.temperature', '0.7', 'AI', 'OpenAI默认温度值', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.openai.max-retries', '3', 'AI', 'OpenAI最大重试次数', false, 'system', 'system');
-
--- DeepSeek配置
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.deepseek.enabled', 'false', 'AI', '是否启用DeepSeek', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.deepseek.api-key', 'DEC()', 'AI', 'DeepSeek API密钥', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.deepseek.base-url', '', 'AI', 'DeepSeek Base URL', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.deepseek.model', 'deepseek-chat', 'AI', 'DeepSeek默认模型', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.deepseek.timeout', '30', 'AI', 'DeepSeek超时时间（秒）', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.deepseek.temperature', '0.7', 'AI', 'DeepSeek默认温度值', false, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.deepseek.max-retries', '3', 'AI', 'DeepSeek最大重试次数', false, 'system', 'system');
-
--- 自定义AI服务商配置
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.custom.enabled', 'true', 'AI', '是否启用自定义AI服务商', true, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.custom.api-key', 'DEC()', 'AI', '自定义AI服务商API密钥', true, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.custom.base-url', '', 'AI', '自定义AI服务商Base URL', true, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.custom.model', 'custom-model', 'AI', '自定义AI服务商默认模型', true, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.custom.timeout', '30', 'AI', '自定义AI服务商超时时间（秒）', true, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.custom.temperature', '0.7', 'AI', '自定义AI服务商默认温度值', true, 'system', 'system');
-
-INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('swift.ai.providers.custom.max-retries', '3', 'AI', '自定义AI服务商最大重试次数', true, 'system', 'system');
-
--- ========================================
 -- 邮件配置
 -- ========================================
 
 -- 邮件服务器主机
 INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('spring.mail.host', 'DEC(smtp.qq.com)', 'MAIL', '邮件服务器主机', true, 'system', 'system');
+VALUES ('spring.mail.host', 'smtp.qq.com', 'MAIL', '邮件服务器主机', true, 'system', 'system')
+ON CONFLICT (config_key) DO NOTHING;
 
 -- 邮件服务器端口
 INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('spring.mail.port', '587', 'MAIL', '邮件服务器端口', true, 'system', 'system');
+VALUES ('spring.mail.port', '587', 'MAIL', '邮件服务器端口', true, 'system', 'system')
+ON CONFLICT (config_key) DO NOTHING;
 
 -- 邮件发送用户名
 INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('spring.mail.username', 'DEC(2242620219@qq.com)', 'MAIL', '邮件发送用户名', true, 'system', 'system');
+VALUES ('spring.mail.username', 'ENC(CmdFJR6+yQpy0xJL86pZE6DkyY4HRW9taGf6Yqs38dv3F+H6+ZjEFIXJdriX)', 'MAIL', '邮件发送用户名', true, 'system', 'system')
+ON CONFLICT (config_key) DO NOTHING;
 
 -- 邮件发送密码
 INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('spring.mail.password', 'DEC(bmcycvxtkpmgeace)', 'MAIL', '邮件发送密码', true, 'system', 'system');
+VALUES ('spring.mail.password', 'ENC(AKJcLmqL0cGpUOv98gGajK8sM7CGnmN4MiMXoaylCjxVBYKwWXk6ZkH669c=)', 'MAIL', '邮件发送密码', true, 'system', 'system')
+ON CONFLICT (config_key) DO NOTHING;
 
 -- 邮件发送者（发件人）
 INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('spring.mail.from', 'DEC(swift)', 'MAIL', '邮件发送者（发件人）', true, 'system', 'system');
+VALUES ('spring.mail.from', 'swift', 'MAIL', '邮件发送者（发件人）', true, 'system', 'system')
+ON CONFLICT (config_key) DO NOTHING;

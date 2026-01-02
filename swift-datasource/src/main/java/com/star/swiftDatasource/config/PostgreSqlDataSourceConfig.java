@@ -3,14 +3,11 @@ package com.star.swiftDatasource.config;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.star.swiftDatasource.properties.PgDruidProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
@@ -21,20 +18,23 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /**
- * PostgreSQL 数据源配置类
+ * PostgreSQL 数据源自动配置类
  *
  * @author SHOOTING_STAR_C
  */
-@Configuration
 @Slf4j
+@AutoConfiguration
 @ConditionalOnProperty(
         prefix = "spring.datasource.druid.pg",
         name = "url"
 )
 public class PostgreSqlDataSourceConfig {
 
-    @Autowired
-    private PgDruidProperties pgDruidProperties;
+    private final PgDruidProperties pgDruidProperties;
+
+    public PostgreSqlDataSourceConfig(PgDruidProperties pgDruidProperties) {
+        this.pgDruidProperties = pgDruidProperties;
+    }
 
     /**
      * 加载 PostgreSQL 数据源

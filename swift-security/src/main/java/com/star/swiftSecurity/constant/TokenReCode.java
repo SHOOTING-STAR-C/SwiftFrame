@@ -9,8 +9,10 @@ import lombok.Getter;
  */
 @Getter
 public enum TokenReCode {
-    // 用户相关业务异常 (UER-4XX-01)
-    TOKEN_NOT_FOUND("TOK-404-01", "TOKEN失效");
+    // Token相关业务异常 (TOK-4XX-XX)
+    TOKEN_NOT_FOUND("TOK-404-01", "TOKEN失效"),
+    TOKEN_EXPIRED("TOK-401-01", "Token已过期"),
+    TOKEN_INVALID("TOK-401-02", "Token无效");
     private final String code;
     private final String message;
 

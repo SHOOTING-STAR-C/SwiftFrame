@@ -1,6 +1,8 @@
 package com.star.swiftSecurity.filter;
 
 import com.star.swiftSecurity.constant.TokenConstants;
+import com.star.swiftSecurity.constant.TokenReCode;
+import com.star.swiftSecurity.exception.InvalidTokenException;
 import com.star.swiftSecurity.service.SwiftUserService;
 import com.star.swiftSecurity.utils.JwtUtil;
 import com.star.swiftredis.service.TokenStorageService;
@@ -52,15 +54,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             // 验证JWT签名和Redis中的令牌有效性
-            if (jwtUtil.validateToken(jwt) && tokenStorageService.validateToken(TokenConstants.accessToken,username, jwt)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            if (!jwtUtil.validateToken(jwt)) {
+                throw new InvalidTokenException(TokenReCode.TOKEN_EXPIRED);
             }
+            
+            if (!tokenStorageService.validateToken(TokenConstants.accessToken, username, jwt)) {
+                throw new InvalidTokenException(TokenReCode.TOKEN_NOT_FOUND);
+            }
+            
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities()
+            );
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
         }
         filterChain.doFilter(request, response);
     }

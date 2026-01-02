@@ -326,14 +326,14 @@ public interface PgUserMapper extends BaseMapper<PgUser> {
 
 使用 `swift-encrypt-plugin` 插件对配置文件中的敏感信息进行加密：
 
-1. **加密配置**：
+1. **加密配置文件**：
     ```bash
-    mvn swift-encrypt-plugin:encrypt -Dfile=application-dev.yml
+    mvn swift-encrypt-plugin:encrypt-config -Dapp.env=dev
     ```
 
-2. **解密配置**：
+2. **解密配置文件**：
     ```bash
-    mvn swift-encrypt-plugin:decrypt -Dfile=application-dev.yml
+    mvn swift-encrypt-plugin:decrypt-config -Dapp.env=dev
     ```
 
 3. **配置示例**：
@@ -342,6 +342,48 @@ public interface PgUserMapper extends BaseMapper<PgUser> {
       datasource:
         password: ENC(加密后的密码)
     ```
+
+### SQL 文件加密
+
+使用 `swift-encrypt-plugin` 插件对 SQL 文件中的敏感数据进行加密：
+
+1. **加密 SQL 文件**：
+    ```bash
+    # 加密默认目录（src/main/resources/sql）下的所有 SQL 文件
+    mvn swift-encrypt-plugin:encrypt-sql -Dapp.env=dev
+    
+    # 指定 SQL 文件目录
+    mvn swift-encrypt-plugin:encrypt-sql -DsqlDirPath=src/main/resources/sql -Dapp.env=dev
+    
+    # 不递归处理子目录
+    mvn swift-encrypt-plugin:encrypt-sql -Drecursive=false -Dapp.env=dev
+    ```
+
+2. **解密 SQL 文件**：
+    ```bash
+    # 解密默认目录下的所有 SQL 文件
+    mvn swift-encrypt-plugin:decrypt-sql -Dapp.env=dev
+    
+    # 指定 SQL 文件目录
+    mvn swift-encrypt-plugin:decrypt-sql -DsqlDirPath=src/main/resources/sql -Dapp.env=dev
+    ```
+
+3. **SQL 文件使用示例**：
+    ```sql
+    -- 在 SQL 文件中使用 DEC() 标记需要加密的数据
+    INSERT INTO sys_config (config_key, config_value, config_type, description)
+    VALUES ('spring.mail.password', 'DEC(你的密码)', 'MAIL', '邮件发送密码');
+    
+    -- 加密后会自动转换为
+    INSERT INTO sys_config (config_key, config_value, config_type, description)
+    VALUES ('spring.mail.password', 'ENC(加密后的密文)', 'MAIL', '邮件发送密码');
+    ```
+
+4. **插件参数说明**：
+    - `sqlDirPath`: SQL 文件目录路径（默认：`${project.basedir}/src/main/resources/sql`）
+    - `recursive`: 是否递归处理子目录（默认：`true`）
+    - `configFilePath`: 配置文件路径，用于获取加密密钥（默认：`${project.basedir}/src/main/resources/application-${app.env}.yml`）
+    - `app.env`: 环境标识（dev/test/prod）
 
 ### AI 服务调用
 
