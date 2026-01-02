@@ -1,4 +1,4 @@
-package com.star.swiftSecurity.mapper;
+package com.star.swiftSecurity.mapper.mysql;
 
 import com.star.swiftSecurity.entity.SwiftUserDetails;
 import org.apache.ibatis.annotations.Mapper;
@@ -10,7 +10,6 @@ import org.apache.ibatis.annotations.Insert;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 用户Mapper接口

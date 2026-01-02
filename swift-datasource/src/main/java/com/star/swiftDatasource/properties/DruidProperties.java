@@ -34,6 +34,9 @@ public class DruidProperties {
     private boolean testOnBorrow = false;
     private boolean testOnReturn = false;
     private String filters =  "stat";
+    
+    // Mapper XML 路径配置
+    private String mapperLocations;
 
     public DruidDataSource dataSource(DruidDataSource datasource) throws SQLException {
         /* 配置基础连接 */

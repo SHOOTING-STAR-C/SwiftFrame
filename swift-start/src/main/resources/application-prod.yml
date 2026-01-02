@@ -12,6 +12,7 @@ spring:
         password: ENC(QMoZDwCZHN7zfVmqfGYzdtILnhcQQ23pnZ+WRGOHcHolowuAspMbl4nWpQs=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
+        mapper-locations: classpath*:sqlmapper/mysql/*.xml
   data:
     redis:
       host: 24.233.1.242

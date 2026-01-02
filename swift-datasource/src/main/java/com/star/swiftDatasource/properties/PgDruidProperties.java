@@ -38,6 +38,9 @@ public class PgDruidProperties {
     // 初始化脚本配置
     private String schemaScript = "classpath:schema-pg.sql";
     private boolean initializeSchema = true;
+    
+    // Mapper XML 路径配置
+    private String mapperLocations;
 
     public DruidDataSource dataSource(DruidDataSource datasource) throws SQLException {
         /* 配置基础连接 */

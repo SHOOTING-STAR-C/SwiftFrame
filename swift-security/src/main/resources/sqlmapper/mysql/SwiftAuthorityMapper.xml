@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.star.swiftSecurity.mapper.SwiftAuthorityMapper">
+<mapper namespace="com.star.swiftSecurity.mapper.mysql.SwiftAuthorityMapper">
     <resultMap id="AuthorityResultMap" type="com.star.swiftSecurity.entity.SwiftAuthority">
         <result property="authorityId" column="authority_id" javaType="java.lang.Long"/>
         <result property="name" column="name"/>

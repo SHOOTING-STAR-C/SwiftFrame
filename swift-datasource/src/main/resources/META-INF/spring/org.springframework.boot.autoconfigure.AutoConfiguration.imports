@@ -1,1 +1,4 @@
-com.star.swiftDatasource.config.MybatisAutoConfiguration
+com.star.swiftDatasource.config.MysqlDataSourceConfig
+com.star.swiftDatasource.config.PostgreSqlDataSourceConfig
+com.star.swiftDatasource.config.MysqlMybatisConfig
+com.star.swiftDatasource.config.PostgreSqlMybatisConfig

@@ -53,10 +53,3 @@ CREATE TABLE IF NOT EXISTS swift_role_authorities (
     FOREIGN KEY (role_id) REFERENCES swift_roles(role_id),
     FOREIGN KEY (authority_id) REFERENCES swift_authorities(authority_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 业务区域表 (示例)
-CREATE TABLE IF NOT EXISTS bussarea (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    code VARCHAR(50)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

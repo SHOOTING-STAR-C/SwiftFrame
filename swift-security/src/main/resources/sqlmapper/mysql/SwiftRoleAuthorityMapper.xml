@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.star.swiftSecurity.mapper.mysql.SwiftRoleAuthorityMapper">
+    <resultMap id="RoleAuthorityResultMap" type="com.star.swiftSecurity.entity.SwiftRoleAuthority">
+        <result property="grantedAt" column="granted_at"/>
+        <association property="id" javaType="com.star.swiftSecurity.entity.SwiftRoleAuthorityId">
+            <result property="roleId" column="role_id" javaType="java.lang.Long"/>
+            <result property="authorityId" column="authority_id" javaType="java.lang.Long"/>
+        </association>
+        <association property="authority" select="com.star.swiftSecurity.mapper.mysql.SwiftAuthorityMapper.findById" column="authority_id"/>
+    </resultMap>
+
+    <resultMap id="RoleAuthorityWithRoleResultMap" type="com.star.swiftSecurity.entity.SwiftRoleAuthority">
+        <result property="grantedAt" column="granted_at"/>
+        <association property="id" javaType="com.star.swiftSecurity.entity.SwiftRoleAuthorityId">
+            <result property="roleId" column="role_id" javaType="java.lang.Long"/>
+            <result property="authorityId" column="authority_id" javaType="java.lang.Long"/>
+        </association>
+        <association property="role" select="com.star.swiftSecurity.mapper.mysql.SwiftRoleMapper.findById" column="role_id"/>
+    </resultMap>
+
+    <select id="findByRole" resultMap="RoleAuthorityResultMap">
+        SELECT * FROM swift_role_authorities WHERE role_id = #{roleId}
+    </select>
+
+    <select id="findByAuthority" resultMap="RoleAuthorityWithRoleResultMap">
+        SELECT * FROM swift_role_authorities WHERE authority_id = #{authorityId}
+    </select>
+</mapper>

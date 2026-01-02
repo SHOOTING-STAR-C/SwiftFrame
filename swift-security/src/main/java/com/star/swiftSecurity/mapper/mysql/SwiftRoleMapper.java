@@ -1,4 +1,4 @@
-package com.star.swiftSecurity.mapper;
+package com.star.swiftSecurity.mapper.mysql;
 
 import com.star.swiftSecurity.entity.SwiftRole;
 import org.apache.ibatis.annotations.Mapper;

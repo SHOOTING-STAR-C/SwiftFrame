@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.star.swiftSecurity.mapper.SwiftUserMapper">
+<mapper namespace="com.star.swiftSecurity.mapper.mysql.SwiftUserMapper">
     <resultMap id="UserResultMap" type="com.star.swiftSecurity.entity.SwiftUserDetails">
         <id property="userId" column="user_id" javaType="java.lang.Long"/>
         <result property="username" column="username"/>
@@ -21,7 +21,7 @@
         <result property="lastLoginIp" column="last_login_ip"/>
         <result property="createdAt" column="created_at"/>
         <collection property="userRoles" ofType="com.star.swiftSecurity.entity.SwiftUserRole"
-                    select="com.star.swiftSecurity.mapper.SwiftUserRoleMapper.findByUser" column="user_id"/>
+                    select="com.star.swiftSecurity.mapper.mysql.SwiftUserRoleMapper.findByUser" column="user_id"/>
     </resultMap>
 
     <select id="findByUsername" resultMap="UserResultMap">

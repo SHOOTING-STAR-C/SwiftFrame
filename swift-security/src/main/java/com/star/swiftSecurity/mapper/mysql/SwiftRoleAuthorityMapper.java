@@ -1,4 +1,4 @@
-package com.star.swiftSecurity.mapper;
+package com.star.swiftSecurity.mapper.mysql;
 
 import com.star.swiftSecurity.entity.SwiftRoleAuthority;
 import org.apache.ibatis.annotations.*;
@@ -15,6 +15,11 @@ public interface SwiftRoleAuthorityMapper {
      * 查找角色的所有权限关联
      */
     List<SwiftRoleAuthority> findByRole(@Param("roleId") Long roleId);
+
+    /**
+     * 查找权限的所有角色关联
+     */
+    List<SwiftRoleAuthority> findByAuthority(@Param("authorityId") Long authorityId);
 
     /**
      * 查找角色是否拥有特定权限

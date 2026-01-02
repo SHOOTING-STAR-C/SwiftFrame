@@ -38,6 +38,11 @@ crypto:
     size: @crypto.aes.size@
   rsa:
     size: @crypto.rsa.size@
+    
+# MyBatis-Plus配置
+mybatis-plus:
+  global-config:
+    banner: false
 
 # Actuator 监控配置
 management:
@@ -81,8 +86,6 @@ swift:
   monitor:
     enabled: true
   mybatis:
-    mapper-locations:
-      master: classpath*:sqlmapper/*.xml
     map-underscore-to-camel-case: true
   security:
     auth:

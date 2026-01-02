@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.star.swiftSecurity.mapper.SwiftUserRoleMapper">
+<mapper namespace="com.star.swiftSecurity.mapper.mysql.SwiftUserRoleMapper">
     <resultMap id="UserRoleResultMap" type="com.star.swiftSecurity.entity.SwiftUserRole">
         <result property="assignedAt" column="assigned_at"/>
         <result property="assignedBy" column="assigned_by"/>
@@ -10,7 +10,7 @@
             <result property="userId" column="user_id" javaType="java.lang.Long"/>
             <result property="roleId" column="role_id" javaType="java.lang.Long"/>
         </association>
-        <association property="role" select="com.star.swiftSecurity.mapper.SwiftRoleMapper.findById" column="role_id"/>
+        <association property="role" select="com.star.swiftSecurity.mapper.mysql.SwiftRoleMapper.findById" column="role_id"/>
     </resultMap>
 
     <select id="findByUser" resultMap="UserRoleResultMap">
