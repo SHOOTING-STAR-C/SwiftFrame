@@ -8,30 +8,6 @@ server:
 spring:
   profiles:
     active: @app.env@
-  # 邮件配置
-  mail:
-    host: ${MAIL_HOST:smtp.qq.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    protocol: smtp
-    default-encoding: UTF-8
-    properties:
-      mail:
-        # 禁用 mime.types 文件读取，解决 JDK21 找不到文件的问题
-        mime:
-          content:
-            type:
-              unknown: application/octet-stream
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-        # 禁用 JavaMail 的自动 MIME 类型检测
-        contenttypehandler: false
-        # 禁用 JavaMail 读取 mime.types 文件
-        mime.types: ""
 
 crypto:
   aes:
@@ -87,34 +63,3 @@ swift:
     enabled: true
   mybatis:
     map-underscore-to-camel-case: true
-  security:
-    auth:
-      white-list: /auth/publicKey,/auth/login,/auth/register,/auth/forgot-password/**
-  ai:
-    enabled: true
-    default-provider: openai
-    providers:
-      openai:
-        enabled: false
-        api-key: ${OPENAI_API_KEY:your-openai-api-key}
-        base-url: https://api.openai.com
-        model: gpt-4o
-        timeout: 30
-        temperature: 0.7
-        max-retries: 3
-      deepseek:
-        enabled: false
-        api-key: ${DEEPSEEK_API_KEY:your-deepseek-api-key}
-        base-url: https://api.deepseek.com
-        model: deepseek-chat
-        timeout: 30
-        temperature: 0.7
-        max-retries: 3
-      custom:
-        enabled: false
-        api-key: ${CUSTOM_API_KEY:your-custom-api-key}
-        base-url: ${CUSTOM_BASE_URL:}
-        model: custom-model
-        timeout: 30
-        temperature: 0.7
-        max-retries: 3

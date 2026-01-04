@@ -4,6 +4,7 @@ import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftEncrypt.properties.CryptoEncryptProperties;
 import com.star.swiftLogin.dto.ForgotPasswordRequest;
 import com.star.swiftLogin.dto.LoginRequest;
+import com.star.swiftLogin.dto.RefreshTokenRequest;
 import com.star.swiftLogin.dto.RegisterRequest;
 import com.star.swiftLogin.dto.ResetPasswordRequest;
 import com.star.swiftLogin.service.AuthService;
@@ -108,6 +109,18 @@ public class LoginController {
     @Operation(summary = "重置密码", description = "使用验证码重置密码")
     public PubResult<String> resetPassword(@RequestBody ResetPasswordRequest request) {
         return authService.resetPassword(request.getEmail(), request.getVerificationCode(), request.getNewPassword());
+    }
+
+    /**
+     * 刷新Token
+     *
+     * @param request RefreshTokenRequest
+     * @return PubResult<JwtToken>
+     */
+    @PostMapping("/refresh")
+    @Operation(summary = "刷新Token", description = "使用refreshToken获取新的accessToken和refreshToken")
+    public PubResult<JwtToken> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return authService.refreshToken(request.getRefreshToken());
     }
 
 }

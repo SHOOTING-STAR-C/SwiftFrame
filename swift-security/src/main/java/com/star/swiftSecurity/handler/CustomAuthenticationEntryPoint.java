@@ -6,6 +6,7 @@ import com.star.swiftSecurity.constant.UserReCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -28,15 +29,20 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
         log.error("认证失败: {}", authException.getMessage());
-        
+
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
-        
+
+        UserReCode reCode = UserReCode.UNAUTHORIZED;
+        if (authException instanceof BadCredentialsException) {
+            reCode = UserReCode.BAD_CREDENTIALS;
+        }
+
         PubResult<?> result = PubResult.error(
-                UserReCode.BAD_CREDENTIALS.getCode(),
-                UserReCode.BAD_CREDENTIALS.getMessage()
+                reCode.getCode(),
+                reCode.getMessage()
         );
-        
+
         response.getWriter().write(objectMapper.writeValueAsString(result));
     }
 }

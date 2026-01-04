@@ -71,7 +71,7 @@ echo ✓ 文档目录已清理
 echo.
 
 REM 定义模块列表
-set MODULES=鉴权管理 用户管理 角色管理
+set MODULES=鉴权管理 用户管理 角色管理 AI
 
 echo [5/7] 生成模块文档...
 

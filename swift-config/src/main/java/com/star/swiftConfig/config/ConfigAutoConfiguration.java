@@ -1,6 +1,5 @@
 package com.star.swiftConfig.config;
 
-import com.star.swiftConfig.init.ConfigInitializer;
 import com.star.swiftConfig.service.SysConfigService;
 import com.star.swiftDatasource.config.PostgreSqlDataSourceConfig;
 import lombok.extern.slf4j.Slf4j;

@@ -5,6 +5,7 @@ import com.star.swiftSecurity.entity.SwiftUserDetails;
 import com.star.swiftSecurity.properties.JwtProperties;
 import com.star.swiftredis.service.TokenStorageService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -127,6 +128,9 @@ public class JwtUtil {
         try {
             extractClaim(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            log.error("JWT expired: {}", e.getMessage());
+            throw e;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("JWT validation error: {}", e.getMessage());
             return false;

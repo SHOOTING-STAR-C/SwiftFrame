@@ -14,6 +14,7 @@ public enum UserReCode {
     USER_DISABLED("UER-403-01", "用户不可用"),
     USER_DUPLICATE("UER-500-05", "用户已存在"),
     BAD_CREDENTIALS("UER-401-01", "用户名或密码错误"),
+    UNAUTHORIZED("UER-401-02", "认证失败，请重新登录"),
     ;
 
     private final String code;

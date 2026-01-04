@@ -19,6 +19,11 @@
             <groupId>com.star</groupId>
             <artifactId>swift-config</artifactId>
         </dependency>
+        <!-- 依赖数据源模块（包含MyBatis-Plus） -->
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-datasource</artifactId>
+        </dependency>
         <!-- Spring Boot 基础依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

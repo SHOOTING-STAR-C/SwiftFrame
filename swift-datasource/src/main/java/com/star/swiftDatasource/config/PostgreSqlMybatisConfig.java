@@ -1,11 +1,12 @@
 package com.star.swiftDatasource.config;
 
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.star.swiftDatasource.handler.UuidTypeHandler;
 import com.star.swiftDatasource.properties.DruidProperties;
 import com.star.swiftDatasource.properties.MybatisProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,15 +41,15 @@ public class PostgreSqlMybatisConfig {
     /**
      * PostgreSQL 数据源的 SqlSessionFactory
      *
-     * @param postgreSqlDataSource PostgreSQL数据源
+     * @param pgDataSource PostgreSQL数据源
      * @return SqlSessionFactory
      * @throws Exception Exception
      */
     @Bean(name = "postgreSqlSqlSessionFactory")
     public SqlSessionFactory postgreSqlSqlSessionFactory(
             @Qualifier("pgDataSource") DataSource pgDataSource) throws Exception {
-        log.info("初始化 PostgreSQL MyBatis SqlSessionFactory...");
-        SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
+        log.info("初始化 PostgreSQL MyBatis-Plus SqlSessionFactory...");
+        MybatisSqlSessionFactoryBean sessionFactory = new MybatisSqlSessionFactoryBean();
         sessionFactory.setDataSource(pgDataSource);
         sessionFactory.setTypeHandlers(new UuidTypeHandler());
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
@@ -59,11 +60,6 @@ public class PostgreSqlMybatisConfig {
             location = druidProperties.getMapperLocations();
         }
         sessionFactory.setMapperLocations(resolver.getResources(location));
-
-        // 配置 MyBatis 设置
-        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
-        configuration.setMapUnderscoreToCamelCase(mybatisProperties.isMapUnderscoreToCamelCase());
-        sessionFactory.setConfiguration(configuration);
 
         return sessionFactory.getObject();
     }

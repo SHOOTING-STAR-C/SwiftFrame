@@ -27,9 +27,9 @@ public interface AuthService {
      * 刷新token
      *
      * @param refreshToken refreshToken
-     * @return PubResult<Map < String, String>>
+     * @return PubResult<JwtToken>
      */
-    PubResult<JwtToken> refreshToken(String refreshToken) throws AccountLockedException;
+    PubResult<JwtToken> refreshToken(String refreshToken);
 
     /**
      * 登出

@@ -81,13 +81,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * 刷新token
+     * 刷新token（Token轮换机制）
      *
      * @param refreshToken refreshToken
-     * @return PubResult<Map < String, String>>
+     * @return PubResult<JwtToken>
      */
     @Override
-    public PubResult<JwtToken> refreshToken(String refreshToken) throws AccountLockedException {
+    public PubResult<JwtToken> refreshToken(String refreshToken) {
+        // 验证旧的refreshToken
         if (!jwtUtil.validateToken(refreshToken)) {
             throw new InvalidTokenException(TokenReCode.TOKEN_INVALID);
         }
@@ -97,12 +98,17 @@ public class AuthServiceImpl implements AuthService {
 
         // 检查用户状态
         if (!user.isAccountNonLocked() || !user.isEnabled()) {
-            throw new AccountLockedException("账户不可用");
+            return PubResult.error("账户已被锁定或禁用，无法刷新Token");
         }
 
+        // 生成新的token对
         String newAccessToken = jwtUtil.generateAccessToken(user);
+        String newRefreshToken = jwtUtil.generateRefreshToken(user);
 
-        return PubResult.success(new JwtToken(newAccessToken, null)); // 不返回新refresh token
+        // 将旧的refreshToken标记为失效（从Redis删除）
+        jwtUtil.removeToken("refresh", refreshToken);
+
+        return PubResult.success(new JwtToken(newAccessToken, newRefreshToken));
     }
 
     /**

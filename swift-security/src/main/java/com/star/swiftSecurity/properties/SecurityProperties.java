@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Arrays;
+
 
 /**
  * 安全相关配置
@@ -23,6 +25,11 @@ public class SecurityProperties {
      * @return String[]
      */
     public String[] getWhitelistArray() {
-        return whiteList.split(",");
+        if (whiteList == null || whiteList.isEmpty()) {
+            return new String[0];
+        }
+        return Arrays.stream(whiteList.split(","))
+                .map(String::trim)
+                .toArray(String[]::new);
     }
 }
