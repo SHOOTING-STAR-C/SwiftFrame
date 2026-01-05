@@ -43,11 +43,8 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             throw new RuntimeException("供应商代码已存在");
         }
         
-        // 加密API密钥并用ENC()包裹
         if (provider.getApiKey() != null && !provider.getApiKey().isEmpty()) {
-            String encryptedApiKey = cryptoService.encryptWithAES(provider.getApiKey());
-            provider.setApiKey("ENC(" + encryptedApiKey + ")");
-            log.info("API密钥已加密存储");
+            provider.setApiKey("ENC(" + provider.getApiKey() + ")");
         }
         
         this.save(provider);
@@ -79,11 +76,10 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             }
         }
         
-        // 如果提供了新的API密钥，则加密并用ENC()包裹
+        // 如果提供了新的API密钥，前端已加密，只需用ENC()包裹
         if (provider.getApiKey() != null && !provider.getApiKey().isEmpty()) {
-            String encryptedApiKey = cryptoService.encryptWithAES(provider.getApiKey());
-            provider.setApiKey("ENC(" + encryptedApiKey + ")");
-            log.info("API密钥已加密更新");
+            provider.setApiKey("ENC(" + provider.getApiKey() + ")");
+            log.info("API密钥已更新");
         } else {
             // 如果没有提供新的API密钥，保持原有的加密密钥
             provider.setApiKey(existing.getApiKey());
