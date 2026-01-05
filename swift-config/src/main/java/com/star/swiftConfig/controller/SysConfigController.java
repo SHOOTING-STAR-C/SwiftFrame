@@ -3,12 +3,14 @@ package com.star.swiftConfig.controller;
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftConfig.domain.SysConfig;
 import com.star.swiftConfig.service.SysConfigService;
+import com.star.swiftSecurity.constant.AuthorityConstants;
 import com.star.swiftredis.service.ConfigCacheService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +37,7 @@ public class SysConfigController {
      */
     @GetMapping("/value/{configKey}")
     @Operation(summary = "获取配置值", description = "根据配置键获取配置值")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<String> getConfigValue(
             @Parameter(description = "配置键") @PathVariable String configKey) {
         String value = sysConfigService.getConfigValue(configKey);
@@ -46,6 +49,7 @@ public class SysConfigController {
      */
     @GetMapping("/{configKey}")
     @Operation(summary = "获取配置", description = "根据配置键获取配置对象")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<SysConfig> getConfig(
             @Parameter(description = "配置键") @PathVariable String configKey) {
         SysConfig config = sysConfigService.getConfig(configKey);
@@ -60,6 +64,7 @@ public class SysConfigController {
      */
     @GetMapping("/id/{configId}")
     @Operation(summary = "根据ID获取配置", description = "根据配置ID获取配置对象")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<SysConfig> getConfigById(
             @Parameter(description = "配置ID") @PathVariable Long configId) {
         SysConfig config = sysConfigService.getConfigById(configId);
@@ -74,6 +79,7 @@ public class SysConfigController {
      */
     @GetMapping("/type/{configType}")
     @Operation(summary = "按类型获取配置", description = "根据配置类型获取配置列表")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<List<SysConfig>> getConfigsByType(
             @Parameter(description = "配置类型") @PathVariable String configType) {
         List<SysConfig> configs = sysConfigService.getConfigsByType(configType);
@@ -85,6 +91,7 @@ public class SysConfigController {
      */
     @GetMapping("/enabled")
     @Operation(summary = "获取启用的配置", description = "获取所有启用的配置")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<List<SysConfig>> getAllEnabledConfigs() {
         List<SysConfig> configs = sysConfigService.getAllEnabledConfigs();
         return PubResult.success(configs);
@@ -95,6 +102,7 @@ public class SysConfigController {
      */
     @GetMapping("/all")
     @Operation(summary = "获取所有配置", description = "获取所有配置")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<List<SysConfig>> getAllConfigs() {
         List<SysConfig> configs = sysConfigService.getAllConfigs();
         return PubResult.success(configs);
@@ -105,6 +113,7 @@ public class SysConfigController {
      */
     @PostMapping
     @Operation(summary = "保存配置", description = "保存新配置")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_CREATE + "')")
     public PubResult<SysConfig> saveConfig(@RequestBody SysConfig config) {
         try {
             SysConfig savedConfig = sysConfigService.saveConfig(config);
@@ -124,6 +133,7 @@ public class SysConfigController {
      */
     @PutMapping
     @Operation(summary = "更新配置", description = "更新配置")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_UPDATE + "')")
     public PubResult<SysConfig> updateConfig(@RequestBody SysConfig config) {
         try {
             SysConfig updatedConfig = sysConfigService.updateConfig(config);
@@ -143,6 +153,7 @@ public class SysConfigController {
      */
     @PutMapping("/value/{configKey}")
     @Operation(summary = "更新配置值", description = "根据配置键更新配置值")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_UPDATE + "')")
     public PubResult<Boolean> updateConfigValue(
             @Parameter(description = "配置键") @PathVariable String configKey,
             @Parameter(description = "配置值") @RequestParam String configValue,
@@ -167,6 +178,7 @@ public class SysConfigController {
      */
     @DeleteMapping("/{configId}")
     @Operation(summary = "删除配置", description = "根据配置ID删除配置")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_DELETE + "')")
     public PubResult<Boolean> deleteConfig(
             @Parameter(description = "配置ID") @PathVariable Long configId) {
         try {
@@ -188,6 +200,7 @@ public class SysConfigController {
      */
     @DeleteMapping("/key/{configKey}")
     @Operation(summary = "根据键删除配置", description = "根据配置键删除配置")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_DELETE + "')")
     public PubResult<Boolean> deleteConfigByKey(
             @Parameter(description = "配置键") @PathVariable String configKey) {
         try {
@@ -208,6 +221,7 @@ public class SysConfigController {
      */
     @PutMapping("/toggle/{configId}")
     @Operation(summary = "切换配置状态", description = "启用或禁用配置")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_UPDATE + "')")
     public PubResult<Boolean> toggleConfig(
             @Parameter(description = "配置ID") @PathVariable Long configId,
             @Parameter(description = "是否启用") @RequestParam Boolean enabled,
@@ -238,6 +252,7 @@ public class SysConfigController {
      */
     @GetMapping("/exists/{configKey}")
     @Operation(summary = "检查配置键是否存在", description = "检查配置键是否存在")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<Boolean> existsConfigKey(
             @Parameter(description = "配置键") @PathVariable String configKey) {
         boolean exists = sysConfigService.existsConfigKey(configKey);
@@ -249,6 +264,7 @@ public class SysConfigController {
      */
     @GetMapping("/map/{configType}")
     @Operation(summary = "按类型获取配置Map", description = "根据配置类型获取配置键值对Map")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<Map<String, String>> getConfigMapByType(
             @Parameter(description = "配置类型") @PathVariable String configType) {
         Map<String, String> configMap = sysConfigService.getConfigMapByType(configType);
@@ -260,6 +276,7 @@ public class SysConfigController {
      */
     @GetMapping("/map/enabled")
     @Operation(summary = "获取启用的配置Map", description = "获取所有启用的配置键值对Map")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_READ + "')")
     public PubResult<Map<String, String>> getAllEnabledConfigMap() {
         Map<String, String> configMap = sysConfigService.getAllEnabledConfigMap();
         return PubResult.success(configMap);
@@ -270,6 +287,7 @@ public class SysConfigController {
      */
     @PostMapping("/refresh")
     @Operation(summary = "刷新配置缓存", description = "从数据库重新加载配置到Redis缓存")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.CONFIG_REFRESH + "')")
     public PubResult<String> refreshConfigCache() {
         try {
             // 清空现有缓存

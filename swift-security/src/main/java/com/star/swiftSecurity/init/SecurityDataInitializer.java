@@ -1,259 +1,148 @@
 package com.star.swiftSecurity.init;
 
-import com.star.swiftSecurity.constant.AuthorityConstants;
 import com.star.swiftSecurity.constant.RoleConstants;
-import com.star.swiftSecurity.entity.SwiftAuthority;
 import com.star.swiftSecurity.entity.SwiftRole;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
-import com.star.swiftSecurity.entity.SwiftUserRole;
-import com.star.swiftSecurity.entity.SwiftUserRoleId;
-import com.star.swiftSecurity.mapper.mysql.SwiftAuthorityMapper;
-import com.star.swiftSecurity.mapper.mysql.SwiftRoleAuthorityMapper;
-import com.star.swiftSecurity.mapper.mysql.SwiftRoleMapper;
-import com.star.swiftSecurity.mapper.mysql.SwiftUserMapper;
-import com.star.swiftSecurity.mapper.mysql.SwiftUserRoleMapper;
-import com.star.swiftCommon.utils.SnowflakeIdGenerator;
+import com.star.swiftSecurity.service.SwiftRoleService;
+import com.star.swiftSecurity.service.SwiftUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.security.SecureRandom;
 
 /**
  * 安全数据初始化器
- * 在应用启动时自动初始化角色和权限数据
+ * 在应用启动时检查并初始化超级管理员账号
  *
  * @author SHOOTING_STAR_C
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SecurityDataInitializer implements CommandLineRunner {
+public class SecurityDataInitializer implements ApplicationRunner {
 
-    private final SwiftRoleMapper roleMapper;
-    private final SwiftAuthorityMapper authorityMapper;
-    private final SwiftRoleAuthorityMapper roleAuthorityMapper;
-    private final SwiftUserMapper userMapper;
-    private final SwiftUserRoleMapper userRoleMapper;
-    private final PasswordEncoder passwordEncoder;
+    private final SwiftUserService userService;
+    private final SwiftRoleService roleService;
 
+    private static final String ADMIN_USERNAME = "admin";
+    private static final String ADMIN_FULL_NAME = "系统管理员";
+    private static final String ADMIN_EMAIL = "admin@swift.com";
+    private static final int PASSWORD_LENGTH = 16;
+
+    /**
+     * 应用启动后执行
+     */
     @Override
-    @Transactional
-    public void run(String... args) {
-        log.info("开始初始化安全数据...");
-        
-        // 初始化权限
-        initAuthorities();
-        
-        // 初始化角色
-        initRoles();
-        
-        // 为角色分配权限
-        assignAuthoritiesToRoles();
-        
-        // 初始化默认用户
-        initDefaultUsers();
-        
-        log.info("安全数据初始化完成");
-    }
-
-    /**
-     * 初始化所有权限
-     */
-    private void initAuthorities() {
-        log.info("初始化权限数据...");
-        
-        // 用户管理权限
-        createAuthorityIfNotExists(AuthorityConstants.USER_READ, AuthorityConstants.USER_READ_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.USER_CREATE, AuthorityConstants.USER_CREATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.USER_UPDATE, AuthorityConstants.USER_UPDATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.USER_DELETE, AuthorityConstants.USER_DELETE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.USER_RESET_PASSWORD, AuthorityConstants.USER_RESET_PASSWORD_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.USER_LOCK, AuthorityConstants.USER_LOCK_DESC);
-        
-        // 角色管理权限
-        createAuthorityIfNotExists(AuthorityConstants.ROLE_READ, AuthorityConstants.ROLE_READ_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.ROLE_CREATE, AuthorityConstants.ROLE_CREATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.ROLE_UPDATE, AuthorityConstants.ROLE_UPDATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.ROLE_DELETE, AuthorityConstants.ROLE_DELETE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.ROLE_GRANT_AUTHORITY, AuthorityConstants.ROLE_GRANT_AUTHORITY_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.ROLE_REVOKE_AUTHORITY, AuthorityConstants.ROLE_REVOKE_AUTHORITY_DESC);
-        
-        // 权限管理权限
-        createAuthorityIfNotExists(AuthorityConstants.AUTHORITY_READ, AuthorityConstants.AUTHORITY_READ_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.AUTHORITY_CREATE, AuthorityConstants.AUTHORITY_CREATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.AUTHORITY_UPDATE, AuthorityConstants.AUTHORITY_UPDATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.AUTHORITY_DELETE, AuthorityConstants.AUTHORITY_DELETE_DESC);
-        
-        // 业务数据权限
-        createAuthorityIfNotExists(AuthorityConstants.DATA_READ, AuthorityConstants.DATA_READ_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.DATA_CREATE, AuthorityConstants.DATA_CREATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.DATA_UPDATE, AuthorityConstants.DATA_UPDATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.DATA_DELETE, AuthorityConstants.DATA_DELETE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.DATA_EXPORT, AuthorityConstants.DATA_EXPORT_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.DATA_IMPORT, AuthorityConstants.DATA_IMPORT_DESC);
-        
-        // 系统管理权限
-        createAuthorityIfNotExists(AuthorityConstants.SYSTEM_READ, AuthorityConstants.SYSTEM_READ_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.SYSTEM_UPDATE, AuthorityConstants.SYSTEM_UPDATE_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.LOG_READ, AuthorityConstants.LOG_READ_DESC);
-        createAuthorityIfNotExists(AuthorityConstants.LOG_DELETE, AuthorityConstants.LOG_DELETE_DESC);
-        
-        log.info("权限数据初始化完成");
-    }
-
-    /**
-     * 初始化角色
-     */
-    private void initRoles() {
-        log.info("初始化角色数据...");
-        
-        // 创建超级管理员角色
-        createRoleIfNotExists(RoleConstants.ROLE_SUPER_ADMIN, RoleConstants.ROLE_SUPER_ADMIN_DESC);
-        
-        // 创建普通用户角色
-        createRoleIfNotExists(RoleConstants.ROLE_USER, RoleConstants.ROLE_USER_DESC);
-        
-        log.info("角色数据初始化完成");
-    }
-
-    /**
-     * 初始化默认用户
-     */
-    private void initDefaultUsers() {
-        log.info("初始化默认用户...");
-        
-        // 创建默认超级管理员用户
-        createDefaultAdminUser();
-        
-        log.info("默认用户初始化完成");
-    }
-
-    /**
-     * 创建默认超级管理员用户
-     */
-    private void createDefaultAdminUser() {
-        SwiftUserDetails adminUser = userMapper.findByUsername("admin");
-        if (adminUser == null) {
-            adminUser = new SwiftUserDetails();
-            adminUser.setUserId(SnowflakeIdGenerator.generateId());
-            adminUser.setUsername("admin");
-            adminUser.setFullName("系统管理员");
-            adminUser.setPassword(passwordEncoder.encode("admin123"));
-            adminUser.setEmail("admin@swift.com");
-            adminUser.setEnabled(true);
-            adminUser.setAccountNonExpired(true);
-            adminUser.setAccountNonLocked(true);
-            adminUser.setCredentialsNonExpired(true);
-            adminUser.setFailedLoginAttempts(0);
-            adminUser.setPasswordChangedAt(LocalDateTime.now());
-            adminUser.setCreatedAt(LocalDateTime.now());
-            
-            userMapper.insert(adminUser);
-            log.info("创建默认管理员用户: admin");
-            
-            // 为管理员分配超级管理员角色
-            SwiftRole superAdminRole = roleMapper.findByName(RoleConstants.ROLE_SUPER_ADMIN);
-            if (superAdminRole != null) {
-                SwiftUserRole userRole = new SwiftUserRole();
-                SwiftUserRoleId id = new SwiftUserRoleId();
-                id.setUserId(adminUser.getUserId());
-                id.setRoleId(superAdminRole.getRoleId());
-                userRole.setUserId(id);
-                userRoleMapper.insert(userRole);
-                log.info("为管理员分配超级管理员角色");
+    public void run(ApplicationArguments args) {
+        try {
+            // 检查admin用户是否已存在
+            SwiftUserDetails existingAdmin = null;
+            try {
+                existingAdmin = userService.loadUserByUsername(ADMIN_USERNAME);
+            } catch (Exception e) {
+                // 用户不存在，继续创建
             }
-        }
-    }
 
+            if (existingAdmin == null) {
+                log.info("========================================");
+                log.info("检测到首次启动，正在初始化超级管理员账号...");
+                log.info("========================================");
 
-    /**
-     * 为角色分配权限
-     */
-    private void assignAuthoritiesToRoles() {
-        log.info("为角色分配权限...");
-        
-        // 获取角色
-        SwiftRole superAdminRole = roleMapper.findByName(RoleConstants.ROLE_SUPER_ADMIN);
-        SwiftRole userRole = roleMapper.findByName(RoleConstants.ROLE_USER);
-        
-        if (superAdminRole != null && userRole != null) {
-            // 超级管理员拥有所有权限
-            grantAllAuthoritiesToRole(superAdminRole);
-            
-            // 普通用户拥有基本业务数据权限
-            grantBasicAuthoritiesToRole(userRole);
-            
-            log.info("角色权限分配完成");
-        } else {
-            log.warn("角色不存在，无法分配权限");
-        }
-    }
+                // 生成随机密码
+                String randomPassword = generateRandomPassword(PASSWORD_LENGTH);
 
-    /**
-     * 创建权限（如果不存在）
-     */
-    private void createAuthorityIfNotExists(String name, String description) {
-        SwiftAuthority authority = authorityMapper.findByName(name);
-        if (authority == null) {
-            authority = new SwiftAuthority();
-            authority.setAuthorityId(SnowflakeIdGenerator.generateId());
-            authority.setName(name);
-            authority.setDescription(description);
-            authorityMapper.insert(authority);
-            log.debug("创建权限: {}", name);
-        }
-    }
+                // 创建超级管理员用户
+                SwiftUserDetails admin = new SwiftUserDetails();
+                admin.setUsername(ADMIN_USERNAME);
+                admin.setFullName(ADMIN_FULL_NAME);
+                admin.setEmail(ADMIN_EMAIL);
+                admin.setPassword(randomPassword);
+                admin.setEnabled(true);
+                admin.setAccountNonExpired(true);
+                admin.setAccountNonLocked(true);
+                admin.setCredentialsNonExpired(true);
+                admin.setFailedLoginAttempts(0);
 
-    /**
-     * 创建角色（如果不存在）
-     */
-    private void createRoleIfNotExists(String name, String description) {
-        SwiftRole role = roleMapper.findByName(name);
-        if (role == null) {
-            role = new SwiftRole();
-            role.setRoleId(SnowflakeIdGenerator.generateId());
-            role.setName(name);
-            role.setDescription(description);
-            roleMapper.insert(role);
-            log.debug("创建角色: {}", name);
-        }
-    }
+                SwiftUserDetails createdAdmin = userService.createUser(admin);
 
-    /**
-     * 为超级管理员角色分配所有权限
-     */
-    private void grantAllAuthoritiesToRole(SwiftRole role) {
-        List<SwiftAuthority> allAuthorities = authorityMapper.findAll();
-        for (SwiftAuthority authority : allAuthorities) {
-            if (!roleAuthorityMapper.exists(role.getRoleId(), authority.getAuthorityId())) {
-                roleAuthorityMapper.insert(role.getRoleId(), authority.getAuthorityId());
-                log.debug("为角色 {} 分配权限: {}", role.getName(), authority.getName());
+                // 分配超级管理员角色
+                SwiftRole superAdminRole = roleService.findByName(RoleConstants.ROLE_SUPER_ADMIN);
+                if (superAdminRole != null) {
+                    userService.assignRoleToUser(
+                            createdAdmin.getUserId(),
+                            superAdminRole.getRoleId(),
+                            "SYSTEM"
+                    );
+                }
+
+                // 输出登录信息
+                log.info("========================================");
+                log.info("超级管理员账号创建成功！");
+                log.info("用户名: {}", ADMIN_USERNAME);
+                log.info("密码: {}", randomPassword);
+                log.info("========================================");
+                log.warn("请妥善保管上述密码，首次登录后请立即修改！");
+                log.info("========================================");
+            } else {
+                log.debug("超级管理员账号已存在，跳过初始化");
             }
+        } catch (Exception e) {
+            log.error("初始化超级管理员账号失败", e);
+            throw new RuntimeException("初始化超级管理员账号失败", e);
         }
     }
 
     /**
-     * 为普通用户角色分配基本权限
+     * 生成随机密码
+     * 密码包含大小写字母、数字和特殊字符
+     *
+     * @param length 密码长度
+     * @return 随机密码
      */
-    private void grantBasicAuthoritiesToRole(SwiftRole role) {
-        // 普通用户只有基本的业务数据读取和创建权限
-        String[] basicAuthorities = {
-            AuthorityConstants.DATA_READ,
-            AuthorityConstants.DATA_CREATE,
-            AuthorityConstants.DATA_UPDATE
-        };
-        
-        for (String authorityName : basicAuthorities) {
-            SwiftAuthority authority = authorityMapper.findByName(authorityName);
-            if (authority != null && !roleAuthorityMapper.exists(role.getRoleId(), authority.getAuthorityId())) {
-                roleAuthorityMapper.insert(role.getRoleId(), authority.getAuthorityId());
-                log.debug("为角色 {} 分配权限: {}", role.getName(), authority.getName());
-            }
+    private String generateRandomPassword(int length) {
+        String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String digits = "0123456789";
+        String specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+        String allChars = lowerCase + upperCase + digits + specialChars;
+        SecureRandom random = new SecureRandom();
+
+        StringBuilder password = new StringBuilder();
+
+        // 确保至少包含一个大写字母、一个小写字母、一个数字和一个特殊字符
+        password.append(lowerCase.charAt(random.nextInt(lowerCase.length())));
+        password.append(upperCase.charAt(random.nextInt(upperCase.length())));
+        password.append(digits.charAt(random.nextInt(digits.length())));
+        password.append(specialChars.charAt(random.nextInt(specialChars.length())));
+
+        // 填充剩余长度
+        for (int i = 4; i < length; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
         }
+
+        // 打乱字符顺序
+        return shuffleString(password.toString(), random);
+    }
+
+    /**
+     * 打乱字符串顺序
+     *
+     * @param input 输入字符串
+     * @param random 随机数生成器
+     * @return 打乱后的字符串
+     */
+    private String shuffleString(String input, SecureRandom random) {
+        char[] characters = input.toCharArray();
+        for (int i = characters.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            char temp = characters[i];
+            characters[i] = characters[j];
+            characters[j] = temp;
+        }
+        return new String(characters);
     }
 }

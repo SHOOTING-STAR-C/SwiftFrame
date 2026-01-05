@@ -9,7 +9,7 @@ public class AuthorityConstants {
     // ==================== 用户管理权限 ====================
     
     /**
-     * 查看用户列表
+     * 查看用户列表和详情
      */
     public static final String USER_READ = "user:read";
 
@@ -29,19 +29,19 @@ public class AuthorityConstants {
     public static final String USER_DELETE = "user:delete";
 
     /**
-     * 重置用户密码
+     * 修改用户密码
      */
-    public static final String USER_RESET_PASSWORD = "user:reset_password";
+    public static final String USER_PASSWORD = "user:password";
 
     /**
-     * 锁定/解锁用户账户
+     * 用户管理（启用/禁用/锁定/解锁/分配角色）
      */
-    public static final String USER_LOCK = "user:lock";
+    public static final String USER_MANAGE = "user:manage";
 
     // ==================== 角色管理权限 ====================
     
     /**
-     * 查看角色列表
+     * 查看角色列表和详情
      */
     public static final String ROLE_READ = "role:read";
 
@@ -61,19 +61,14 @@ public class AuthorityConstants {
     public static final String ROLE_DELETE = "role:delete";
 
     /**
-     * 分配权限给角色
+     * 角色管理（分配/收回权限）
      */
-    public static final String ROLE_GRANT_AUTHORITY = "role:grant_authority";
-
-    /**
-     * 收回角色权限
-     */
-    public static final String ROLE_REVOKE_AUTHORITY = "role:revoke_authority";
+    public static final String ROLE_MANAGE = "role:manage";
 
     // ==================== 权限管理权限 ====================
     
     /**
-     * 查看权限列表
+     * 查看权限列表和详情
      */
     public static final String AUTHORITY_READ = "authority:read";
 
@@ -92,90 +87,173 @@ public class AuthorityConstants {
      */
     public static final String AUTHORITY_DELETE = "authority:delete";
 
-    // ==================== 业务数据权限 ====================
+    // ==================== AI供应商管理权限 ====================
     
     /**
-     * 查看业务数据
+     * 查看供应商列表和详情
      */
-    public static final String DATA_READ = "data:read";
+    public static final String AI_PROVIDER_READ = "ai:provider:read";
 
     /**
-     * 创建业务数据
+     * 创建供应商
      */
-    public static final String DATA_CREATE = "data:create";
+    public static final String AI_PROVIDER_CREATE = "ai:provider:create";
 
     /**
-     * 更新业务数据
+     * 更新供应商
      */
-    public static final String DATA_UPDATE = "data:update";
+    public static final String AI_PROVIDER_UPDATE = "ai:provider:update";
 
     /**
-     * 删除业务数据
+     * 删除供应商
      */
-    public static final String DATA_DELETE = "data:delete";
+    public static final String AI_PROVIDER_DELETE = "ai:provider:delete";
 
     /**
-     * 导出数据
+     * 测试供应商连接
      */
-    public static final String DATA_EXPORT = "data:export";
+    public static final String AI_PROVIDER_TEST = "ai:provider:test";
 
-    /**
-     * 导入数据
-     */
-    public static final String DATA_IMPORT = "data:import";
-
-    // ==================== 系统管理权限 ====================
+    // ==================== AI模型管理权限 ====================
     
     /**
-     * 查看系统配置
+     * 查看模型列表和详情
      */
-    public static final String SYSTEM_READ = "system:read";
+    public static final String AI_MODEL_READ = "ai:model:read";
 
     /**
-     * 更新系统配置
+     * 创建模型
      */
-    public static final String SYSTEM_UPDATE = "system:update";
+    public static final String AI_MODEL_CREATE = "ai:model:create";
 
     /**
-     * 查看系统日志
+     * 更新模型
      */
-    public static final String LOG_READ = "log:read";
+    public static final String AI_MODEL_UPDATE = "ai:model:update";
 
     /**
-     * 清理系统日志
+     * 删除模型
      */
-    public static final String LOG_DELETE = "log:delete";
+    public static final String AI_MODEL_DELETE = "ai:model:delete";
+
+    /**
+     * 测试模型
+     */
+    public static final String AI_MODEL_TEST = "ai:model:test";
+
+    // ==================== AI聊天权限 ====================
+    
+    /**
+     * 发送聊天消息
+     */
+    public static final String AI_CHAT_SEND = "ai:chat:send";
+
+    /**
+     * 查看聊天历史
+     */
+    public static final String AI_CHAT_HISTORY = "ai:chat:history";
+
+    // ==================== AI会话管理权限 ====================
+    
+    /**
+     * 查看会话列表和详情
+     */
+    public static final String AI_SESSION_READ = "ai:session:read";
+
+    /**
+     * 创建会话
+     */
+    public static final String AI_SESSION_CREATE = "ai:session:create";
+
+    /**
+     * 更新会话
+     */
+    public static final String AI_SESSION_UPDATE = "ai:session:update";
+
+    /**
+     * 删除会话
+     */
+    public static final String AI_SESSION_DELETE = "ai:session:delete";
+
+    // ==================== 系统配置管理权限 ====================
+    
+    /**
+     * 查看配置
+     */
+    public static final String CONFIG_READ = "config:read";
+
+    /**
+     * 创建配置
+     */
+    public static final String CONFIG_CREATE = "config:create";
+
+    /**
+     * 更新配置
+     */
+    public static final String CONFIG_UPDATE = "config:update";
+
+    /**
+     * 删除配置
+     */
+    public static final String CONFIG_DELETE = "config:delete";
+
+    /**
+     * 刷新配置缓存
+     */
+    public static final String CONFIG_REFRESH = "config:refresh";
+
+    // ==================== 系统监控权限 ====================
+    
+    /**
+     * 查看系统监控数据
+     */
+    public static final String MONITOR_VIEW = "monitor:view";
 
     // ==================== 描述信息 ====================
     
-    public static final String USER_READ_DESC = "查看用户列表";
+    public static final String USER_READ_DESC = "查看用户列表和详情";
     public static final String USER_CREATE_DESC = "创建用户";
     public static final String USER_UPDATE_DESC = "更新用户信息";
     public static final String USER_DELETE_DESC = "删除用户";
-    public static final String USER_RESET_PASSWORD_DESC = "重置用户密码";
-    public static final String USER_LOCK_DESC = "锁定/解锁用户账户";
+    public static final String USER_PASSWORD_DESC = "修改用户密码";
+    public static final String USER_MANAGE_DESC = "用户管理（启用/禁用/锁定/解锁/分配角色）";
 
-    public static final String ROLE_READ_DESC = "查看角色列表";
+    public static final String ROLE_READ_DESC = "查看角色列表和详情";
     public static final String ROLE_CREATE_DESC = "创建角色";
     public static final String ROLE_UPDATE_DESC = "更新角色信息";
     public static final String ROLE_DELETE_DESC = "删除角色";
-    public static final String ROLE_GRANT_AUTHORITY_DESC = "分配权限给角色";
-    public static final String ROLE_REVOKE_AUTHORITY_DESC = "收回角色权限";
+    public static final String ROLE_MANAGE_DESC = "角色管理（分配/收回权限）";
 
-    public static final String AUTHORITY_READ_DESC = "查看权限列表";
+    public static final String AUTHORITY_READ_DESC = "查看权限列表和详情";
     public static final String AUTHORITY_CREATE_DESC = "创建权限";
     public static final String AUTHORITY_UPDATE_DESC = "更新权限信息";
     public static final String AUTHORITY_DELETE_DESC = "删除权限";
 
-    public static final String DATA_READ_DESC = "查看业务数据";
-    public static final String DATA_CREATE_DESC = "创建业务数据";
-    public static final String DATA_UPDATE_DESC = "更新业务数据";
-    public static final String DATA_DELETE_DESC = "删除业务数据";
-    public static final String DATA_EXPORT_DESC = "导出数据";
-    public static final String DATA_IMPORT_DESC = "导入数据";
+    public static final String AI_PROVIDER_READ_DESC = "查看供应商列表和详情";
+    public static final String AI_PROVIDER_CREATE_DESC = "创建供应商";
+    public static final String AI_PROVIDER_UPDATE_DESC = "更新供应商";
+    public static final String AI_PROVIDER_DELETE_DESC = "删除供应商";
+    public static final String AI_PROVIDER_TEST_DESC = "测试供应商连接";
 
-    public static final String SYSTEM_READ_DESC = "查看系统配置";
-    public static final String SYSTEM_UPDATE_DESC = "更新系统配置";
-    public static final String LOG_READ_DESC = "查看系统日志";
-    public static final String LOG_DELETE_DESC = "清理系统日志";
+    public static final String AI_MODEL_READ_DESC = "查看模型列表和详情";
+    public static final String AI_MODEL_CREATE_DESC = "创建模型";
+    public static final String AI_MODEL_UPDATE_DESC = "更新模型";
+    public static final String AI_MODEL_DELETE_DESC = "删除模型";
+    public static final String AI_MODEL_TEST_DESC = "测试模型";
+
+    public static final String AI_CHAT_SEND_DESC = "发送聊天消息";
+    public static final String AI_CHAT_HISTORY_DESC = "查看聊天历史";
+
+    public static final String AI_SESSION_READ_DESC = "查看会话列表和详情";
+    public static final String AI_SESSION_CREATE_DESC = "创建会话";
+    public static final String AI_SESSION_UPDATE_DESC = "更新会话";
+    public static final String AI_SESSION_DELETE_DESC = "删除会话";
+
+    public static final String CONFIG_READ_DESC = "查看配置";
+    public static final String CONFIG_CREATE_DESC = "创建配置";
+    public static final String CONFIG_UPDATE_DESC = "更新配置";
+    public static final String CONFIG_DELETE_DESC = "删除配置";
+    public static final String CONFIG_REFRESH_DESC = "刷新配置缓存";
+
+    public static final String MONITOR_VIEW_DESC = "查看系统监控数据";
 }

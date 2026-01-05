@@ -9,6 +9,7 @@ import com.star.swiftAi.service.AiChatMessageService;
 import com.star.swiftAi.service.AiChatSessionService;
 import com.star.swiftAi.service.AiModelService;
 import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftSecurity.constant.AuthorityConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,6 +46,7 @@ public class AiChatController {
     @Operation(summary = "发送聊天消息", description = "向 AI 模型发送消息并获取回复，支持新会话和已有会话。如果是新会话，会自动创建一个默认会话。")
     @ApiResponse(responseCode = "200", description = "发送成功", content = @Content(schema = @Schema(implementation = ChatResponseDTO.class)))
     @PostMapping
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_CHAT_SEND + "')")
     public PubResult<ChatResponseDTO> chat(
             @Valid @RequestBody ChatRequestDTO request) {
         // 获取模型信息
@@ -103,6 +106,7 @@ public class AiChatController {
     @Operation(summary = "获取聊天历史", description = "获取指定会话的所有聊天消息历史")
     @ApiResponse(responseCode = "200", description = "获取成功")
     @GetMapping("/history")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_CHAT_HISTORY + "')")
     public PubResult<List<ChatResponseDTO>> getChatHistory(
             @Parameter(description = "会话ID", required = true) @RequestParam String sessionId) {
         // 验证会话是否存在

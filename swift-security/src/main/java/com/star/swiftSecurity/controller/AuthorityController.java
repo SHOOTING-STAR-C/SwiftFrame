@@ -1,6 +1,7 @@
 package com.star.swiftSecurity.controller;
 
 import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftSecurity.constant.AuthorityConstants;
 import com.star.swiftSecurity.entity.SwiftAuthority;
 import com.star.swiftSecurity.entity.SwiftRole;
 import com.star.swiftSecurity.service.SwiftAuthorityService;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +36,7 @@ public class AuthorityController {
      * @return 创建的权限
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_CREATE + "')")
     @Operation(summary = "创建权限", description = "创建新的系统权限")
     public PubResult<SwiftAuthority> createAuthority(@Valid @RequestBody SwiftAuthority authority) {
         return PubResult.success(authorityService.createAuthority(authority));
@@ -47,6 +50,7 @@ public class AuthorityController {
      * @return 更新后的权限
      */
     @PutMapping("/{authorityId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_UPDATE + "')")
     @Operation(summary = "更新权限", description = "更新指定权限的信息")
     public PubResult<SwiftAuthority> updateAuthority(
             @Parameter(description = "权限ID", required = true) @PathVariable Long authorityId,
@@ -62,6 +66,7 @@ public class AuthorityController {
      * @return 操作结果
      */
     @DeleteMapping("/{authorityId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_DELETE + "')")
     @Operation(summary = "删除权限", description = "删除指定的权限（不能删除已分配给角色的权限）")
     public PubResult<Void> deleteAuthority(
             @Parameter(description = "权限ID", required = true) @PathVariable Long authorityId) {
@@ -76,6 +81,7 @@ public class AuthorityController {
      * @return 权限信息
      */
     @GetMapping("/{authorityId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_READ + "')")
     @Operation(summary = "获取权限详情", description = "根据ID获取权限的详细信息")
     public PubResult<SwiftAuthority> getAuthorityById(
             @Parameter(description = "权限ID", required = true) @PathVariable Long authorityId) {
@@ -89,6 +95,7 @@ public class AuthorityController {
      * @return 权限信息
      */
     @GetMapping("/name/{name}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_READ + "')")
     @Operation(summary = "根据权限名获取权限", description = "根据权限名获取权限信息")
     public PubResult<SwiftAuthority> getAuthorityByName(
             @Parameter(description = "权限名", required = true) @PathVariable String name) {
@@ -101,6 +108,7 @@ public class AuthorityController {
      * @return 权限列表
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_READ + "')")
     @Operation(summary = "获取所有权限", description = "获取系统中所有的权限列表")
     public PubResult<List<SwiftAuthority>> getAllAuthorities() {
         return PubResult.success(authorityService.getAllAuthorities());
@@ -113,6 +121,7 @@ public class AuthorityController {
      * @return 权限列表
      */
     @PostMapping("/batch")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_READ + "')")
     @Operation(summary = "批量获取权限", description = "根据权限名列表批量获取权限信息")
     public PubResult<List<SwiftAuthority>> getAuthoritiesByNames(
             @RequestBody List<String> names) {
@@ -126,6 +135,7 @@ public class AuthorityController {
      * @return 角色集合
      */
     @GetMapping("/{authorityId}/roles")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_READ + "')")
     @Operation(summary = "获取权限角色", description = "获取拥有指定权限的所有角色")
     public PubResult<Set<SwiftRole>> getRolesWithAuthority(
             @Parameter(description = "权限ID", required = true) @PathVariable Long authorityId) {

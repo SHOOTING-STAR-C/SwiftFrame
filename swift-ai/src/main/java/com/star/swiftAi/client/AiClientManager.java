@@ -1,6 +1,6 @@
 package com.star.swiftAi.client;
 
-import com.star.swiftAi.enums.AiProvider;
+import com.star.swiftAi.enums.AiProviderEnum;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AiClientManager {
     private final Map<String, AiClient> clients;
-    private final AiProvider defaultProvider;
+    private final AiProviderEnum defaultProvider;
 
     public AiClient getClient() {
         return getClient(defaultProvider.getCode());
@@ -25,7 +25,7 @@ public class AiClientManager {
                 .orElseThrow(() -> new IllegalArgumentException("Provider not found: " + providerCode));
     }
 
-    public AiClient getClient(AiProvider provider) {
+    public AiClient getClient(AiProviderEnum provider) {
         return getClient(provider.getCode());
     }
 

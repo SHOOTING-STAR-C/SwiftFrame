@@ -5,6 +5,7 @@ import com.star.swiftAi.dto.SessionDTO;
 import com.star.swiftAi.entity.AiChatSession;
 import com.star.swiftAi.service.AiChatSessionService;
 import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftSecurity.constant.AuthorityConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,6 +35,7 @@ public class AiChatSessionController {
     @Operation(summary = "创建会话", description = "创建一个新的 AI 聊天会话")
     @ApiResponse(responseCode = "200", description = "创建成功", content = @Content(schema = @Schema(implementation = AiChatSession.class)))
     @PostMapping
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_SESSION_CREATE + "')")
     public PubResult<AiChatSession> createSession(
             @Parameter(description = "用户 ID", example = "user123") @RequestParam String userId,
             @Parameter(description = "模型 ID", example = "1") @RequestParam Long modelId,
@@ -47,6 +50,7 @@ public class AiChatSessionController {
     @Operation(summary = "更新会话", description = "更新指定会话的标题")
     @ApiResponse(responseCode = "200", description = "更新成功")
     @PutMapping("/{sessionId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_SESSION_UPDATE + "')")
     public PubResult<Void> updateSession(
             @Parameter(description = "会话 ID", example = "1723456789012345678") @PathVariable String sessionId,
             @Parameter(description = "会话标题", example = "新标题") @RequestParam String title) {
@@ -60,6 +64,7 @@ public class AiChatSessionController {
     @Operation(summary = "删除会话", description = "删除指定会话及其所有消息")
     @ApiResponse(responseCode = "200", description = "删除成功")
     @DeleteMapping("/{sessionId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_SESSION_DELETE + "')")
     public PubResult<Void> deleteSession(
             @Parameter(description = "会话ID") @PathVariable String sessionId) {
         aiChatSessionService.deleteSession(sessionId);
@@ -72,6 +77,7 @@ public class AiChatSessionController {
     @Operation(summary = "获取会话详情", description = "根据会话ID获取会话详细信息")
     @ApiResponse(responseCode = "200", description = "获取成功", content = @Content(schema = @Schema(implementation = SessionDTO.class)))
     @GetMapping("/{sessionId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_SESSION_READ + "')")
     public PubResult<SessionDTO> getSessionById(
             @Parameter(description = "会话ID") @PathVariable String sessionId) {
         SessionDTO session = aiChatSessionService.getSessionById(sessionId);
@@ -84,6 +90,7 @@ public class AiChatSessionController {
     @Operation(summary = "获取用户的会话列表", description = "分页获取指定用户的所有会话")
     @ApiResponse(responseCode = "200", description = "获取成功")
     @GetMapping
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_SESSION_READ + "')")
     public PubResult<IPage<SessionDTO>> getSessionsByUserId(
             @Parameter(description = "用户 ID", example = "user123") @RequestParam String userId,
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,

@@ -47,6 +47,14 @@ public interface SwiftRoleService {
     List<SwiftRole> getAllRoles();
 
     /**
+     * 根据角色名查找角色
+     *
+     * @param name 角色名
+     * @return SwiftRole
+     */
+    SwiftRole findByName(String name);
+
+    /**
      * 授予权限给角色
      *
      * @param roleId      roleId

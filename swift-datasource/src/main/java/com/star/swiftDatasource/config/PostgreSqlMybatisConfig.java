@@ -1,10 +1,9 @@
 package com.star.swiftDatasource.config;
 
-import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.star.swiftDatasource.handler.UuidTypeHandler;
 import com.star.swiftDatasource.properties.DruidProperties;
-import com.star.swiftDatasource.properties.MybatisProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
@@ -33,9 +31,6 @@ import javax.sql.DataSource;
 public class PostgreSqlMybatisConfig {
 
     @Autowired
-    private MybatisProperties mybatisProperties;
-
-    @Autowired
     private DruidProperties druidProperties;
 
     /**
@@ -52,6 +47,12 @@ public class PostgreSqlMybatisConfig {
         MybatisSqlSessionFactoryBean sessionFactory = new MybatisSqlSessionFactoryBean();
         sessionFactory.setDataSource(pgDataSource);
         sessionFactory.setTypeHandlers(new UuidTypeHandler());
+        
+        // 设置 GlobalConfig，关闭 banner
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setBanner(false);
+        sessionFactory.setGlobalConfig(globalConfig);
+        
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
         // 从 PostgreSQL 数据源配置中读取 mapper-locations

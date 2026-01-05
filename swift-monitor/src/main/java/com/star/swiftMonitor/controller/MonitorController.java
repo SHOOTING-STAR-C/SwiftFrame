@@ -1,8 +1,10 @@
 package com.star.swiftMonitor.controller;
 
 import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftSecurity.constant.AuthorityConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +37,7 @@ public class MonitorController {
      */
     @GetMapping("/overview")
     @Operation(summary = "系统概览", description = "获取系统整体概览信息")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.MONITOR_VIEW + "')")
     public PubResult<Map<String, Object>> getSystemOverview() {
         Map<String, Object> overview = new HashMap<>();
         
@@ -63,6 +66,7 @@ public class MonitorController {
      */
     @GetMapping("/memory")
     @Operation(summary = "内存详情", description = "获取系统内存使用详情")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.MONITOR_VIEW + "')")
     public PubResult<Map<String, Object>> getMemoryDetails() {
         Map<String, Object> memory = new HashMap<>();
         
@@ -95,6 +99,7 @@ public class MonitorController {
      */
     @GetMapping("/jvm")
     @Operation(summary = "JVM详情", description = "获取JVM运行时详细信息")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.MONITOR_VIEW + "')")
     public PubResult<Map<String, Object>> getJvmDetails() {
         Map<String, Object> jvm = new HashMap<>();
         
@@ -116,6 +121,7 @@ public class MonitorController {
      */
     @GetMapping("/os")
     @Operation(summary = "操作系统信息", description = "获取操作系统详细信息")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.MONITOR_VIEW + "')")
     public PubResult<Map<String, Object>> getOsDetails() {
         Map<String, Object> os = new HashMap<>();
         
@@ -135,6 +141,7 @@ public class MonitorController {
      */
     @GetMapping("/thread")
     @Operation(summary = "线程信息", description = "获取线程相关信息")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.MONITOR_VIEW + "')")
     public PubResult<Map<String, Object>> getThreadDetails() {
         Map<String, Object> thread = new HashMap<>();
         
@@ -153,6 +160,7 @@ public class MonitorController {
      */
     @GetMapping("/runtime")
     @Operation(summary = "运行时信息", description = "获取应用运行时信息")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.MONITOR_VIEW + "')")
     public PubResult<Map<String, Object>> getRuntimeDetails() {
         Map<String, Object> runtime = new HashMap<>();
         
@@ -170,6 +178,7 @@ public class MonitorController {
      */
     @GetMapping("/all")
     @Operation(summary = "全部监控数据", description = "获取所有监控数据的聚合接口")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.MONITOR_VIEW + "')")
     public PubResult<Map<String, Object>> getAllMonitorData() {
         Map<String, Object> allData = new HashMap<>();
         

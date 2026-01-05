@@ -104,6 +104,17 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
     }
 
     /**
+     * 根据角色名查找角色
+     *
+     * @param name 角色名
+     * @return SwiftRole
+     */
+    @Override
+    public SwiftRole findByName(String name) {
+        return roleMapper.findByName(name);
+    }
+
+    /**
      * 授予权限给角色
      * @param roleId      roleId
      * @param authorityId authorityId

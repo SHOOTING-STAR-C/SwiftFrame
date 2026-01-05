@@ -8,6 +8,7 @@ import com.star.swiftAi.dto.ModelDTO;
 import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiModel;
 import com.star.swiftAi.entity.AiProvider;
+import com.star.swiftAi.enums.AiProviderEnum;
 import com.star.swiftAi.mapper.postgresql.AiModelMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -194,7 +195,7 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
                     .apiKey(provider.getApiKey())
                     .baseUrl(provider.getBaseUrl())
                     .model(model.getModelCode())
-                    .provider(com.star.swiftAi.enums.AiProvider.fromCode(provider.getProviderCode()))
+                    .provider(AiProviderEnum.fromCode(provider.getProviderCode()))
                     .timeout(java.time.Duration.ofSeconds(10))
                     .build();
             

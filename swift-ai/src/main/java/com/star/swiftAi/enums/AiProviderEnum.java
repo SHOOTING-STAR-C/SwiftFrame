@@ -7,7 +7,7 @@ import lombok.Getter;
  * 支持 OpenAI 兼容格式的服务商
  */
 @Getter
-public enum AiProvider {
+public enum AiProviderEnum {
     
     OPENAI("openai", "OpenAI", "https://api.openai.com"),
     DEEPSEEK("deepseek", "DeepSeek", "https://api.deepseek.com"),
@@ -17,14 +17,14 @@ public enum AiProvider {
     private final String name;
     private final String defaultBaseUrl;
     
-    AiProvider(String code, String name, String defaultBaseUrl) {
+    AiProviderEnum(String code, String name, String defaultBaseUrl) {
         this.code = code;
         this.name = name;
         this.defaultBaseUrl = defaultBaseUrl;
     }
     
-    public static AiProvider fromCode(String code) {
-        for (AiProvider provider : values()) {
+    public static AiProviderEnum fromCode(String code) {
+        for (AiProviderEnum provider : values()) {
             if (provider.getCode().equalsIgnoreCase(code)) {
                 return provider;
             }

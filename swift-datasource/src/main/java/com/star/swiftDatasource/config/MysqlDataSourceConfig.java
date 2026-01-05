@@ -73,7 +73,7 @@ public class MysqlDataSourceConfig {
     }
 
     /**
-     * MySQL数据库初始化脚本（支持通配符）
+     * MySQL数据库初始化脚本（支持通配符和逗号分隔的多个路径）
      *
      * @return DatabasePopulator
      */
@@ -82,12 +82,16 @@ public class MysqlDataSourceConfig {
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         
         try {
-            // 加载 SQL 脚本（支持通配符，例如：classpath:sql/mysql/*.sql）
+            // 加载 SQL 脚本（支持通配符和逗号分隔，例如：classpath:sql/mysql/schema.sql,classpath:sql/mysql/init-security-data.sql）
             if (druidProperties.getSqlScripts() != null) {
-                Resource[] resources = resourcePatternResolver.getResources(druidProperties.getSqlScripts());
-                for (Resource resource : resources) {
-                    log.info("加载 MySQL SQL 脚本: {}", resource.getFilename());
-                    populator.addScript(resource);
+                String[] scriptPaths = druidProperties.getSqlScripts().split(",");
+                for (String scriptPath : scriptPaths) {
+                    scriptPath = scriptPath.trim();
+                    Resource[] resources = resourcePatternResolver.getResources(scriptPath);
+                    for (Resource resource : resources) {
+                        log.info("加载 MySQL SQL 脚本: {}", resource.getFilename());
+                        populator.addScript(resource);
+                    }
                 }
             }
         } catch (Exception e) {

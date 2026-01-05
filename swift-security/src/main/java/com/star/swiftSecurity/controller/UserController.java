@@ -1,6 +1,7 @@
 package com.star.swiftSecurity.controller;
 
 import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftSecurity.constant.AuthorityConstants;
 import com.star.swiftSecurity.entity.SwiftRole;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
 import com.star.swiftSecurity.service.SwiftUserService;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -73,6 +75,7 @@ public class UserController {
      * @return 创建的用户
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_CREATE + "')")
     @Operation(summary = "创建用户", description = "创建新的系统用户")
     public PubResult<SwiftUserDetails> createUser(@Valid @RequestBody SwiftUserDetails user) {
         return PubResult.success(userService.createUser(user));
@@ -86,6 +89,7 @@ public class UserController {
      * @return 更新后的用户
      */
     @PutMapping("/{userId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_UPDATE + "')")
     @Operation(summary = "更新用户", description = "更新指定用户的信息")
     public PubResult<SwiftUserDetails> updateUser(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId,
@@ -101,6 +105,7 @@ public class UserController {
      * @return 操作结果
      */
     @DeleteMapping("/{userId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_DELETE + "')")
     @Operation(summary = "删除用户", description = "删除指定的用户")
     public PubResult<Void> deleteUser(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId) {
@@ -115,6 +120,7 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("/{userId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_READ + "')")
     @Operation(summary = "获取用户详情", description = "根据ID获取用户的详细信息")
     public PubResult<SwiftUserDetails> getUserById(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId) {
@@ -127,6 +133,7 @@ public class UserController {
      * @return 用户列表
      */
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_READ + "')")
     @Operation(summary = "获取所有用户", description = "获取系统中所有的用户列表")
     public PubResult<List<SwiftUserDetails>> getAllUsers() {
         return PubResult.success(userService.getAllUsers());
@@ -140,6 +147,7 @@ public class UserController {
      * @return 更新后的用户
      */
     @PutMapping("/{userId}/password")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_PASSWORD + "')")
     @Operation(summary = "修改密码", description = "修改指定用户的密码")
     public PubResult<SwiftUserDetails> changePassword(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId,
@@ -155,6 +163,7 @@ public class UserController {
      * @return 操作结果
      */
     @PostMapping("/{userId}/roles/{roleId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_MANAGE + "')")
     @Operation(summary = "分配角色", description = "将指定角色分配给用户")
     public PubResult<Void> assignRoleToUser(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId,
@@ -173,6 +182,7 @@ public class UserController {
      * @return 操作结果
      */
     @DeleteMapping("/{userId}/roles/{roleId}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_MANAGE + "')")
     @Operation(summary = "收回角色", description = "从用户中收回指定的角色")
     public PubResult<Void> removeRoleFromUser(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId,
@@ -188,6 +198,7 @@ public class UserController {
      * @return 角色集合
      */
     @GetMapping("/{userId}/roles")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_READ + "')")
     @Operation(summary = "获取用户角色", description = "获取指定用户拥有的所有角色")
     public PubResult<Set<SwiftRole>> getUserRoles(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId) {
@@ -201,6 +212,7 @@ public class UserController {
      * @return 操作结果
      */
     @PutMapping("/{userId}/enable")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_MANAGE + "')")
     @Operation(summary = "启用用户", description = "启用指定的用户账户")
     public PubResult<Void> enableUser(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId) {
@@ -215,6 +227,7 @@ public class UserController {
      * @return 操作结果
      */
     @PutMapping("/{userId}/disable")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_MANAGE + "')")
     @Operation(summary = "禁用用户", description = "禁用指定的用户账户")
     public PubResult<Void> disableUser(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId) {
@@ -229,6 +242,7 @@ public class UserController {
      * @return 操作结果
      */
     @PutMapping("/{userId}/unlock")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_MANAGE + "')")
     @Operation(summary = "解锁用户", description = "解锁指定的用户账户")
     public PubResult<Void> unlockUser(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId) {
@@ -243,6 +257,7 @@ public class UserController {
      * @return 操作结果
      */
     @PutMapping("/{userId}/lock")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_MANAGE + "')")
     @Operation(summary = "锁定用户", description = "锁定指定的用户账户")
     public PubResult<Void> lockUser(
             @Parameter(description = "用户ID", required = true) @PathVariable Long userId) {

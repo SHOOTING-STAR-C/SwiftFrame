@@ -21,6 +21,11 @@
             <groupId>com.star</groupId>
             <artifactId>swift-common</artifactId>
         </dependency>
+        <!-- 依赖安全模块 -->
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-security</artifactId>
+        </dependency>
 
         <!-- Spring Boot Web 支持（用于提供监控接口） -->
         <dependency>

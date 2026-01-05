@@ -72,7 +72,7 @@ public class PostgreSqlDataSourceConfig {
     }
 
     /**
-     * PG数据库初始化脚本（支持通配符）
+     * PG数据库初始化脚本（支持通配符和逗号分隔的多个路径）
      *
      * @return DatabasePopulator
      */
@@ -81,12 +81,16 @@ public class PostgreSqlDataSourceConfig {
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         
         try {
-            // 加载 SQL 脚本（支持通配符，例如：classpath:sql/postgresql/*.sql）
+            // 加载 SQL 脚本（支持通配符和逗号分隔，例如：classpath:sql/postgresql/schema.sql,classpath:sql/postgresql/ai-schema.sql,classpath:sql/postgresql/data.sql）
             if (pgDruidProperties.getSqlScripts() != null) {
-                Resource[] resources = resourcePatternResolver.getResources(pgDruidProperties.getSqlScripts());
-                for (Resource resource : resources) {
-                    log.info("加载 PostgreSQL SQL 脚本: {}", resource.getFilename());
-                    populator.addScript(resource);
+                String[] scriptPaths = pgDruidProperties.getSqlScripts().split(",");
+                for (String scriptPath : scriptPaths) {
+                    scriptPath = scriptPath.trim();
+                    Resource[] resources = resourcePatternResolver.getResources(scriptPath);
+                    for (Resource resource : resources) {
+                        log.info("加载 PostgreSQL SQL 脚本: {}", resource.getFilename());
+                        populator.addScript(resource);
+                    }
                 }
             }
         } catch (Exception e) {

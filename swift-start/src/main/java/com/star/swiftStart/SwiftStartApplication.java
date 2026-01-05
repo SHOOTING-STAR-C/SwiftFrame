@@ -14,7 +14,6 @@ public class SwiftStartApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SwiftStartApplication.class, args);
-        System.out.println("SwiftStartApplication started");
     }
 
 }

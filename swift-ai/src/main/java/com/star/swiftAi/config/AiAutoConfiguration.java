@@ -3,7 +3,7 @@ package com.star.swiftAi.config;
 import com.star.swiftAi.client.AiClient;
 import com.star.swiftAi.client.AiClientManager;
 import com.star.swiftAi.client.OpenAiCompatibleClient;
-import com.star.swiftAi.enums.AiProvider;
+import com.star.swiftAi.enums.AiProviderEnum;
 import com.star.swiftConfig.config.ConfigAutoConfiguration;
 import com.star.swiftConfig.service.SysConfigService;
 import lombok.RequiredArgsConstructor;
@@ -48,12 +48,12 @@ public class AiAutoConfiguration {
         
         // 获取默认服务商配置
         String defaultProviderCode = aiConfigs.getOrDefault("default.provider", "custom");
-        AiProvider defaultProvider;
+        AiProviderEnum defaultProvider;
         try {
-            defaultProvider = AiProvider.valueOf(defaultProviderCode.toUpperCase());
+            defaultProvider = AiProviderEnum.valueOf(defaultProviderCode.toUpperCase());
         } catch (IllegalArgumentException e) {
             log.warn("未知的默认服务商: {}, 使用默认值: CUSTOM", defaultProviderCode);
-            defaultProvider = AiProvider.CUSTOM;
+            defaultProvider = AiProviderEnum.CUSTOM;
         }
         
         // 遍历配置的服务商，创建对应的客户端
@@ -100,7 +100,7 @@ public class AiAutoConfiguration {
         // 目前只支持OpenAI兼容的客户端
         // 后续可以根据不同的providerCode创建不同类型的客户端
         OpenAiCompatibleClient.Config config = OpenAiCompatibleClient.Config.builder()
-                .provider(AiProvider.valueOf(providerCode.toUpperCase()))
+                .provider(AiProviderEnum.valueOf(providerCode.toUpperCase()))
                 .apiKey(apiKey)
                 .baseUrl(baseUrl)
                 .model(model)
