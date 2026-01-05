@@ -63,11 +63,11 @@ public interface SwiftUserService extends UserDetailsService {
     /**
      * 分页获取用户
      *
-     * @param current 当前页码
-     * @param size    每页大小
+     * @param page 当前页码
+     * @param size 每页大小
      * @return PageResult<SwiftUserDetails>
      */
-    PageResult<SwiftUserDetails> getUserPage(long current, long size);
+    PageResult<SwiftUserDetails> getUserPage(Integer page, Integer size);
 
     /**
      * 更改密码

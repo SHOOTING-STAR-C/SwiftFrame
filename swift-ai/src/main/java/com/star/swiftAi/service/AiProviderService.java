@@ -9,15 +9,12 @@ import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiProvider;
 import com.star.swiftAi.mapper.postgresql.AiProviderMapper;
 import com.star.swiftCommon.domain.PageResult;
+import com.star.swiftEncrypt.service.CryptoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * AI供应商服务
@@ -28,6 +25,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider> {
+
+    private final CryptoService cryptoService;
 
     /**
      * 创建供应商
@@ -42,6 +41,13 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
         wrapper.eq(AiProvider::getProviderCode, provider.getProviderCode());
         if (this.count(wrapper) > 0) {
             throw new RuntimeException("供应商代码已存在");
+        }
+        
+        // 加密API密钥并用ENC()包裹
+        if (provider.getApiKey() != null && !provider.getApiKey().isEmpty()) {
+            String encryptedApiKey = cryptoService.encryptWithAES(provider.getApiKey());
+            provider.setApiKey("ENC(" + encryptedApiKey + ")");
+            log.info("API密钥已加密存储");
         }
         
         this.save(provider);
@@ -71,6 +77,16 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             if (this.count(wrapper) > 0) {
                 throw new RuntimeException("供应商代码已存在");
             }
+        }
+        
+        // 如果提供了新的API密钥，则加密并用ENC()包裹
+        if (provider.getApiKey() != null && !provider.getApiKey().isEmpty()) {
+            String encryptedApiKey = cryptoService.encryptWithAES(provider.getApiKey());
+            provider.setApiKey("ENC(" + encryptedApiKey + ")");
+            log.info("API密钥已加密更新");
+        } else {
+            // 如果没有提供新的API密钥，保持原有的加密密钥
+            provider.setApiKey(existing.getApiKey());
         }
         
         provider.setId(id);
@@ -157,7 +173,24 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             throw new RuntimeException("供应商不存在");
         }
         
-        // TODO: 实现实际的连接测试逻辑
+        // 解密API密钥用于测试连接
+        String decryptedApiKey = null;
+        if (provider.getApiKey() != null && !provider.getApiKey().isEmpty()) {
+            try {
+                // 去除ENC()包裹后解密
+                String encryptedKey = provider.getApiKey();
+                if (encryptedKey.startsWith("ENC(") && encryptedKey.endsWith(")")) {
+                    encryptedKey = encryptedKey.substring(4, encryptedKey.length() - 1);
+                }
+                decryptedApiKey = cryptoService.decryptWithAES(encryptedKey);
+                log.info("API密钥已解密用于连接测试");
+            } catch (Exception e) {
+                log.error("API密钥解密失败", e);
+                return new TestResultDTO(false, "API密钥解密失败: " + e.getMessage(), 0);
+            }
+        }
+        
+        // TODO: 实现实际的连接测试逻辑，使用解密后的API密钥
         // 这里只是模拟测试
         long startTime = System.currentTimeMillis();
         try {
@@ -168,6 +201,35 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             return new TestResultDTO(true, "连接成功", latency);
         } catch (InterruptedException e) {
             return new TestResultDTO(false, "连接失败: " + e.getMessage(), 0);
+        }
+    }
+    
+    /**
+     * 获取解密后的API密钥（内部使用）
+     *
+     * @param id 供应商ID
+     * @return 解密后的API密钥
+     */
+    public String getDecryptedApiKey(Long id) {
+        AiProvider provider = this.getById(id);
+        if (provider == null) {
+            throw new RuntimeException("供应商不存在");
+        }
+        
+        if (provider.getApiKey() == null || provider.getApiKey().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // 去除ENC()包裹后解密
+            String encryptedKey = provider.getApiKey();
+            if (encryptedKey.startsWith("ENC(") && encryptedKey.endsWith(")")) {
+                encryptedKey = encryptedKey.substring(4, encryptedKey.length() - 1);
+            }
+            return cryptoService.decryptWithAES(encryptedKey);
+        } catch (Exception e) {
+            log.error("API密钥解密失败", e);
+            throw new RuntimeException("API密钥解密失败", e);
         }
     }
 }

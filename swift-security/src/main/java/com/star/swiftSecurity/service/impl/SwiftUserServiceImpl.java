@@ -16,7 +16,6 @@ import com.star.swiftSecurity.service.SwiftUserService;
 import com.star.swiftSecurity.service.UserCacheService;
 import com.star.swiftCommon.utils.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -222,14 +221,14 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     /**
      * 分页获取用户
      *
-     * @param current 当前页码
-     * @param size    每页大小
+     * @param page 当前页码
+     * @param size 每页大小
      * @return PageResult<SwiftUserDetails>
      */
     @Override
-    public PageResult<SwiftUserDetails> getUserPage(long current, long size) {
+    public PageResult<SwiftUserDetails> getUserPage(Integer page, Integer size) {
         // 计算偏移量
-        long offset = (current - 1) * size;
+        long offset = (page - 1) * size;
         
         // 查询分页数据
         List<SwiftUserDetails> records = userMapper.findPage(offset, size);
@@ -237,7 +236,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
         // 查询总记录数
         long total = userMapper.countAll();
         
-        return PageResult.success(records, total, current, size);
+        return PageResult.success(records, total, page, size);
     }
 
     /**

@@ -27,6 +27,12 @@ public class AiProvider {
     private String providerCode;
 
     /**
+     * 供应商标识密钥
+     */
+    @TableField("provider_key")
+    private String providerKey;
+
+    /**
      * 供应商名称
      */
     @TableField("provider_name")

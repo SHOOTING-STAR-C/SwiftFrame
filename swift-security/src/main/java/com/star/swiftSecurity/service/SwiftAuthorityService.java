@@ -54,20 +54,13 @@ public interface SwiftAuthorityService {
     SwiftAuthority getAuthorityByName(String name);
 
     /**
-     * 获取所有权限
-     *
-     * @return 权限列表
-     */
-    List<SwiftAuthority> getAllAuthorities();
-
-    /**
      * 分页获取权限
      *
      * @param page 页码
      * @param size 每页大小
      * @return PageResult<SwiftAuthority>
      */
-    PageResult<SwiftAuthority> getAuthorityPage(long page, long size);
+    PageResult<SwiftAuthority> getAuthorityPage(Integer page, Integer size);
 
     /**
      * 根据权限名列表获取权限

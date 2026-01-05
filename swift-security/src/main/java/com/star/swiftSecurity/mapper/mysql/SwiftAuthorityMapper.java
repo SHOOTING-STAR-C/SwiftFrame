@@ -44,7 +44,12 @@ public interface SwiftAuthorityMapper {
     int deleteById(@Param("authorityId") Long authorityId);
 
     /**
-     * 查找所有权限
+     * 分页查询权限
      */
-    List<SwiftAuthority> findAll();
+    List<SwiftAuthority> findPage(@Param("offset") long offset, @Param("size") long size);
+
+    /**
+     * 统计权限总数
+     */
+    int countAll();
 }

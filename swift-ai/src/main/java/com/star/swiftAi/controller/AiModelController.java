@@ -3,6 +3,7 @@ package com.star.swiftAi.controller;
 import com.star.swiftAi.dto.ModelDTO;
 import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiModel;
+import com.star.swiftAi.core.response.ModelsResponse;
 import com.star.swiftAi.service.AiModelService;
 import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftCommon.domain.PubResult;
@@ -110,5 +111,18 @@ public class AiModelController {
             @Parameter(description = "模型ID") @PathVariable Long id) {
         TestResultDTO result = aiModelService.testModel(id);
         return PubResult.success(result);
+    }
+
+    /**
+     * 从供应商获取所有模型
+     */
+    @Operation(summary = "从供应商获取所有模型", description = "调用供应商API获取所有可用模型列表")
+    @ApiResponse(responseCode = "200", description = "获取成功", content = @Content(schema = @Schema(implementation = ModelsResponse.class)))
+    @GetMapping("/provider/{providerId}/models")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_MODEL_READ + "')")
+    public PubResult<ModelsResponse> getModelsFromProvider(
+            @Parameter(description = "供应商ID") @PathVariable Long providerId) {
+        ModelsResponse models = aiModelService.getModelsFromProvider(providerId);
+        return PubResult.success(models);
     }
 }

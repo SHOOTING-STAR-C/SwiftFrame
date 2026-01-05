@@ -175,6 +175,52 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
     }
 
     /**
+     * 从供应商获取所有模型
+     *
+     * @param providerId 供应商ID
+     * @return 模型列表
+     */
+    public com.star.swiftAi.core.response.ModelsResponse getModelsFromProvider(Long providerId) {
+        AiProvider provider = aiProviderService.getById(providerId);
+        if (provider == null) {
+            throw new RuntimeException("供应商不存在");
+        }
+        
+        if (!provider.getEnabled()) {
+            throw new RuntimeException("供应商未启用");
+        }
+        
+        try {
+            // 获取解密后的API密钥
+            String decryptedApiKey = aiProviderService.getDecryptedApiKey(providerId);
+            
+            // 创建OpenAI兼容客户端
+            com.star.swiftAi.client.OpenAiCompatibleClient.Config clientConfig = 
+                com.star.swiftAi.client.OpenAiCompatibleClient.Config.builder()
+                    .apiKey(decryptedApiKey)
+                    .baseUrl(provider.getBaseUrl())
+                    .provider(AiProviderEnum.fromCode(provider.getProviderCode()))
+                    .timeout(java.time.Duration.ofSeconds(30))
+                    .build();
+            
+            com.star.swiftAi.client.OpenAiCompatibleClient client = 
+                new com.star.swiftAi.client.OpenAiCompatibleClient(clientConfig);
+            
+            // 获取模型列表
+            com.star.swiftAi.core.response.ModelsResponse modelsResponse = client.getModels();
+            log.info("从供应商获取模型成功: providerCode={}, modelCount={}", 
+                    provider.getProviderCode(), 
+                    modelsResponse.getData() != null ? modelsResponse.getData().size() : 0);
+            
+            return modelsResponse;
+        } catch (Exception e) {
+            log.error("从供应商获取模型失败: providerCode={}, error={}", 
+                    provider.getProviderCode(), e.getMessage());
+            throw new RuntimeException("获取模型失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 测试模型连接
      *
      * @param id 模型ID
@@ -193,10 +239,13 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
         
         long startTime = System.currentTimeMillis();
         try {
+            // 获取解密后的API密钥
+            String decryptedApiKey = aiProviderService.getDecryptedApiKey(model.getProviderId());
+            
             // 创建OpenAI兼容客户端
             com.star.swiftAi.client.OpenAiCompatibleClient.Config clientConfig = 
                 com.star.swiftAi.client.OpenAiCompatibleClient.Config.builder()
-                    .apiKey(provider.getApiKey())
+                    .apiKey(decryptedApiKey)
                     .baseUrl(provider.getBaseUrl())
                     .model(model.getModelCode())
                     .provider(AiProviderEnum.fromCode(provider.getProviderCode()))

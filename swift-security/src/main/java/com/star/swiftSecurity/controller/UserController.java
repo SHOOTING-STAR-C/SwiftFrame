@@ -17,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,8 +130,8 @@ public class UserController {
     /**
      * 获取所有用户（分页）
      *
-     * @param current 当前页码
-     * @param size    每页大小
+     * @param page 当前页码
+     * @param size 每页大小
      * @return 用户分页列表
      */
     @GetMapping("/all")
@@ -140,10 +139,10 @@ public class UserController {
     @Operation(summary = "获取所有用户", description = "获取系统中所有的用户列表（支持分页）")
     public PageResult<SwiftUserDetails> getAllUsers(
             @Parameter(description = "当前页码", example = "1") 
-            @RequestParam(defaultValue = "1") long current,
+            @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小", example = "10") 
-            @RequestParam(defaultValue = "10") long size) {
-        return userService.getUserPage(current, size);
+            @RequestParam(defaultValue = "10") Integer size) {
+        return userService.getUserPage(page, size);
     }
 
     /**

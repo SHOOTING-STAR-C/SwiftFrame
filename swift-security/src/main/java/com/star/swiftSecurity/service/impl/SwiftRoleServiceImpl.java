@@ -95,16 +95,6 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
     }
 
     /**
-     * 获取所有角色
-     *
-     * @return List<SwiftRole>
-     */
-    @Override
-    public List<SwiftRole> getAllRoles() {
-        return roleMapper.findAll();
-    }
-
-    /**
      * 分页获取角色
      *
      * @param page 页码
@@ -112,7 +102,7 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
      * @return PageResult<SwiftRole>
      */
     @Override
-    public PageResult<SwiftRole> getRolePage(long page, long size) {
+    public PageResult<SwiftRole> getRolePage(Integer page, Integer size) {
         // 计算偏移量
         long offset = (page - 1) * size;
         

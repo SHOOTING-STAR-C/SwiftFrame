@@ -91,32 +91,20 @@ public class RoleController {
     }
 
     /**
-     * 获取所有角色
-     *
-     * @return 角色列表
-     */
-    @GetMapping
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.ROLE_READ + "')")
-    @Operation(summary = "获取所有角色", description = "获取系统中所有的角色列表")
-    public PubResult<List<SwiftRole>> getAllRoles() {
-        return PubResult.success(roleService.getAllRoles());
-    }
-
-    /**
      * 分页获取角色
      *
      * @param page 页码
      * @param size 每页大小
      * @return 角色分页列表
      */
-    @GetMapping("/page")
+    @GetMapping
     @PreAuthorize("hasAuthority('" + AuthorityConstants.ROLE_READ + "')")
     @Operation(summary = "分页获取角色", description = "分页获取系统中的角色列表")
     public PageResult<SwiftRole> getRolePage(
             @Parameter(description = "页码", example = "1") 
-            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小", example = "10") 
-            @RequestParam(defaultValue = "10") long size) {
+            @RequestParam(defaultValue = "10") Integer size) {
         return roleService.getRolePage(page, size);
     }
 

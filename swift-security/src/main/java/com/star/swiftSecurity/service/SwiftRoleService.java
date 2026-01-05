@@ -41,20 +41,13 @@ public interface SwiftRoleService {
     SwiftRole getRoleById(Long roleId);
 
     /**
-     * 获取所有角色
-     *
-     * @return List<SwiftRole>
-     */
-    List<SwiftRole> getAllRoles();
-
-    /**
      * 分页获取角色
      *
      * @param page 页码
      * @param size 每页大小
      * @return PageResult<SwiftRole>
      */
-    PageResult<SwiftRole> getRolePage(long page, long size);
+    PageResult<SwiftRole> getRolePage(Integer page, Integer size);
 
     /**
      * 根据角色名查找角色

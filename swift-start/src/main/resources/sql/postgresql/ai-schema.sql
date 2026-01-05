@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS ai_provider (
     id BIGSERIAL PRIMARY KEY,
     provider_code VARCHAR(50) UNIQUE NOT NULL,
+    provider_key VARCHAR(255),
     provider_name VARCHAR(100) NOT NULL,
     base_url VARCHAR(255) NOT NULL,
     api_key VARCHAR(255),
@@ -18,6 +19,7 @@ CREATE TABLE IF NOT EXISTS ai_provider (
 COMMENT ON TABLE ai_provider IS 'AI供应商表';
 COMMENT ON COLUMN ai_provider.id IS '主键ID';
 COMMENT ON COLUMN ai_provider.provider_code IS '供应商代码';
+COMMENT ON COLUMN ai_provider.provider_key IS '供应商标识密钥';
 COMMENT ON COLUMN ai_provider.provider_name IS '供应商名称';
 COMMENT ON COLUMN ai_provider.base_url IS 'API基础URL';
 COMMENT ON COLUMN ai_provider.api_key IS 'API密钥（加密存储）';

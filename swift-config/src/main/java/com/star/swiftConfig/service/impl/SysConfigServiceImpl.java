@@ -251,9 +251,7 @@ public class SysConfigServiceImpl implements SysConfigService {
             // 提取ENC()中的内容并解密
             String content = matcher.group(1);
             try {
-                String decrypted = cryptoService.decryptWithAES(content);
-                log.debug("解密配置值成功");
-                return decrypted;
+                return cryptoService.decryptWithAES(content);
             } catch (Exception e) {
                 log.error("解密配置值失败", e);
                 throw new RuntimeException("解密配置值失败", e);

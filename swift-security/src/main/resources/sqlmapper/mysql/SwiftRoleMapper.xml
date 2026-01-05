@@ -3,6 +3,14 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.star.swiftSecurity.mapper.mysql.SwiftRoleMapper">
+    <!-- 轻量级 ResultMap，不包含关联数据，用于列表查询 -->
+    <resultMap id="SimpleRoleResultMap" type="com.star.swiftSecurity.entity.SwiftRole">
+        <result property="roleId" column="role_id" javaType="java.lang.Long"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <!-- 完整 ResultMap，包含权限关联数据，用于详情查询 -->
     <resultMap id="RoleResultMap" type="com.star.swiftSecurity.entity.SwiftRole">
         <result property="roleId" column="role_id" javaType="java.lang.Long"/>
         <result property="name" column="name"/>
@@ -44,7 +52,11 @@
         DELETE FROM swift_roles WHERE role_id=#{roleId}
     </delete>
 
-    <select id="findAll" resultMap="RoleResultMap">
-        SELECT * FROM swift_roles
+    <select id="findPage" resultMap="SimpleRoleResultMap">
+        SELECT * FROM swift_roles LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM swift_roles
     </select>
 </mapper>

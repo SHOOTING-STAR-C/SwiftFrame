@@ -129,16 +129,6 @@ public class SwiftAuthorityServiceImpl implements SwiftAuthorityService {
     }
 
     /**
-     * 获取所有权限
-     *
-     * @return 权限列表
-     */
-    @Override
-    public List<SwiftAuthority> getAllAuthorities() {
-        return authorityMapper.findAll();
-    }
-
-    /**
      * 分页获取权限
      *
      * @param page 页码
@@ -146,7 +136,7 @@ public class SwiftAuthorityServiceImpl implements SwiftAuthorityService {
      * @return PageResult<SwiftAuthority>
      */
     @Override
-    public PageResult<SwiftAuthority> getAuthorityPage(long page, long size) {
+    public PageResult<SwiftAuthority> getAuthorityPage(Integer page, Integer size) {
         // 计算偏移量
         long offset = (page - 1) * size;
         

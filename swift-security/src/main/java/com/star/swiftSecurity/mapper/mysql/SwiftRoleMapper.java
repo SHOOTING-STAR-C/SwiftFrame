@@ -49,7 +49,12 @@ public interface SwiftRoleMapper {
     int deleteById(@Param("roleId") Long roleId);
 
     /**
-     * 查找所有角色
+     * 分页查询角色
      */
-    List<SwiftRole> findAll();
+    List<SwiftRole> findPage(@Param("offset") long offset, @Param("size") long size);
+
+    /**
+     * 统计角色总数
+     */
+    int countAll();
 }

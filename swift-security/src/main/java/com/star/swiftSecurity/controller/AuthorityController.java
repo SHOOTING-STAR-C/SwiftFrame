@@ -104,32 +104,20 @@ public class AuthorityController {
     }
 
     /**
-     * 获取所有权限
-     *
-     * @return 权限列表
-     */
-    @GetMapping
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_READ + "')")
-    @Operation(summary = "获取所有权限", description = "获取系统中所有的权限列表")
-    public PubResult<List<SwiftAuthority>> getAllAuthorities() {
-        return PubResult.success(authorityService.getAllAuthorities());
-    }
-
-    /**
      * 分页获取权限
      *
      * @param page 页码
      * @param size 每页大小
      * @return 权限分页列表
      */
-    @GetMapping("/page")
+    @GetMapping
     @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_READ + "')")
     @Operation(summary = "分页获取权限", description = "分页获取系统中的权限列表")
     public PageResult<SwiftAuthority> getAuthorityPage(
             @Parameter(description = "页码", example = "1") 
-            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小", example = "10") 
-            @RequestParam(defaultValue = "10") long size) {
+            @RequestParam(defaultValue = "10") Integer size) {
         return authorityService.getAuthorityPage(page, size);
     }
 

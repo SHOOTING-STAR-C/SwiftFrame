@@ -38,7 +38,11 @@
         DELETE FROM swift_authorities WHERE authority_id=#{authorityId}
     </delete>
 
-    <select id="findAll" resultMap="AuthorityResultMap">
-        SELECT * FROM swift_authorities
+    <select id="findPage" resultMap="AuthorityResultMap">
+        SELECT * FROM swift_authorities LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM swift_authorities
     </select>
 </mapper>

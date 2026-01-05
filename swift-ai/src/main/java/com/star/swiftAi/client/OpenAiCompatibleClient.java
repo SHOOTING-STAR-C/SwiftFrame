@@ -1,8 +1,10 @@
 package com.star.swiftAi.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.star.swiftAi.core.model.Message;
 import com.star.swiftAi.core.request.ChatRequest;
 import com.star.swiftAi.core.response.ChatResponse;
+import com.star.swiftAi.core.response.ModelsResponse;
 import com.star.swiftAi.enums.AiProviderEnum;
 import com.star.swiftAi.exception.AiException;
 import lombok.Builder;
@@ -15,6 +17,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -158,8 +161,8 @@ public class OpenAiCompatibleClient implements AiClient {
         try {
             ChatRequest testRequest = ChatRequest.builder()
                     .model(config.getModel())
-                    .messages(java.util.Arrays.asList(
-                            com.star.swiftAi.core.model.Message.system("Test")
+                    .messages(Collections.singletonList(
+                            Message.system("Test")
                     ))
                     .maxTokens(1)
                     .build();
@@ -180,5 +183,51 @@ public class OpenAiCompatibleClient implements AiClient {
                 config.getModel(),
                 isAvailable()
         );
+    }
+
+    /**
+     * 获取模型列表
+     *
+     * @return 模型列表响应
+     */
+    public ModelsResponse getModels() {
+        try {
+            log.debug("Fetching models from {}", config.getProvider());
+
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(config.getBaseUrl() + "/v1/models"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + config.getApiKey())
+                    .timeout(Optional.ofNullable(config.getTimeout())
+                            .orElse(Duration.ofSeconds(30)))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(httpRequest, 
+                    HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                ModelsResponse modelsResponse = objectMapper.readValue(response.body(), ModelsResponse.class);
+                log.debug("Received models from {}: {} models", config.getProvider(), 
+                        modelsResponse.getData() != null ? modelsResponse.getData().size() : 0);
+                return modelsResponse;
+            } else {
+                log.error("Failed to fetch models for {}: status={}, body={}", 
+                        config.getProvider(), response.statusCode(), response.body());
+                throw new AiException(
+                        String.format("Failed to fetch models: %s", response.body()),
+                        config.getProvider().getName(),
+                        String.valueOf(response.statusCode()),
+                        response.statusCode()
+                );
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error("Failed to fetch models for " + config.getProvider(), e);
+            throw new AiException(
+                    String.format("Failed to fetch models: %s", e.getMessage()),
+                    config.getProvider().getName(),
+                    e
+            );
+        }
     }
 }

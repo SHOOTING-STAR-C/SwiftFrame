@@ -35,27 +35,35 @@ public class AiProviderController {
      * 创建供应商
      */
     @Operation(summary = "创建供应商", description = "创建一个新的 AI 供应商配置")
-    @ApiResponse(responseCode = "200", description = "创建成功", content = @Content(schema = @Schema(implementation = AiProvider.class)))
+    @ApiResponse(responseCode = "200", description = "创建成功", content = @Content(schema = @Schema(implementation = ProviderDTO.class)))
     @PostMapping
     @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_PROVIDER_CREATE + "')")
-    public PubResult<AiProvider> createProvider(
+    public PubResult<ProviderDTO> createProvider(
             @Valid @RequestBody AiProvider provider) {
         AiProvider created = aiProviderService.createProvider(provider);
-        return PubResult.success(created);
+        // 转换为DTO，不返回API密钥
+        ProviderDTO dto = new ProviderDTO();
+        org.springframework.beans.BeanUtils.copyProperties(created, dto);
+        dto.setHealthy(true);
+        return PubResult.success(dto);
     }
 
     /**
      * 更新供应商
      */
     @Operation(summary = "更新供应商", description = "更新指定 ID 的供应商信息")
-    @ApiResponse(responseCode = "200", description = "更新成功", content = @Content(schema = @Schema(implementation = AiProvider.class)))
+    @ApiResponse(responseCode = "200", description = "更新成功", content = @Content(schema = @Schema(implementation = ProviderDTO.class)))
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_PROVIDER_UPDATE + "')")
-    public PubResult<AiProvider> updateProvider(
+    public PubResult<ProviderDTO> updateProvider(
             @Parameter(description = "供应商 ID", example = "1") @PathVariable Long id,
             @Valid @RequestBody AiProvider provider) {
         AiProvider updated = aiProviderService.updateProvider(id, provider);
-        return PubResult.success(updated);
+        // 转换为DTO，不返回API密钥
+        ProviderDTO dto = new ProviderDTO();
+        org.springframework.beans.BeanUtils.copyProperties(updated, dto);
+        dto.setHealthy(true);
+        return PubResult.success(dto);
     }
 
     /**
