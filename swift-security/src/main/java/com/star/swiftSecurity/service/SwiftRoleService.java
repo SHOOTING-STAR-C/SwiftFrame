@@ -1,5 +1,6 @@
 package com.star.swiftSecurity.service;
 
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftSecurity.entity.SwiftAuthority;
 import com.star.swiftSecurity.entity.SwiftRole;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
@@ -45,6 +46,15 @@ public interface SwiftRoleService {
      * @return List<SwiftRole>
      */
     List<SwiftRole> getAllRoles();
+
+    /**
+     * 分页获取角色
+     *
+     * @param page 页码
+     * @param size 每页大小
+     * @return PageResult<SwiftRole>
+     */
+    PageResult<SwiftRole> getRolePage(long page, long size);
 
     /**
      * 根据角色名查找角色

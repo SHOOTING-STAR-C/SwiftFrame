@@ -7,6 +7,8 @@
         <result property="roleId" column="role_id" javaType="java.lang.Long"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
+        <collection property="roleAuthorities" ofType="com.star.swiftSecurity.entity.SwiftRoleAuthority"
+                    select="com.star.swiftSecurity.mapper.mysql.SwiftRoleAuthorityMapper.findByRole" column="role_id"/>
     </resultMap>
 
     <select id="findById" resultMap="RoleResultMap">

@@ -1,5 +1,6 @@
 package com.star.swiftSecurity.service.impl;
 
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftSecurity.entity.*;
 import com.star.swiftSecurity.exception.BusinessException;
 import com.star.swiftSecurity.exception.DuplicateEntityException;
@@ -101,6 +102,27 @@ public class SwiftRoleServiceImpl implements SwiftRoleService {
     @Override
     public List<SwiftRole> getAllRoles() {
         return roleMapper.findAll();
+    }
+
+    /**
+     * 分页获取角色
+     *
+     * @param page 页码
+     * @param size 每页大小
+     * @return PageResult<SwiftRole>
+     */
+    @Override
+    public PageResult<SwiftRole> getRolePage(long page, long size) {
+        // 计算偏移量
+        long offset = (page - 1) * size;
+        
+        // 查询分页数据
+        List<SwiftRole> records = roleMapper.findPage(offset, size);
+        
+        // 查询总记录数
+        long total = roleMapper.countAll();
+        
+        return PageResult.success(records, total, page, size);
     }
 
     /**

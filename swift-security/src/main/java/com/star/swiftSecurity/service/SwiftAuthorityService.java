@@ -1,5 +1,6 @@
 package com.star.swiftSecurity.service;
 
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftSecurity.entity.SwiftAuthority;
 import com.star.swiftSecurity.entity.SwiftRole;
 
@@ -58,6 +59,15 @@ public interface SwiftAuthorityService {
      * @return 权限列表
      */
     List<SwiftAuthority> getAllAuthorities();
+
+    /**
+     * 分页获取权限
+     *
+     * @param page 页码
+     * @param size 每页大小
+     * @return PageResult<SwiftAuthority>
+     */
+    PageResult<SwiftAuthority> getAuthorityPage(long page, long size);
 
     /**
      * 根据权限名列表获取权限

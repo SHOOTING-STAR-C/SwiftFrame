@@ -1,6 +1,7 @@
 package com.star.swiftSecurity.config;
 
 import com.star.swiftSecurity.filter.JwtAuthenticationFilter;
+import com.star.swiftSecurity.handler.CustomAccessDeniedHandler;
 import com.star.swiftSecurity.handler.CustomAuthenticationEntryPoint;
 import com.star.swiftSecurity.properties.SecurityProperties;
 import com.star.swiftSecurity.service.SwiftUserService;
@@ -38,11 +39,14 @@ public class SecurityConfig {
 
     private final SecurityProperties securityProperties;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     public SecurityConfig(SecurityProperties securityProperties, 
-                         CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+                         CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                         CustomAccessDeniedHandler customAccessDeniedHandler) {
         this.securityProperties = securityProperties;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
 
     @Bean
@@ -60,6 +64,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

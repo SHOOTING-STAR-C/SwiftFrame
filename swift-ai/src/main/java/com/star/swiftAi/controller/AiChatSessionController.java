@@ -1,9 +1,9 @@
 package com.star.swiftAi.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.star.swiftAi.dto.SessionDTO;
 import com.star.swiftAi.entity.AiChatSession;
 import com.star.swiftAi.service.AiChatSessionService;
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftSecurity.constant.AuthorityConstants;
 import io.swagger.v3.oas.annotations.Operation;
@@ -91,11 +91,10 @@ public class AiChatSessionController {
     @ApiResponse(responseCode = "200", description = "获取成功")
     @GetMapping
     @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_SESSION_READ + "')")
-    public PubResult<IPage<SessionDTO>> getSessionsByUserId(
+    public PageResult<SessionDTO> getSessionsByUserId(
             @Parameter(description = "用户 ID", example = "user123") @RequestParam String userId,
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小", example = "10") @RequestParam(defaultValue = "10") Integer size) {
-        IPage<SessionDTO> sessions = aiChatSessionService.getSessionsByUserId(userId, page, size);
-        return PubResult.success(sessions);
+        return aiChatSessionService.getSessionsByUserId(userId, page, size);
     }
 }

@@ -10,6 +10,7 @@ import com.star.swiftAi.entity.AiModel;
 import com.star.swiftAi.entity.AiProvider;
 import com.star.swiftAi.enums.AiProviderEnum;
 import com.star.swiftAi.mapper.postgresql.AiModelMapper;
+import com.star.swiftCommon.domain.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -139,7 +140,7 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
      * @param enabled    是否启用
      * @return 模型列表
      */
-    public IPage<ModelDTO> getModels(Integer page, Integer size, Long providerId, Boolean enabled) {
+    public PageResult<ModelDTO> getModels(Integer page, Integer size, Long providerId, Boolean enabled) {
         Page<AiModel> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<AiModel> wrapper = new LambdaQueryWrapper<>();
         
@@ -156,7 +157,7 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
         IPage<AiModel> modelPage = this.page(pageParam, wrapper);
         
         // 转换为DTO
-        return modelPage.convert(model -> {
+        IPage<ModelDTO> dtoPage = modelPage.convert(model -> {
             ModelDTO dto = new ModelDTO();
             BeanUtils.copyProperties(model, dto);
             
@@ -168,6 +169,9 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
             
             return dto;
         });
+        
+        // 转换为 PageResult
+        return PageResult.success(dtoPage.getRecords(), dtoPage.getTotal(), dtoPage.getCurrent(), dtoPage.getSize());
     }
 
     /**

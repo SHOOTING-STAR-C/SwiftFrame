@@ -1,5 +1,6 @@
 package com.star.swiftSecurity.controller;
 
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftSecurity.constant.AuthorityConstants;
 import com.star.swiftSecurity.entity.SwiftAuthority;
@@ -112,6 +113,24 @@ public class AuthorityController {
     @Operation(summary = "获取所有权限", description = "获取系统中所有的权限列表")
     public PubResult<List<SwiftAuthority>> getAllAuthorities() {
         return PubResult.success(authorityService.getAllAuthorities());
+    }
+
+    /**
+     * 分页获取权限
+     *
+     * @param page 页码
+     * @param size 每页大小
+     * @return 权限分页列表
+     */
+    @GetMapping("/page")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AUTHORITY_READ + "')")
+    @Operation(summary = "分页获取权限", description = "分页获取系统中的权限列表")
+    public PageResult<SwiftAuthority> getAuthorityPage(
+            @Parameter(description = "页码", example = "1") 
+            @RequestParam(defaultValue = "1") long page,
+            @Parameter(description = "每页大小", example = "10") 
+            @RequestParam(defaultValue = "10") long size) {
+        return authorityService.getAuthorityPage(page, size);
     }
 
     /**

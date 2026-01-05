@@ -69,6 +69,12 @@ public class SwiftUserDetails implements UserDetails {
 
 
     private Set<SwiftUserRole> userRoles = new HashSet<>();
+    
+    /**
+     * 缓存的权限名称集合
+     * 用于从缓存恢复权限信息，避免循环引用
+     */
+    private transient Set<String> cachedAuthorityNames = new HashSet<>();
 
     // ================= 状态管理方法 =================
     // Spring Security 接口实现
@@ -139,11 +145,20 @@ public class SwiftUserDetails implements UserDetails {
 
     /**
      * (获取权限)实现 UserDetails 接口方法
+     * 优先使用缓存的权限名称，如果没有则从 userRoles 中提取
      *
      * @return Collection<? extends GrantedAuthority>
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // 如果有缓存的权限名称，直接使用
+        if (cachedAuthorityNames != null && !cachedAuthorityNames.isEmpty()) {
+            return cachedAuthorityNames.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toSet());
+        }
+        
+        // 否则从 userRoles 中提取
         return userRoles.stream()
                 .flatMap(userRole -> userRole.getRole().getRoleAuthorities().stream())
                 .map(roleAuth -> new SimpleGrantedAuthority(roleAuth.getAuthority().getName()))

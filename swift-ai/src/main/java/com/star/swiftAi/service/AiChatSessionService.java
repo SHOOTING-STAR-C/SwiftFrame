@@ -8,6 +8,7 @@ import com.star.swiftAi.dto.SessionDTO;
 import com.star.swiftAi.entity.AiChatSession;
 import com.star.swiftAi.entity.AiModel;
 import com.star.swiftAi.mapper.postgresql.AiChatSessionMapper;
+import com.star.swiftCommon.domain.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -133,7 +134,7 @@ public class AiChatSessionService extends ServiceImpl<AiChatSessionMapper, AiCha
      * @param size   每页大小
      * @return 会话列表
      */
-    public IPage<SessionDTO> getSessionsByUserId(String userId, Integer page, Integer size) {
+    public PageResult<SessionDTO> getSessionsByUserId(String userId, Integer page, Integer size) {
         Page<AiChatSession> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<AiChatSession> wrapper = new LambdaQueryWrapper<>();
         
@@ -143,7 +144,7 @@ public class AiChatSessionService extends ServiceImpl<AiChatSessionMapper, AiCha
         IPage<AiChatSession> sessionPage = this.page(pageParam, wrapper);
         
         // 转换为DTO
-        return sessionPage.convert(session -> {
+        IPage<SessionDTO> dtoPage = sessionPage.convert(session -> {
             SessionDTO dto = new SessionDTO();
             BeanUtils.copyProperties(session, dto);
             
@@ -155,5 +156,8 @@ public class AiChatSessionService extends ServiceImpl<AiChatSessionMapper, AiCha
             
             return dto;
         });
+        
+        // 转换为 PageResult
+        return PageResult.success(dtoPage.getRecords(), dtoPage.getTotal(), dtoPage.getCurrent(), dtoPage.getSize());
     }
 }

@@ -1,5 +1,6 @@
 package com.star.swiftSecurity.service.impl;
 
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftSecurity.entity.SwiftAuthority;
 import com.star.swiftSecurity.entity.SwiftRole;
 import com.star.swiftSecurity.entity.SwiftRoleAuthority;
@@ -135,6 +136,27 @@ public class SwiftAuthorityServiceImpl implements SwiftAuthorityService {
     @Override
     public List<SwiftAuthority> getAllAuthorities() {
         return authorityMapper.findAll();
+    }
+
+    /**
+     * 分页获取权限
+     *
+     * @param page 页码
+     * @param size 每页大小
+     * @return PageResult<SwiftAuthority>
+     */
+    @Override
+    public PageResult<SwiftAuthority> getAuthorityPage(long page, long size) {
+        // 计算偏移量
+        long offset = (page - 1) * size;
+        
+        // 查询分页数据
+        List<SwiftAuthority> records = authorityMapper.findPage(offset, size);
+        
+        // 查询总记录数
+        long total = authorityMapper.countAll();
+        
+        return PageResult.success(records, total, page, size);
     }
 
     /**

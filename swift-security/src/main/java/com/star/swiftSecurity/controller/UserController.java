@@ -1,5 +1,6 @@
 package com.star.swiftSecurity.controller;
 
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftSecurity.constant.AuthorityConstants;
 import com.star.swiftSecurity.entity.SwiftRole;
@@ -128,15 +129,21 @@ public class UserController {
     }
 
     /**
-     * 获取所有用户
+     * 获取所有用户（分页）
      *
-     * @return 用户列表
+     * @param current 当前页码
+     * @param size    每页大小
+     * @return 用户分页列表
      */
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('" + AuthorityConstants.USER_READ + "')")
-    @Operation(summary = "获取所有用户", description = "获取系统中所有的用户列表")
-    public PubResult<List<SwiftUserDetails>> getAllUsers() {
-        return PubResult.success(userService.getAllUsers());
+    @Operation(summary = "获取所有用户", description = "获取系统中所有的用户列表（支持分页）")
+    public PageResult<SwiftUserDetails> getAllUsers(
+            @Parameter(description = "当前页码", example = "1") 
+            @RequestParam(defaultValue = "1") long current,
+            @Parameter(description = "每页大小", example = "10") 
+            @RequestParam(defaultValue = "10") long size) {
+        return userService.getUserPage(current, size);
     }
 
     /**

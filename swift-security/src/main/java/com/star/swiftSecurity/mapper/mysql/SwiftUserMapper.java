@@ -22,11 +22,28 @@ public interface SwiftUserMapper {
      */
     @Select("SELECT * FROM swift_users WHERE user_id = #{userId}")
     SwiftUserDetails findById(@Param("userId") Long userId);
+    
+    /**
+     * 根据ID查找用户密码
+     * 用于缓存恢复时只查询密码字段
+     */
+    @Select("SELECT password FROM swift_users WHERE user_id = #{userId}")
+    String findPasswordById(@Param("userId") Long userId);
 
     /**
      * 根据用户名查找用户
      */
     SwiftUserDetails findByUsername(@Param("username") String username);
+
+    /**
+     * 根据用户名查找用户基础信息（不含角色权限）
+     */
+    SwiftUserDetails findBaseByUsername(@Param("username") String username);
+
+    /**
+     * 根据ID查找用户基础信息（不含角色权限）
+     */
+    SwiftUserDetails findBaseById(@Param("userId") Long userId);
 
     /**
      * 根据邮箱查找用户
@@ -97,4 +114,16 @@ public interface SwiftUserMapper {
      */
     @Select("SELECT * FROM swift_users")
     List<SwiftUserDetails> findAll();
+
+    /**
+     * 分页查询用户
+     */
+    @Select("SELECT * FROM swift_users ORDER BY created_at DESC LIMIT #{offset}, #{size}")
+    List<SwiftUserDetails> findPage(@Param("offset") long offset, @Param("size") long size);
+
+    /**
+     * 统计用户总数
+     */
+    @Select("SELECT COUNT(*) FROM swift_users")
+    long countAll();
 }

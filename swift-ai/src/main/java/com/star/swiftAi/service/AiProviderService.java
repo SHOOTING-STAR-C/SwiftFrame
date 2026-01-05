@@ -8,6 +8,7 @@ import com.star.swiftAi.dto.ProviderDTO;
 import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiProvider;
 import com.star.swiftAi.mapper.postgresql.AiProviderMapper;
+import com.star.swiftCommon.domain.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -120,7 +121,7 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
      * @param enabled 是否启用
      * @return 供应商列表
      */
-    public IPage<ProviderDTO> getProviders(Integer page, Integer size, Boolean enabled) {
+    public PageResult<ProviderDTO> getProviders(Integer page, Integer size, Boolean enabled) {
         Page<AiProvider> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<AiProvider> wrapper = new LambdaQueryWrapper<>();
         
@@ -133,12 +134,15 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
         IPage<AiProvider> providerPage = this.page(pageParam, wrapper);
         
         // 转换为DTO
-        return providerPage.convert(provider -> {
+        IPage<ProviderDTO> dtoPage = providerPage.convert(provider -> {
             ProviderDTO dto = new ProviderDTO();
             BeanUtils.copyProperties(provider, dto);
             dto.setHealthy(true); // 默认健康状态
             return dto;
         });
+        
+        // 转换为 PageResult
+        return PageResult.success(dtoPage.getRecords(), dtoPage.getTotal(), dtoPage.getCurrent(), dtoPage.getSize());
     }
 
     /**

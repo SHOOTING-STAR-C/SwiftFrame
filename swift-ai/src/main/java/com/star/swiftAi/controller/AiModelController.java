@@ -1,10 +1,10 @@
 package com.star.swiftAi.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.star.swiftAi.dto.ModelDTO;
 import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiModel;
 import com.star.swiftAi.service.AiModelService;
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftSecurity.constant.AuthorityConstants;
 import io.swagger.v3.oas.annotations.Operation;
@@ -91,13 +91,12 @@ public class AiModelController {
     @ApiResponse(responseCode = "200", description = "获取成功")
     @GetMapping
     @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_MODEL_READ + "')")
-    public PubResult<IPage<ModelDTO>> getModels(
+    public PageResult<ModelDTO> getModels(
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小", example = "10") @RequestParam(defaultValue = "10") Integer size,
             @Parameter(description = "供应商 ID", example = "1") @RequestParam(required = false) Long providerId,
             @Parameter(description = "是否启用") @RequestParam(required = false) Boolean enabled) {
-        IPage<ModelDTO> models = aiModelService.getModels(page, size, providerId, enabled);
-        return PubResult.success(models);
+        return aiModelService.getModels(page, size, providerId, enabled);
     }
 
     /**

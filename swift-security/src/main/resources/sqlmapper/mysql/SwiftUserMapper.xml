@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.star.swiftSecurity.mapper.mysql.SwiftUserMapper">
-    <resultMap id="UserResultMap" type="com.star.swiftSecurity.entity.SwiftUserDetails">
+    <resultMap id="BaseUserResultMap" type="com.star.swiftSecurity.entity.SwiftUserDetails">
         <id property="userId" column="user_id" javaType="java.lang.Long"/>
         <result property="username" column="username"/>
         <result property="fullName" column="full_name"/>
@@ -20,11 +20,22 @@
         <result property="lastLoginAt" column="last_login_at"/>
         <result property="lastLoginIp" column="last_login_ip"/>
         <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <resultMap id="UserResultMap" extends="BaseUserResultMap" type="com.star.swiftSecurity.entity.SwiftUserDetails">
         <collection property="userRoles" ofType="com.star.swiftSecurity.entity.SwiftUserRole"
                     select="com.star.swiftSecurity.mapper.mysql.SwiftUserRoleMapper.findByUser" column="user_id"/>
     </resultMap>
 
     <select id="findByUsername" resultMap="UserResultMap">
         SELECT * FROM swift_users WHERE username = #{username}
+    </select>
+
+    <select id="findBaseByUsername" resultMap="BaseUserResultMap">
+        SELECT * FROM swift_users WHERE username = #{username}
+    </select>
+
+    <select id="findBaseById" resultMap="BaseUserResultMap">
+        SELECT * FROM swift_users WHERE user_id = #{userId}
     </select>
 </mapper>

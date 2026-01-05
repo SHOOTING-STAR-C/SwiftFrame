@@ -1,5 +1,6 @@
 package com.star.swiftSecurity.service;
 
+import com.star.swiftCommon.domain.PageResult;
 import com.star.swiftSecurity.entity.SwiftRole;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -58,6 +59,15 @@ public interface SwiftUserService extends UserDetailsService {
      * @return List<SwiftUserDetails>
      */
     List<SwiftUserDetails> getAllUsers();
+
+    /**
+     * 分页获取用户
+     *
+     * @param current 当前页码
+     * @param size    每页大小
+     * @return PageResult<SwiftUserDetails>
+     */
+    PageResult<SwiftUserDetails> getUserPage(long current, long size);
 
     /**
      * 更改密码
