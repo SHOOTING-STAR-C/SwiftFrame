@@ -4,7 +4,6 @@
 -- 供应商表
 CREATE TABLE IF NOT EXISTS ai_provider (
     id BIGSERIAL PRIMARY KEY,
-    provider_type VARCHAR(50) NOT NULL,
     provider_name VARCHAR(100) NOT NULL,
     provider_code VARCHAR(50),
     base_url VARCHAR(255),
@@ -19,7 +18,6 @@ CREATE TABLE IF NOT EXISTS ai_provider (
 
 COMMENT ON TABLE ai_provider IS 'AI供应商表';
 COMMENT ON COLUMN ai_provider.id IS '主键ID';
-COMMENT ON COLUMN ai_provider.provider_type IS '提供商类型';
 COMMENT ON COLUMN ai_provider.provider_name IS '提供商名称';
 COMMENT ON COLUMN ai_provider.provider_code IS '提供商代码';
 COMMENT ON COLUMN ai_provider.base_url IS '基础URL';
@@ -31,7 +29,6 @@ COMMENT ON COLUMN ai_provider.priority IS '优先级';
 COMMENT ON COLUMN ai_provider.created_at IS '创建时间';
 COMMENT ON COLUMN ai_provider.updated_at IS '更新时间';
 
-CREATE INDEX IF NOT EXISTS idx_ai_provider_provider_type ON ai_provider(provider_type);
 CREATE INDEX IF NOT EXISTS idx_ai_provider_enabled ON ai_provider(enabled);
 
 -- 模型表
@@ -39,6 +36,7 @@ CREATE TABLE IF NOT EXISTS ai_model (
     id BIGSERIAL PRIMARY KEY,
     model_code VARCHAR(50) UNIQUE NOT NULL,
     model_name VARCHAR(100) NOT NULL,
+    model_type VARCHAR(50) NOT NULL DEFAULT 'llm',
     provider_id BIGINT NOT NULL,
     enabled BOOLEAN DEFAULT TRUE,
     max_tokens INTEGER,
@@ -55,6 +53,7 @@ COMMENT ON TABLE ai_model IS 'AI模型表';
 COMMENT ON COLUMN ai_model.id IS '主键ID';
 COMMENT ON COLUMN ai_model.model_code IS '模型代码';
 COMMENT ON COLUMN ai_model.model_name IS '模型名称';
+COMMENT ON COLUMN ai_model.model_type IS '模型类型：llm-大语言模型, embedding-嵌入模型, rerank-重排序模型, image_generation-图像生成模型, asr-语音识别模型, tts-语音合成模型, other-其他类型';
 COMMENT ON COLUMN ai_model.provider_id IS '供应商ID';
 COMMENT ON COLUMN ai_model.enabled IS '是否启用';
 COMMENT ON COLUMN ai_model.max_tokens IS '最大token数';
@@ -66,6 +65,7 @@ COMMENT ON COLUMN ai_model.created_at IS '创建时间';
 COMMENT ON COLUMN ai_model.updated_at IS '更新时间';
 
 CREATE INDEX IF NOT EXISTS idx_ai_model_model_code ON ai_model(model_code);
+CREATE INDEX IF NOT EXISTS idx_ai_model_model_type ON ai_model(model_type);
 CREATE INDEX IF NOT EXISTS idx_ai_model_provider_id ON ai_model(provider_id);
 CREATE INDEX IF NOT EXISTS idx_ai_model_enabled ON ai_model(enabled);
 

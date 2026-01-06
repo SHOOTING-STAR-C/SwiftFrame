@@ -1,7 +1,6 @@
 package com.star.swiftAi.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.star.swiftAi.enums.ProviderType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -20,12 +19,6 @@ public class AiProvider {
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
-    /**
-     * 提供商类型
-     */
-    @TableField("provider_type")
-    private ProviderType providerType;
 
     /**
      * 提供商名称

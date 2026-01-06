@@ -1,6 +1,7 @@
 package com.star.swiftAi.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.star.swiftAi.enums.ModelType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -31,6 +32,12 @@ public class AiModel {
      */
     @TableField("model_name")
     private String modelName;
+
+    /**
+     * 模型类型
+     */
+    @TableField("model_type")
+    private String modelType;
 
     /**
      * 供应商ID

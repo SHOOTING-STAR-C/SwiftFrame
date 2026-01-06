@@ -149,6 +149,8 @@ SwiftFrame/
 
 ## 🏗️ 系统架构
 
+### 模块依赖架构图
+
 ```mermaid
 graph TB
     subgraph AppLayer ["应用层 (Application)"]
@@ -158,6 +160,7 @@ graph TB
     subgraph BusinessLayer ["业务层 (Business)"]
         LOGIN["swift-login<br/>登录业务"]
         BUSINESS["swift-business<br/>业务模块"]
+        AI["swift-ai<br/>AI业务"]
     end
 
     subgraph SecurityLayer ["安全层 (Security)"]
@@ -174,7 +177,6 @@ graph TB
     subgraph FoundationLayer ["基础层 (Foundation)"]
         COMMON["swift-common<br/>通用组件"]
         ENCRYPT["swift-encrypt<br/>加密服务"]
-        AI["swift-ai<br/>AI服务"]
     end
 
     subgraph DevTools ["开发工具 (DevTools)"]
@@ -230,6 +232,138 @@ graph TB
     style PLUGIN fill:#95a5a6,stroke:#7f8c8d,stroke-width:2px
 ```
 
+### 项目拓扑图
+
+```mermaid
+graph TB
+    subgraph START_MODULE ["swift-start (启动模块)"]
+        START_APP["SwiftStartApplication<br/>主启动类"]
+        START_CONFIG["application.yml<br/>配置文件"]
+        START_SQL["sql/<br/>数据库脚本"]
+        START_STATIC["static/<br/>静态资源"]
+    end
+
+    subgraph COMMON_MODULE ["swift-common (公共基础模块)"]
+        COMMON_CONFIG["config/<br/>OpenAPI配置"]
+        COMMON_CONSTANT["constant/<br/>常量定义"]
+        COMMON_DOMAIN["domain/<br/>PubResult/PageResult"]
+        COMMON_EXCEPTION["exception/<br/>异常定义"]
+        COMMON_HANDLER["handler/<br/>全局异常处理器"]
+        COMMON_UTILS["utils/<br/>工具类"]
+    end
+
+    subgraph DATASOURCE_MODULE ["swift-datasource (数据源模块)"]
+        DS_CONFIG["config/<br/>动态数据源配置"]
+        DS_MYSQL["mapper.mysql/<br/>MySQL Mapper"]
+        DS_PG["mapper.postgresql/<br/>PostgreSQL Mapper"]
+    end
+
+    subgraph ENCRYPT_MODULE ["swift-encrypt (加解密模块)"]
+        ENCRYPT_UTILS["utils/<br/>AES/RSA工具类"]
+        ENCRYPT_CONFIG["config/<br/>Jasypt配置"]
+    end
+
+    subgraph ENCRYPT_PLUGIN ["swift-encrypt-plugin (加密插件)"]
+        PLUGIN_MOJO["EncryptMojo<br/>加密插件"]
+        PLUGIN_DECRYPT["DecryptMojo<br/>解密插件"]
+    end
+
+    subgraph REDIS_MODULE ["swift-redis (Redis缓存模块)"]
+        REDIS_CONFIG["config/<br/>Redis配置"]
+        REDIS_SERVICE["RedisService<br/>缓存服务"]
+    end
+
+    subgraph MONITOR_MODULE ["swift-monitor (系统监控模块)"]
+        MONITOR_CONFIG["config/<br/>Actuator配置"]
+        MONITOR_HEALTH["health/<br/>健康指标"]
+    end
+
+    subgraph SECURITY_MODULE ["swift-security (安全认证模块)"]
+        SEC_CONFIG["config/<br/>Security配置"]
+        SEC_FILTER["filter/<br/>JWT过滤器"]
+        SEC_HANDLER["handler/<br/>认证处理器"]
+        SEC_SERVICE["service/<br/>用户/角色/权限服务"]
+        SEC_MAPPER["mapper/<br/>MySQL Mapper"]
+        SEC_UTILS["utils/<br/>JWT工具类"]
+    end
+
+    subgraph LOGIN_MODULE ["swift-login (登录业务模块)"]
+        LOGIN_CONTROLLER["controller/<br/>登录控制器"]
+        LOGIN_SERVICE["service/<br/>登录业务逻辑"]
+    end
+
+    subgraph BUSINESS_MODULE ["swift-business (默认业务模块)"]
+        BIZ_CONTROLLER["controller/<br/>业务控制器"]
+        BIZ_SERVICE["service/<br/>业务服务"]
+        BIZ_MAPPER["mapper/<br/>数据访问层"]
+        BIZ_ENTITY["entity/<br/>实体类"]
+    end
+
+    subgraph AI_MODULE ["swift-ai (AI业务模块)"]
+        AI_CLIENT["client/<br/>AI客户端"]
+        AI_CORE["core/<br/>核心模型"]
+        AI_SERVICE["service/<br/>AI服务"]
+        AI_CONFIG["config/<br/>AI配置"]
+        AI_CONTROLLER["controller/<br/>AI控制器"]
+        AI_ENTITY["entity/<br/>AI实体"]
+    end
+
+    subgraph MAIL_MODULE ["swift-mail (邮件服务模块)"]
+        MAIL_SERVICE["service/<br/>邮件发送服务"]
+    end
+
+    subgraph DOCS ["docs (项目文档)"]
+        DOCS_AI["AI模块前端开发文档.md"]
+        DOCS_MODEL["模型供应商系统设计文档.md"]
+        DOCS_RAG["RAG知识库实现计划.md"]
+        DOCS_API["api-docs/<br/>API文档"]
+    end
+
+    subgraph SCRIPTS ["scripts (脚本工具)"]
+        SCRIPTS_DOCS["docs/<br/>文档生成脚本"]
+    end
+
+    %% 模块间依赖关系
+    START_APP -.->|依赖| LOGIN_MODULE
+    START_APP -.->|依赖| BUSINESS_MODULE
+    START_APP -.->|依赖| COMMON_MODULE
+    
+    LOGIN_MODULE -.->|依赖| SECURITY_MODULE
+    LOGIN_MODULE -.->|依赖| REDIS_MODULE
+    LOGIN_MODULE -.->|依赖| MONITOR_MODULE
+    LOGIN_MODULE -.->|依赖| MAIL_MODULE
+    
+    BUSINESS_MODULE -.->|依赖| SECURITY_MODULE
+    BUSINESS_MODULE -.->|依赖| COMMON_MODULE
+    
+    SECURITY_MODULE -.->|依赖| REDIS_MODULE
+    SECURITY_MODULE -.->|依赖| DATASOURCE_MODULE
+    SECURITY_MODULE -.->|依赖| ENCRYPT_MODULE
+    
+    DATASOURCE_MODULE -.->|依赖| COMMON_MODULE
+    REDIS_MODULE -.->|依赖| COMMON_MODULE
+    MONITOR_MODULE -.->|依赖| COMMON_MODULE
+    MAIL_MODULE -.->|依赖| COMMON_MODULE
+    ENCRYPT_MODULE -.->|依赖| COMMON_MODULE
+    AI_MODULE -.->|依赖| COMMON_MODULE
+    
+    %% 样式定义
+    style START_MODULE fill:#4a90d9,stroke:#2c5aa0,stroke-width:3px
+    style COMMON_MODULE fill:#9b59b6,stroke:#8e44ad,stroke-width:3px
+    style DATASOURCE_MODULE fill:#2ecc71,stroke:#27ae60,stroke-width:3px
+    style ENCRYPT_MODULE fill:#9b59b6,stroke:#8e44ad,stroke-width:3px
+    style ENCRYPT_PLUGIN fill:#95a5a6,stroke:#7f8c8d,stroke-width:3px
+    style REDIS_MODULE fill:#2ecc71,stroke:#27ae60,stroke-width:3px
+    style MONITOR_MODULE fill:#2ecc71,stroke:#27ae60,stroke-width:3px
+    style SECURITY_MODULE fill:#e74c3c,stroke:#c0392b,stroke-width:3px
+    style AI_MODULE fill:#9b59b6,stroke:#8e44ad,stroke-width:3px
+    style LOGIN_MODULE fill:#f5a623,stroke:#d48806,stroke-width:3px
+    style BUSINESS_MODULE fill:#f5a623,stroke:#d48806,stroke-width:3px
+    style MAIL_MODULE fill:#2ecc71,stroke:#27ae60,stroke-width:3px
+    style DOCS fill:#3498db,stroke:#2980b9,stroke-width:2px
+    style SCRIPTS fill:#34495e,stroke:#2c3e50,stroke-width:2px
+```
+
 ### 分层说明
 
 #### 应用层
@@ -238,6 +372,7 @@ graph TB
 #### 业务层
 - **swift-login**: 用户登录、认证、注册等业务逻辑
 - **swift-business**: 默认业务模块，提供业务逻辑实现
+- **swift-ai**: AI业务模块，提供AI对话、供应商管理、模型管理等AI相关业务功能
 
 #### 安全层
 - **swift-security**: 基于 Spring Security 和 JWT 的认证授权、权限控制
@@ -253,7 +388,6 @@ graph TB
 #### 基础层
 - **swift-common**: 通用工具类、统一响应结果、全局异常处理、OpenAPI 配置
 - **swift-encrypt**: AES/RSA 加解密工具、Jasypt 配置加密
-- **swift-ai**: OpenAI 兼容接口的 AI 通用调用工具
 
 #### 开发工具
 - **swift-encrypt-plugin**: Maven 插件，用于构建时配置文件和 SQL 文件的自动加解密
