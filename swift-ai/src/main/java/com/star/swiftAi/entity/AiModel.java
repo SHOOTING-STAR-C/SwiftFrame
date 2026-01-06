@@ -57,6 +57,18 @@ public class AiModel {
     private Integer contextLength;
 
     /**
+     * 温度参数（0-2）
+     */
+    @TableField("temperature")
+    private Double temperature;
+
+    /**
+     * 核采样参数（0-1）
+     */
+    @TableField("top_p")
+    private Double topP;
+
+    /**
      * 描述
      */
     @TableField("description")

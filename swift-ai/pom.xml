@@ -60,6 +60,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        
+        <!-- 加密模块 -->
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-encrypt</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -4,17 +4,26 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.star.swiftAi.core.factory.ProviderFactory;
+import com.star.swiftAi.core.model.ProviderMetaData;
+import com.star.swiftAi.core.provider.AbstractProvider;
 import com.star.swiftAi.dto.ProviderDTO;
 import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiProvider;
+import com.star.swiftAi.enums.ProviderType;
 import com.star.swiftAi.mapper.postgresql.AiProviderMapper;
+import com.star.swiftAi.util.ApiKeyCryptoUtil;
 import com.star.swiftCommon.domain.PageResult;
-import com.star.swiftEncrypt.service.CryptoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * AI供应商服务
@@ -26,7 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider> {
 
-    private final CryptoService cryptoService;
+    private final ObjectMapper objectMapper;
+    private final ApiKeyCryptoUtil apiKeyCryptoUtil;
 
     /**
      * 创建供应商
@@ -36,19 +46,14 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
      */
     @Transactional(rollbackFor = Exception.class)
     public AiProvider createProvider(AiProvider provider) {
-        // 检查供应商代码是否已存在
-        LambdaQueryWrapper<AiProvider> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AiProvider::getProviderCode, provider.getProviderCode());
-        if (this.count(wrapper) > 0) {
-            throw new RuntimeException("供应商代码已存在");
+        // 验证提供商类型是否已注册
+        if (!ProviderFactory.isProviderRegistered(provider.getProviderType().name())) {
+            throw new RuntimeException("未知的提供商类型: " + provider.getProviderType());
         }
         
-        if (provider.getApiKey() != null && !provider.getApiKey().isEmpty()) {
-            provider.setApiKey("ENC(" + provider.getApiKey() + ")");
-        }
-        
+        // 前端传递的密钥已加密，直接存储
         this.save(provider);
-        log.info("创建供应商成功: {}", provider.getProviderCode());
+        log.info("创建供应商成功: {}", provider.getProviderName());
         return provider;
     }
 
@@ -66,28 +71,15 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             throw new RuntimeException("供应商不存在");
         }
         
-        // 检查供应商代码是否被其他供应商使用
-        if (!existing.getProviderCode().equals(provider.getProviderCode())) {
-            LambdaQueryWrapper<AiProvider> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(AiProvider::getProviderCode, provider.getProviderCode());
-            wrapper.ne(AiProvider::getId, id);
-            if (this.count(wrapper) > 0) {
-                throw new RuntimeException("供应商代码已存在");
-            }
+        // 验证提供商类型是否已注册
+        if (!ProviderFactory.isProviderRegistered(provider.getProviderType().name())) {
+            throw new RuntimeException("未知的提供商类型: " + provider.getProviderType());
         }
         
-        // 如果提供了新的API密钥，前端已加密，只需用ENC()包裹
-        if (provider.getApiKey() != null && !provider.getApiKey().isEmpty()) {
-            provider.setApiKey("ENC(" + provider.getApiKey() + ")");
-            log.info("API密钥已更新");
-        } else {
-            // 如果没有提供新的API密钥，保持原有的加密密钥
-            provider.setApiKey(existing.getApiKey());
-        }
-        
+        // 前端传递的密钥已加密，直接存储
         provider.setId(id);
         this.updateById(provider);
-        log.info("更新供应商成功: {}", provider.getProviderCode());
+        log.info("更新供应商成功: {}", provider.getProviderName());
         return provider;
     }
 
@@ -104,7 +96,7 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
         }
         
         this.removeById(id);
-        log.info("删除供应商成功: {}", provider.getProviderCode());
+        log.info("删除供应商成功: {}", provider.getProviderName());
     }
 
     /**
@@ -119,6 +111,7 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             throw new RuntimeException("供应商不存在");
         }
         
+        // 直接返回加密的密钥，不解密
         ProviderDTO dto = new ProviderDTO();
         BeanUtils.copyProperties(provider, dto);
         dto.setHealthy(true); // 默认健康状态，实际应该通过健康检查获取
@@ -145,7 +138,7 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
         
         IPage<AiProvider> providerPage = this.page(pageParam, wrapper);
         
-        // 转换为DTO
+        // 转换为DTO，不解密API密钥
         IPage<ProviderDTO> dtoPage = providerPage.convert(provider -> {
             ProviderDTO dto = new ProviderDTO();
             BeanUtils.copyProperties(provider, dto);
@@ -169,63 +162,80 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             throw new RuntimeException("供应商不存在");
         }
         
-        // 解密API密钥用于测试连接
-        String decryptedApiKey = null;
-        if (provider.getApiKey() != null && !provider.getApiKey().isEmpty()) {
-            try {
-                // 去除ENC()包裹后解密
-                String encryptedKey = provider.getApiKey();
-                if (encryptedKey.startsWith("ENC(") && encryptedKey.endsWith(")")) {
-                    encryptedKey = encryptedKey.substring(4, encryptedKey.length() - 1);
-                }
-                decryptedApiKey = cryptoService.decryptWithAES(encryptedKey);
-                log.info("API密钥已解密用于连接测试");
-            } catch (Exception e) {
-                log.error("API密钥解密失败", e);
-                return new TestResultDTO(false, "API密钥解密失败: " + e.getMessage(), 0);
-            }
-        }
-        
-        // TODO: 实现实际的连接测试逻辑，使用解密后的API密钥
-        // 这里只是模拟测试
         long startTime = System.currentTimeMillis();
         try {
-            // 模拟网络延迟
-            Thread.sleep(100);
+            // 解密API密钥
+            String decryptedApiKey = provider.getApiKey();
+            if (decryptedApiKey != null) {
+                decryptedApiKey = apiKeyCryptoUtil.decryptApiKey(decryptedApiKey);
+            }
+            
+            // 构建配置Map（只包含连接配置）
+            Map<String, Object> providerConfig = Map.of(
+                "api_key", decryptedApiKey != null ? decryptedApiKey : "",
+                "base_url", provider.getBaseUrl() != null ? provider.getBaseUrl() : "",
+                "timeout", provider.getTimeout() != null ? provider.getTimeout() : 60,
+                "max_retries", provider.getMaxRetries() != null ? provider.getMaxRetries() : 3
+            );
+            
+            // 创建Provider实例（不需要providerSettings）
+            AbstractProvider abstractProvider = ProviderFactory.createProvider(
+                provider.getProviderType().name(),
+                providerConfig,
+                Map.of() // 空的settings，测试连接不需要模型参数
+            );
+            
+            // 测试连接
+            abstractProvider.test();
+            
             long latency = System.currentTimeMillis() - startTime;
+            log.info("供应商连接测试成功: {}, 耗时: {}ms", provider.getProviderName(), latency);
             
             return new TestResultDTO(true, "连接成功", latency);
-        } catch (InterruptedException e) {
-            return new TestResultDTO(false, "连接失败: " + e.getMessage(), 0);
+        } catch (Exception e) {
+            long latency = System.currentTimeMillis() - startTime;
+            log.error("供应商连接测试失败: {}", provider.getProviderName(), e);
+            return new TestResultDTO(false, "连接失败: " + e.getMessage(), latency);
         }
     }
     
     /**
-     * 获取解密后的API密钥（内部使用）
+     * 获取所有已注册的提供商类型
      *
-     * @param id 供应商ID
-     * @return 解密后的API密钥
+     * @return 提供商元数据列表
      */
-    public String getDecryptedApiKey(Long id) {
-        AiProvider provider = this.getById(id);
-        if (provider == null) {
-            throw new RuntimeException("供应商不存在");
-        }
-        
-        if (provider.getApiKey() == null || provider.getApiKey().isEmpty()) {
-            return null;
-        }
-        
+    public List<ProviderMetaData> getRegisteredProviders() {
+        return ProviderFactory.getRegisteredProviders();
+    }
+    
+    /**
+     * 根据类型获取提供商元数据
+     *
+     * @param typeName 提供商类型名称
+     * @return 提供商元数据
+     */
+    public ProviderMetaData getProviderMetadata(String typeName) {
+        return ProviderFactory.getRegisteredProviders().stream()
+            .filter(meta -> meta.getType().equals(typeName))
+            .findFirst()
+            .orElse(null);
+    }
+    
+    /**
+     * 解析JSON配置
+     *
+     * @param jsonConfig JSON配置字符串
+     * @return 配置Map
+     */
+    private Map<String, Object> parseJsonConfig(String jsonConfig) {
         try {
-            // 去除ENC()包裹后解密
-            String encryptedKey = provider.getApiKey();
-            if (encryptedKey.startsWith("ENC(") && encryptedKey.endsWith(")")) {
-                encryptedKey = encryptedKey.substring(4, encryptedKey.length() - 1);
+            if (jsonConfig == null || jsonConfig.isEmpty()) {
+                return Map.of();
             }
-            return cryptoService.decryptWithAES(encryptedKey);
+            return objectMapper.readValue(jsonConfig, new TypeReference<Map<String, Object>>() {});
         } catch (Exception e) {
-            log.error("API密钥解密失败", e);
-            throw new RuntimeException("API密钥解密失败", e);
+            log.error("解析JSON配置失败", e);
+            return Map.of();
         }
     }
 }

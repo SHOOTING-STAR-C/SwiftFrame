@@ -4,10 +4,10 @@ server:
     context-path: /swift
 spring:
   mail:
-    host: ENC(oeFY6VoUwba0sOUe44PAMYmeLBWoUA6XoAplq6V7Weq1NXsSxMvu)
+    host: ENC(bIbMPnrReuO3/ogCSrrbVR1pGrtNQJ+rRFftVwNNLq/ToPj6ftPg)
     port: 587
-    username: ENC(nSTV/YP0vRLuH/0q7OP5egulzQutQeROuDXQhihOBxb0kIm4Mvxidcuwfs02)
-    password: ENC(aaa1VKW0UxHMQYHs0VcAe3/LILoIN+K1NCOmGapM2hxvfg8xa0g+Ix3f6lE=)
+    username: ENC(hYUjxIBTb5AtKFIv0u5cJBvqqprr29Hmr8LSBT51nDwz9d70uMo7HhzoD+3Y)
+    password: ENC(kbCCaiooXtMRmF8RrLh3df2TaPWsk/WGM8j+s0YJSsWg86W+Pr9AQdBLUZ8=)
   sql:
     init:
       mode: never
@@ -16,8 +16,8 @@ spring:
       master:
         url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(wGZbYzH3LNtkaUV95rKrd+zkt2/62uGC92yGQrqzvktqzQq16g==)
-        password: ENC(f7yPP8TtlG6SIibcoS4qTRi1FnEhH74AynpmdQgjMXMv2y33jMdbWT0LWCQ=)
+        username: ENC(M/d1sJtgEyJQ6DPdnYZfEMraRMnvGQdlebDGxSHjY/G79e6xKg==)
+        password: ENC(TjFibG7PSMrGq2fstRvTtYR34kECKr9RGVX9A8+Fy8DcRH82lVsTR8SZ/ZI=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
         mapper-locations: classpath*:sqlmapper/mysql/*.xml
@@ -26,8 +26,8 @@ spring:
       pg:
         url: jdbc:postgresql://24.233.1.242:5432/swift_bus
         driver-class-name: org.postgresql.Driver
-        username: ENC(u8Uuy1rKBuvMky+IC2ZbEEUhIVc/mFbQmA9eWgXwo3Jocbq//fAda/k=)
-        password: ENC(INeKjQ4ag//BjH5OYYdG8X4QBnbmr5NPBiAxQOwmEbpN5XxbAFJR4YxJUCY=)
+        username: ENC(NWjQhIdRtfzEw77c17hjroEHMhcuM5WJgLwofR7W+sGhF84iepZ802c=)
+        password: ENC(sieYVtVsuoRd6WwMMxAfCYK7OFMGvSX8tm4RP199eduX1dCq+MexZg6oyaw=)
         validation-query: SELECT 1
         filters: stat,wall,slf4j
         mapper-locations: classpath*:sqlmapper/pg/*.xml
@@ -46,7 +46,7 @@ spring:
     redis:
       host: 24.233.1.242
       port: 6379
-      password: ENC(pmcnTjnbbl27Aj9eI0ZuefoAsspShJYzvHC+b1ZgEiV4o4f3SBfarg==)
+      password: ENC(he+9oP0EEAMOxAuOFc28eiYecjGhwalwIWIY3jobMjtjoqjTJIdMPA==)
       database: 0
 logging:
   level:

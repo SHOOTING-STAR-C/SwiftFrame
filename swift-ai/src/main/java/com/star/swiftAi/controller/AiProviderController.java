@@ -1,5 +1,6 @@
 package com.star.swiftAi.controller;
 
+import com.star.swiftAi.core.model.ProviderMetaData;
 import com.star.swiftAi.dto.ProviderDTO;
 import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiProvider;
@@ -17,6 +18,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * AI供应商控制器
@@ -117,5 +120,33 @@ public class AiProviderController {
             @Parameter(description = "供应商ID") @PathVariable Long id) {
         TestResultDTO result = aiProviderService.testConnection(id);
         return PubResult.success(result);
+    }
+
+    /**
+     * 获取所有已注册的提供商类型
+     */
+    @Operation(summary = "获取已注册的提供商类型", description = "获取系统中所有已注册的AI提供商类型及其元数据")
+    @ApiResponse(responseCode = "200", description = "获取成功")
+    @GetMapping("/types")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_PROVIDER_READ + "')")
+    public PubResult<List<ProviderMetaData>> getRegisteredProviders() {
+        List<ProviderMetaData> providers = aiProviderService.getRegisteredProviders();
+        return PubResult.success(providers);
+    }
+
+    /**
+     * 根据类型获取提供商元数据
+     */
+    @Operation(summary = "获取提供商元数据", description = "根据提供商类型获取其元数据和默认配置模板")
+    @ApiResponse(responseCode = "200", description = "获取成功")
+    @GetMapping("/types/{typeName}")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_PROVIDER_READ + "')")
+    public PubResult<ProviderMetaData> getProviderMetadata(
+            @Parameter(description = "提供商类型名称") @PathVariable String typeName) {
+        ProviderMetaData metadata = aiProviderService.getProviderMetadata(typeName);
+        if (metadata == null) {
+            return PubResult.error("未知的提供商类型: " + typeName);
+        }
+        return PubResult.success(metadata);
     }
 }

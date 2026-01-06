@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
 
     private final AiProviderService aiProviderService;
+    private final com.star.swiftAi.util.ApiKeyCryptoUtil apiKeyCryptoUtil;
 
     /**
      * 创建模型
@@ -192,7 +193,10 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
         
         try {
             // 获取解密后的API密钥
-            String decryptedApiKey = aiProviderService.getDecryptedApiKey(providerId);
+            String decryptedApiKey = provider.getApiKey();
+            if (decryptedApiKey != null) {
+                decryptedApiKey = apiKeyCryptoUtil.decryptApiKey(decryptedApiKey);
+            }
             
             // 创建OpenAI兼容客户端
             com.star.swiftAi.client.OpenAiCompatibleClient.Config clientConfig = 
@@ -240,7 +244,10 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
         long startTime = System.currentTimeMillis();
         try {
             // 获取解密后的API密钥
-            String decryptedApiKey = aiProviderService.getDecryptedApiKey(model.getProviderId());
+            String decryptedApiKey = provider.getApiKey();
+            if (decryptedApiKey != null) {
+                decryptedApiKey = apiKeyCryptoUtil.decryptApiKey(decryptedApiKey);
+            }
             
             // 创建OpenAI兼容客户端
             com.star.swiftAi.client.OpenAiCompatibleClient.Config clientConfig = 

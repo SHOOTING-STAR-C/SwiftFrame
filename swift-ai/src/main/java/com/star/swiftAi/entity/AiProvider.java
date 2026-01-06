@@ -1,6 +1,7 @@
 package com.star.swiftAi.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.star.swiftAi.enums.ProviderType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -21,19 +22,25 @@ public class AiProvider {
     private Long id;
 
     /**
-     * 供应商代码
+     * 提供商类型
      */
-    @TableField("provider_code")
-    private String providerCode;
+    @TableField("provider_type")
+    private ProviderType providerType;
 
     /**
-     * 供应商名称
+     * 提供商名称
      */
     @TableField("provider_name")
     private String providerName;
-
+    
     /**
-     * API基础URL
+     * 提供商代码
+     */
+    @TableField("provider_code")
+    private String providerCode;
+    
+    /**
+     * 基础URL
      */
     @TableField("base_url")
     private String baseUrl;
@@ -43,6 +50,18 @@ public class AiProvider {
      */
     @TableField("api_key")
     private String apiKey;
+
+    /**
+     * 超时时间（秒）
+     */
+    @TableField("timeout")
+    private Integer timeout;
+
+    /**
+     * 最大重试次数
+     */
+    @TableField("max_retries")
+    private Integer maxRetries;
 
     /**
      * 是否启用
@@ -55,12 +74,6 @@ public class AiProvider {
      */
     @TableField("priority")
     private Integer priority;
-
-    /**
-     * 描述
-     */
-    @TableField("description")
-    private String description;
 
     /**
      * 创建时间
