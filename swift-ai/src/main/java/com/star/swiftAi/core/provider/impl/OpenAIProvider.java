@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.star.swiftAi.core.annotation.ProviderAdapter;
 import com.star.swiftAi.core.model.*;
 import com.star.swiftAi.core.provider.Provider;
-import com.star.swiftAi.enums.ProviderType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
@@ -28,7 +27,6 @@ import java.util.Map;
 @ProviderAdapter(
     typeName = "openai",
     desc = "OpenAI提供商，支持GPT系列模型",
-    providerType = ProviderType.CHAT_COMPLETION,
     displayName = "OpenAI"
 )
 public class OpenAIProvider extends Provider {
@@ -373,7 +371,6 @@ public class OpenAIProvider extends Provider {
         ProviderMeta meta = new ProviderMeta();
         meta.setId("openai");
         meta.setType("openai");
-        meta.setProviderType(ProviderType.CHAT_COMPLETION);
         meta.setModel(getModel());
         return meta;
     }

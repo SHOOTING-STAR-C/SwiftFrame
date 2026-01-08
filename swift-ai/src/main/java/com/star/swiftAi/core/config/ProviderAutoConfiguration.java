@@ -53,7 +53,6 @@ public class ProviderAutoConfiguration {
                         ProviderRegistry.registerProviderAdapter(
                             annotation.typeName(),
                             annotation.desc(),
-                            annotation.providerType(),
                             defaultConfigTmpl,
                             annotation.displayName(),
                             clazz

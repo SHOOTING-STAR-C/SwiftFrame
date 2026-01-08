@@ -54,6 +54,14 @@ public interface SwiftUserService extends UserDetailsService {
     SwiftUserDetails loadUserByUsername(String username);
 
     /**
+     * 根据用户ID获取用户信息
+     *
+     * @param userId userId
+     * @return SwiftUserDetails
+     */
+    SwiftUserDetails loadUserByUserId(Long userId);
+
+    /**
      * 获取所有用户
      *
      * @return List<SwiftUserDetails>

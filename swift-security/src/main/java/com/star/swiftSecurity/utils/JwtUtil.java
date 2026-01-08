@@ -52,13 +52,14 @@ public class JwtUtil {
         Map<String, String> claims = new HashMap<>();
         claims.put("sub", userDetails.getUserId().toString());//用户唯一标识
         claims.put("email", userDetails.getEmail());
+        claims.put("userId", userDetails.getUserId().toString());
         claims.put("username", userDetails.getUsername());
         claims.put("iat", String.valueOf(System.currentTimeMillis()));//发行时间
         claims.put("aud", userDetails.getAuthorities().toString());//令牌受众
         claims.put("jti", String.valueOf(System.currentTimeMillis()));
         claims.put("locale", "zh_CN");
         String accessToken = buildToken(claims, userDetails.getUserId().toString(), jwtProperties.getExpiration());
-        tokenStorageService.storeToken(TokenConstants.accessToken, userDetails.getUsername(), accessToken, jwtProperties.getExpiration());
+        tokenStorageService.storeToken(TokenConstants.accessToken,userDetails.getUserId(), accessToken, jwtProperties.getExpiration());
         return accessToken;
     }
 
@@ -70,8 +71,16 @@ public class JwtUtil {
      */
     public String generateRefreshToken(SwiftUserDetails userDetails) {
         Map<String, String> claims = new HashMap<>();
+        claims.put("sub", userDetails.getUserId().toString());//用户唯一标识
+        claims.put("email", userDetails.getEmail());
+        claims.put("userId", userDetails.getUserId().toString());
+        claims.put("username", userDetails.getUsername());
+        claims.put("iat", String.valueOf(System.currentTimeMillis()));//发行时间
+        claims.put("aud", userDetails.getAuthorities().toString());//令牌受众
+        claims.put("jti", String.valueOf(System.currentTimeMillis()));
+        claims.put("locale", "zh_CN");
         String refreshToken = buildToken(claims, userDetails.getUserId().toString(), jwtProperties.getRefreshExpiration());
-        tokenStorageService.storeToken(TokenConstants.refreshToken, userDetails.getUsername(), refreshToken, jwtProperties.getRefreshExpiration());
+        tokenStorageService.storeToken(TokenConstants.refreshToken,userDetails.getUserId(), refreshToken, jwtProperties.getRefreshExpiration());
         return refreshToken;
     }
 
@@ -94,14 +103,14 @@ public class JwtUtil {
     }
 
     /**
-     * 提取用户名
+     * 提取用户ID
      *
      * @param token token
-     * @return 用户名
+     * @return 用户ID
      */
-    public String extractUsername(String token) {
+    public Long extractUserId(String token) {
         Claims claims = extractClaim(token);
-        return claims.get("username", String.class);
+        return Long.parseLong(claims.get("userId", String.class));
     }
 
     /**
@@ -127,14 +136,26 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             extractClaim(token);
-            return true;
+            return false;
         } catch (ExpiredJwtException e) {
             log.error("JWT expired: {}", e.getMessage());
             throw e;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("JWT validation error: {}", e.getMessage());
-            return false;
+            return true;
         }
+    }
+
+    /**
+     * 验证token在Redis中是否存在
+     *
+     * @param type  token类型
+     * @param userId 用户ID
+     * @param token token
+     * @return boolean
+     */
+    public boolean validateTokenInRedis(String type, Long userId, String token) {
+        return tokenStorageService.validateToken(type, userId, token);
     }
 
     /**
@@ -144,6 +165,7 @@ public class JwtUtil {
      * @param token token
      */
     public void removeToken(String type, String token) {
-        tokenStorageService.removeToken(type, token);
+        Long userId = extractUserId(token);
+        tokenStorageService.removeToken(type, userId);
     }
 }

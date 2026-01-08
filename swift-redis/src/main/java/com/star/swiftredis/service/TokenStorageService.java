@@ -8,34 +8,34 @@ package com.star.swiftredis.service;
 public interface TokenStorageService {
     /**
      * @param type       类型
-     * @param username   用户名
+     * @param userId     用户Id
      * @param token      token
      * @param expiration 有效期
      */
-    void storeToken(String type, String username, String token, long expiration);
+    void storeToken(String type,Long userId, String token, long expiration);
 
     /**
      * 获取Token
      *
-     * @param username 用户名
+     * @param userId 用户ID
      * @return Token
      */
-    String getToken(String type, String username);
+    String getToken(String type, Long userId);
 
     /**
      * 移除Token
      *
-     * @param username 用户名
+     * @param userId 用户ID
      */
-    void removeToken(String type, String username);
+    void removeToken(String type, Long userId);
 
     /**
      * 校验Token
      *
-     * @param type     类型
-     * @param username 用户名
-     * @param token    Token
+     * @param type  类型
+     * @param userId 用户ID
+     * @param token Token
      * @return boolean
      */
-    boolean validateToken(String type, String username, String token);
+    boolean validateToken(String type, Long userId, String token);
 }

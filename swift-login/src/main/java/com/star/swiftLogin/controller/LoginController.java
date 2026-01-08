@@ -119,7 +119,7 @@ public class LoginController {
      */
     @PostMapping("/refresh")
     @Operation(summary = "刷新Token", description = "使用refreshToken获取新的accessToken和refreshToken")
-    public PubResult<JwtToken> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+    public PubResult<JwtToken> refreshToken(@RequestBody RefreshTokenRequest request) {
         return authService.refreshToken(request.getRefreshToken());
     }
 

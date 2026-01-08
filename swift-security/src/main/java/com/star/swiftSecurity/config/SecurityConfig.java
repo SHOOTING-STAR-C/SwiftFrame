@@ -8,7 +8,6 @@ import com.star.swiftSecurity.service.SwiftUserService;
 import com.star.swiftSecurity.utils.JwtUtil;
 import com.star.swiftredis.service.TokenStorageService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,7 +33,6 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties(SecurityProperties.class)
 public class SecurityConfig {
 
     private final SecurityProperties securityProperties;

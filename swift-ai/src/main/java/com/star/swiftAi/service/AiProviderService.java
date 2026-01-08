@@ -12,7 +12,6 @@ import com.star.swiftAi.core.provider.AbstractProvider;
 import com.star.swiftAi.dto.ProviderDTO;
 import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiProvider;
-import com.star.swiftAi.enums.ProviderType;
 import com.star.swiftAi.mapper.postgresql.AiProviderMapper;
 import com.star.swiftAi.util.ApiKeyCryptoUtil;
 import com.star.swiftCommon.domain.PageResult;
@@ -47,8 +46,8 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
     @Transactional(rollbackFor = Exception.class)
     public AiProvider createProvider(AiProvider provider) {
         // 验证提供商类型是否已注册
-        if (!ProviderFactory.isProviderRegistered(provider.getProviderType().name())) {
-            throw new RuntimeException("未知的提供商类型: " + provider.getProviderType());
+        if (!ProviderFactory.isProviderRegistered(provider.getProviderCode())) {
+            throw new RuntimeException("未知的提供商类型: " + provider.getProviderCode());
         }
         
         // 前端传递的密钥已加密，直接存储
@@ -72,8 +71,8 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
         }
         
         // 验证提供商类型是否已注册
-        if (!ProviderFactory.isProviderRegistered(provider.getProviderType().name())) {
-            throw new RuntimeException("未知的提供商类型: " + provider.getProviderType());
+        if (!ProviderFactory.isProviderRegistered(provider.getProviderCode())) {
+            throw new RuntimeException("未知的提供商类型: " + provider.getProviderCode());
         }
         
         // 前端传递的密钥已加密，直接存储
@@ -180,7 +179,7 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             
             // 创建Provider实例（不需要providerSettings）
             AbstractProvider abstractProvider = ProviderFactory.createProvider(
-                provider.getProviderType().name(),
+                provider.getProviderCode(),
                 providerConfig,
                 Map.of() // 空的settings，测试连接不需要模型参数
             );

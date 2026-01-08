@@ -1,7 +1,5 @@
 package com.star.swiftAi.core.annotation;
 
-import com.star.swiftAi.enums.ProviderType;
-
 import java.lang.annotation.*;
 
 /**
@@ -24,11 +22,6 @@ public @interface ProviderAdapter {
      * 描述
      */
     String desc() default "";
-    
-    /**
-     * 提供商类型
-     */
-    ProviderType providerType();
     
     /**
      * 提供商显示名称

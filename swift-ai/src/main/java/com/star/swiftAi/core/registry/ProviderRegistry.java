@@ -1,7 +1,6 @@
 package com.star.swiftAi.core.registry;
 
 import com.star.swiftAi.core.model.ProviderMetaData;
-import com.star.swiftAi.enums.ProviderType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ public class ProviderRegistry {
      *
      * @param providerTypeName 提供商类型名称
      * @param desc 描述
-     * @param providerType 提供商类型
      * @param defaultConfigTmpl 默认配置模板
      * @param providerDisplayName 提供商显示名称
      * @param clsType 类类型
@@ -41,7 +39,6 @@ public class ProviderRegistry {
     public static void registerProviderAdapter(
         String providerTypeName,
         String desc,
-        ProviderType providerType,
         Map<String, Object> defaultConfigTmpl,
         String providerDisplayName,
         Class<?> clsType
@@ -50,7 +47,6 @@ public class ProviderRegistry {
         metadata.setId(providerTypeName);
         metadata.setType(providerTypeName);
         metadata.setDesc(desc);
-        metadata.setProviderType(providerType);
         metadata.setDefaultConfigTmpl(defaultConfigTmpl);
         metadata.setProviderDisplayName(providerDisplayName);
         metadata.setClsType(clsType);
@@ -78,22 +74,6 @@ public class ProviderRegistry {
      */
     public static ProviderMetaData getProviderMetadata(String typeName) {
         return PROVIDER_CLS_MAP.get(typeName);
-    }
-    
-    /**
-     * 根据提供商类型获取提供商列表
-     *
-     * @param providerType 提供商类型
-     * @return 提供商列表
-     */
-    public static List<ProviderMetaData> getProvidersByType(ProviderType providerType) {
-        List<ProviderMetaData> result = new ArrayList<>();
-        for (ProviderMetaData metadata : PROVIDER_REGISTRY) {
-            if (metadata.getProviderType() == providerType) {
-                result.add(metadata);
-            }
-        }
-        return result;
     }
     
     /**

@@ -22,6 +22,11 @@ public interface SwiftUserMapper {
      */
     @Select("SELECT * FROM swift_users WHERE user_id = #{userId}")
     SwiftUserDetails findById(@Param("userId") Long userId);
+
+    /**
+     * 根据ID查找用户（包含角色权限）
+     */
+    SwiftUserDetails findByIdWithAuthorities(@Param("userId") Long userId);
     
     /**
      * 根据ID查找用户密码

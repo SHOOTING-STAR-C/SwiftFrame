@@ -1,6 +1,5 @@
 package com.star.swiftAi.core.model;
 
-import com.star.swiftAi.enums.ProviderType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

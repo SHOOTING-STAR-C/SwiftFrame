@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final SwiftUserService userDetailsService;
     private final TokenStorageService tokenStorageService;
     private final SecurityProperties securityProperties;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil, SwiftUserService userDetailsService, 
@@ -51,27 +53,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        // 检查请求路径是否在白名单中
         String requestURI = request.getRequestURI();
         if (isWhitelisted(requestURI)) {
+            log.debug("路径 {} 在白名单中，跳过 JWT 过滤器", requestURI);
             filterChain.doFilter(request, response);
             return;
         }
 
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+            log.warn("请求 {} 缺少有效的Authorization头", requestURI);
+            sendErrorResponse(response, TokenReCode.TOKEN_INVALID);
             return;
         }
 
         final String jwt = authHeader.substring(7);
-        String username = null;
+        Long userId = null;
         
-        // 提取用户名，捕获JWT过期异常
+        // 提取用户ID，捕获JWT过期异常
         try {
-            username = jwtUtil.extractUsername(jwt);
+            userId = jwtUtil.extractUserId(jwt);
         } catch (ExpiredJwtException e) {
-            log.error("JWT expired during username extraction: {}", e.getMessage());
+            log.error("JWT expired during userId extraction: {}", e.getMessage());
             sendErrorResponse(response, TokenReCode.TOKEN_EXPIRED);
             return;
         } catch (Exception e) {
@@ -80,12 +83,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUserId(userId);
 
             // 验证JWT签名和Redis中的令牌有效性
             try {
-                if (!jwtUtil.validateToken(jwt)) {
+                if (jwtUtil.validateToken(jwt)) {
                     sendErrorResponse(response, TokenReCode.TOKEN_INVALID);
                     return;
                 }
@@ -99,7 +102,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             
-            if (!tokenStorageService.validateToken(TokenConstants.accessToken, username, jwt)) {
+            if (!tokenStorageService.validateToken(TokenConstants.accessToken, userId, jwt)) {
                 sendErrorResponse(response, TokenReCode.TOKEN_NOT_FOUND);
                 return;
             }
@@ -131,18 +134,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private boolean isWhitelisted(String requestURI) {
         String[] whitelist = securityProperties.getWhitelistArray();
-        for (String path : whitelist) {
-            if (path.endsWith("/**")) {
-                // 处理通配符路径
-                String basePath = path.substring(0, path.length() - 3);
-                if (requestURI.startsWith(basePath)) {
-                    return true;
-                }
-            } else if (path.equals(requestURI)) {
-                // 精确匹配
-                return true;
-            }
+        
+        // 获取 context-path 并从请求 URI 中去除
+        String contextPath = securityProperties.getServletContext() != null 
+                ? securityProperties.getServletContext().getContextPath() 
+                : "";
+        
+        String pathToMatch;
+        if (!contextPath.isEmpty() && requestURI.startsWith(contextPath)) {
+            pathToMatch = requestURI.substring(contextPath.length());
+        } else {
+            pathToMatch = requestURI;
         }
-        return false;
+
+        return Arrays.stream(whitelist).anyMatch(pattern -> pathMatcher.match(pattern, pathToMatch));
     }
 }

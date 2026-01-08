@@ -24,13 +24,13 @@ public class TokenStorageServiceImpl implements TokenStorageService {
      * 持久化Token
      *
      * @param type       类型
-     * @param username   用户名
+     * @param userId     用户ID
      * @param token      token
      * @param expiration 有效期
      */
-    public void storeToken(String type, String username, String token, long expiration) {
+    public void storeToken(String type, Long userId, String token, long expiration) {
         redisTemplate.opsForValue().set(
-                commonProperties.getName() + "_" + type + "_" + username,
+                commonProperties.getName() + "_" + type + "_" + userId,
                 token,
                 expiration,
                 TimeUnit.MILLISECONDS);
@@ -39,31 +39,31 @@ public class TokenStorageServiceImpl implements TokenStorageService {
     /**
      * 获取Token
      *
-     * @param username 用户名
+     * @param userId 用户ID
      * @return Token
      */
-    public String getToken(String type, String username) {
-        return redisTemplate.opsForValue().get(commonProperties.getName() + "_" + type + "_" + username);
+    public String getToken(String type, Long userId) {
+        return redisTemplate.opsForValue().get(commonProperties.getName() + "_" + type + "_" + userId);
     }
 
     /**
      * 移除Token
      *
-     * @param username 用户名
+     * @param userId 用户ID
      */
-    public void removeToken(String type, String username) {
-        redisTemplate.delete(commonProperties.getName() + "_" + type + "_" + username);
+    public void removeToken(String type, Long userId) {
+        redisTemplate.delete(commonProperties.getName() + "_" + type + "_" + userId);
     }
 
     /**
      * 校验Token
      *
-     * @param username 用户名
+     * @param userId 用户ID
      * @param token    Token
      * @return boolean
      */
-    public boolean validateToken(String type, String username, String token) {
-        String storedToken = getToken(type, username);
+    public boolean validateToken(String type, Long userId, String token) {
+        String storedToken = getToken(type, userId);
         return storedToken != null && storedToken.equals(token);
     }
 }

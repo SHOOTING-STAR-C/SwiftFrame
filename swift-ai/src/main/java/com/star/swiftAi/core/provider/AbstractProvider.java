@@ -1,7 +1,6 @@
 package com.star.swiftAi.core.provider;
 
 import com.star.swiftAi.core.model.ProviderMeta;
-import com.star.swiftAi.enums.ProviderType;
 
 import java.util.Map;
 

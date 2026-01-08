@@ -1,6 +1,5 @@
 package com.star.swiftAi.core.model;
 
-import com.star.swiftAi.enums.ProviderType;
 import lombok.Data;
 
 /**
@@ -24,9 +23,4 @@ public class ProviderMeta {
      * 提供商适配器类型（如 openai, ollama）
      */
     private String type;
-    
-    /**
-     * 能力类型
-     */
-    private ProviderType providerType;
 }

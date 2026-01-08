@@ -23,8 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.security.auth.login.AccountLockedException;
-
 /**
  * 登录认证
  *
@@ -89,12 +87,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public PubResult<JwtToken> refreshToken(String refreshToken) {
         // 验证旧的refreshToken
+        log.debug("refreshToken: {}", refreshToken);
         if (!jwtUtil.validateToken(refreshToken)) {
             throw new InvalidTokenException(TokenReCode.TOKEN_INVALID);
         }
 
-        String username = jwtUtil.extractUsername(refreshToken);
-        SwiftUserDetails user = userService.loadUserByUsername(username);
+        Long userId = jwtUtil.extractUserId(refreshToken);
+        
+        // 检查Redis中是否存在该refreshToken
+        if (!jwtUtil.validateTokenInRedis("refresh", userId, refreshToken)) {
+            throw new InvalidTokenException(TokenReCode.TOKEN_INVALID);
+        }
+        
+        SwiftUserDetails user = userService.loadUserByUserId(userId);
 
         // 检查用户状态
         if (!user.isAccountNonLocked() || !user.isEnabled()) {

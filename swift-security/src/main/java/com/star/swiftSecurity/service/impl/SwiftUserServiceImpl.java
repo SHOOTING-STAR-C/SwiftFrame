@@ -137,7 +137,7 @@ public class SwiftUserServiceImpl implements SwiftUserService {
 
         // 异步或按需加载权限信息（这里为了填充缓存，需要加载一次完整的，但后续请求将走缓存）
         // 为了确保 cacheUser 能够拿到权限，我们需要使用带权限的查询或者手动触发加载
-        SwiftUserDetails userWithAuthorities = userMapper.findByUsername(user.getUsername());
+        SwiftUserDetails userWithAuthorities = userMapper.findByIdWithAuthorities(userId);
 
         // 写入缓存
         userCacheService.cacheUser(userWithAuthorities.getUsername(), userWithAuthorities);
@@ -153,23 +153,22 @@ public class SwiftUserServiceImpl implements SwiftUserService {
      */
     @Override
     public SwiftUserDetails loadUserByUsername(String username) {
-        // 优先从缓存获取用户信息
-        UserCacheDTO cachedUser = userCacheService.getCachedUser(username);
-        if (cachedUser != null) {
-            // 从缓存DTO恢复用户信息
-            return restoreUserFromCache(cachedUser);
-        }
-        
-        // 缓存未命中，从数据库查询（带权限查询以填充缓存）
         SwiftUserDetails user = userMapper.findByUsername(username);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
-        
-        // 将用户信息写入缓存
-        userCacheService.cacheUser(username, user);
-        
         return user;
+    }
+
+    /**
+     * 根据用户ID获取用户信息
+     *
+     * @param userId userId
+     * @return SwiftUserDetails
+     */
+    @Override
+    public SwiftUserDetails loadUserByUserId(Long userId) {
+        return getUserById(userId);
     }
     
     /**
