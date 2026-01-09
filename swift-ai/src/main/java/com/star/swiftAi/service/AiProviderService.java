@@ -231,7 +231,8 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             if (jsonConfig == null || jsonConfig.isEmpty()) {
                 return Map.of();
             }
-            return objectMapper.readValue(jsonConfig, new TypeReference<Map<String, Object>>() {});
+            return objectMapper.readValue(jsonConfig, new TypeReference<>() {
+            });
         } catch (Exception e) {
             log.error("解析JSON配置失败", e);
             return Map.of();

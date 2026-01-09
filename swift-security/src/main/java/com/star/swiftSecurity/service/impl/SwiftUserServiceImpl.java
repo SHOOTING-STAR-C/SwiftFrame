@@ -227,13 +227,13 @@ public class SwiftUserServiceImpl implements SwiftUserService {
     @Override
     public PageResult<SwiftUserDetails> getUserPage(Integer page, Integer size) {
         // 计算偏移量
-        long offset = (page - 1) * size;
+        Integer offset = (page - 1) * size;
         
         // 查询分页数据
         List<SwiftUserDetails> records = userMapper.findPage(offset, size);
         
         // 查询总记录数
-        long total = userMapper.countAll();
+        Integer total = userMapper.countAll();
         
         return PageResult.success(records, total, page, size);
     }

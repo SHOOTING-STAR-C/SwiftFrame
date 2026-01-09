@@ -124,11 +124,11 @@ public interface SwiftUserMapper {
      * 分页查询用户
      */
     @Select("SELECT * FROM swift_users ORDER BY created_at DESC LIMIT #{offset}, #{size}")
-    List<SwiftUserDetails> findPage(@Param("offset") long offset, @Param("size") long size);
+    List<SwiftUserDetails> findPage(@Param("offset") Integer offset, @Param("size") Integer size);
 
     /**
      * 统计用户总数
      */
     @Select("SELECT COUNT(*) FROM swift_users")
-    long countAll();
+    Integer countAll();
 }

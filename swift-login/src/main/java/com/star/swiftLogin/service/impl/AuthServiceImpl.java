@@ -211,9 +211,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public PubResult<String> resetPassword(String email, String verificationCode, String newPassword) {
         // 解密邮箱、验证码和密码
-        String decryptedEmail = email;
-        String decryptedCode = verificationCode;
-        String decryptedPassword = newPassword;
+        String decryptedEmail;
+        String decryptedCode;
+        String decryptedPassword;
         
         try {
             decryptedEmail = cryptoService.decrypt(email);

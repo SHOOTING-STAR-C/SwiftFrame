@@ -19,17 +19,8 @@ import java.util.Arrays;
 public class SecurityProperties {
 
     private String whiteList;
-    
-    private ServletContext servletContext;
 
-    /**
-     * 设置ServletContext
-     *
-     * @param servletContext ServletContext
-     */
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
+    private ServletContext servletContext;
 
     /**
      * 转换为数组

@@ -41,8 +41,9 @@ public class ProviderAutoConfiguration {
             scanner.findCandidateComponents(basePackage).forEach(beanDefinition -> {
                 try {
                     String className = beanDefinition.getBeanClassName();
+                    assert className != null;
                     Class<?> clazz = ClassUtils.forName(className, this.getClass().getClassLoader());
-                    
+
                     // 获取注解
                     ProviderAdapter annotation = clazz.getAnnotation(ProviderAdapter.class);
                     if (annotation != null) {

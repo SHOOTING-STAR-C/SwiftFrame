@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
-        Long userId = null;
+        Long userId;
         
         // 提取用户ID，捕获JWT过期异常
         try {
