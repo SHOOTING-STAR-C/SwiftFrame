@@ -136,13 +136,13 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             extractClaim(token);
-            return false;
+            return true;
         } catch (ExpiredJwtException e) {
             log.error("JWT expired: {}", e.getMessage());
             throw e;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("JWT validation error: {}", e.getMessage());
-            return true;
+            return false;
         }
     }
 

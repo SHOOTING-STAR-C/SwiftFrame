@@ -10,6 +10,7 @@ import com.star.swiftredis.service.TokenStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,6 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Security配置
@@ -50,16 +52,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         // 打印白名单配置用于调试
-        String[] whitelist = securityProperties.getWhitelistArray();
-        log.info("Security白名单配置: {}", Arrays.toString(whitelist));
+        SecurityProperties.WhitelistItem[] whitelistItems = securityProperties.getWhitelistItems();
+        log.info("Security白名单配置: {}", Arrays.toString(whitelistItems));
         
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(whitelist).permitAll()
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(auth -> {
+                    // 完全放行的路径（所有HTTP方法）
+                    String[] permitAllPaths = securityProperties.getPermitAllPaths();
+                    if (permitAllPaths.length > 0) {
+                        auth.requestMatchers(permitAllPaths).permitAll();
+                    }
+                    
+                    // 按HTTP方法分组的路径
+                    Map<String, String[]> methodPaths = securityProperties.getMethodPaths();
+                    methodPaths.forEach((method, paths) -> {
+                        HttpMethod httpMethod = HttpMethod.valueOf(method.toUpperCase());
+                        auth.requestMatchers(httpMethod, paths).permitAll();
+                    });
+                    
+                    // 其他所有请求需要认证
+                    auth.anyRequest().authenticated();
+                })
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler)

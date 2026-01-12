@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
-        if (isWhitelisted(requestURI)) {
+        if (isWhitelisted(requestURI, request)) {
             log.debug("路径 {} 在白名单中，跳过 JWT 过滤器", requestURI);
             filterChain.doFilter(request, response);
             return;
@@ -88,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 验证JWT签名和Redis中的令牌有效性
             try {
-                if (jwtUtil.validateToken(jwt)) {
+                if (!jwtUtil.validateToken(jwt)) {
                     sendErrorResponse(response, TokenReCode.TOKEN_INVALID);
                     return;
                 }
@@ -122,18 +122,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 发送错误响应
      */
     private void sendErrorResponse(HttpServletResponse response, TokenReCode tokenReCode) throws IOException {
+        response.reset();
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("X-Auth-Error", "true");
         
         PubResult<?> result = PubResult.error(tokenReCode.getCode(), tokenReCode.getMessage());
         response.getWriter().write(objectMapper.writeValueAsString(result));
+        response.flushBuffer();
     }
 
     /**
      * 检查请求路径是否在白名单中
      */
-    private boolean isWhitelisted(String requestURI) {
-        String[] whitelist = securityProperties.getWhitelistArray();
+    private boolean isWhitelisted(String requestURI, HttpServletRequest request) {
+        SecurityProperties.WhitelistItem[] whitelistItems = securityProperties.getWhitelistItems();
+        String httpMethod = request.getMethod();
         
         // 获取 context-path 并从请求 URI 中去除
         String contextPath = securityProperties.getServletContext() != null 
@@ -147,6 +152,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             pathToMatch = requestURI;
         }
 
-        return Arrays.stream(whitelist).anyMatch(pattern -> pathMatcher.match(pattern, pathToMatch));
+        for (SecurityProperties.WhitelistItem item : whitelistItems) {
+            // 如果路径匹配
+            if (pathMatcher.match(item.getPath(), pathToMatch)) {
+                // 如果是ANY方法，允许所有HTTP方法
+                if (item.isAnyMethod()) {
+                    return true;
+                }
+                // 如果指定了HTTP方法，检查是否匹配
+                if (item.getMethod().equalsIgnoreCase(httpMethod)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 }
