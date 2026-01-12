@@ -376,16 +376,46 @@ public class OpenAIProvider extends Provider {
     }
 
     @Override
-    public void test() {
-        log.info("OpenAI提供商测试连接");
+    public void test(String model) {
+        log.info("OpenAI提供商测试连接: model={}", model);
         
         try {
             String baseUrl = getBaseUrl();
             String apiKey = getCurrentKey();
             
-            // 使用一个简单的请求测试连接
+            // 如果没有指定模型，从模型列表中获取第一个
+            if (model == null || model.isEmpty()) {
+                HttpRequest modelsRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/models"))
+                    .header("Authorization", "Bearer " + apiKey)
+                    .GET()
+                    .timeout(Duration.ofSeconds(10))
+                    .build();
+                
+                HttpResponse<String> modelsResponse = httpClient.send(
+                    modelsRequest,
+                    HttpResponse.BodyHandlers.ofString()
+                );
+                
+                if (modelsResponse.statusCode() == 200) {
+                    JsonNode root = objectMapper.readTree(modelsResponse.body());
+                    JsonNode data = root.get("data");
+                    if (data != null && data.isArray() && data.size() > 0) {
+                        model = data.get(0).get("id").asText();
+                        log.info("使用第一个模型进行测试: {}", model);
+                    }
+                }
+            }
+            
+            // 如果还是没有模型，使用默认值
+            if (model == null || model.isEmpty()) {
+                model = "gpt-3.5-turbo";
+                log.warn("无法获取模型列表，使用默认模型: {}", model);
+            }
+            
+            // 使用模型测试连接
             Map<String, Object> requestBody = new java.util.HashMap<>();
-            requestBody.put("model", "gpt-3.5-turbo");
+            requestBody.put("model", model);
             requestBody.put("messages", List.of(
                 Map.of("role", "user", "content", "Hi")
             ));
