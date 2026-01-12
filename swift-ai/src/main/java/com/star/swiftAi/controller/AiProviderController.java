@@ -88,7 +88,6 @@ public class AiProviderController {
     @Operation(summary = "获取供应商详情", description = "根据ID获取供应商详细信息")
     @ApiResponse(responseCode = "200", description = "获取成功", content = @Content(schema = @Schema(implementation = ProviderDTO.class)))
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_PROVIDER_READ + "')")
     public PubResult<ProviderDTO> getProviderById(
             @Parameter(description = "供应商ID") @PathVariable Long id) {
         ProviderDTO provider = aiProviderService.getProviderById(id);
@@ -101,7 +100,6 @@ public class AiProviderController {
     @Operation(summary = "获取供应商列表", description = "分页获取供应商列表，支持按启用状态筛选")
     @ApiResponse(responseCode = "200", description = "获取成功")
     @GetMapping
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_PROVIDER_READ + "')")
     public PageResult<ProviderDTO> getProviders(
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小", example = "10") @RequestParam(defaultValue = "10") Integer size,
@@ -128,7 +126,6 @@ public class AiProviderController {
     @Operation(summary = "获取已注册的提供商类型", description = "获取系统中所有已注册的AI提供商类型及其元数据")
     @ApiResponse(responseCode = "200", description = "获取成功")
     @GetMapping("/types")
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_PROVIDER_READ + "')")
     public PubResult<List<ProviderMetaData>> getRegisteredProviders() {
         List<ProviderMetaData> providers = aiProviderService.getRegisteredProviders();
         return PubResult.success(providers);
@@ -140,7 +137,6 @@ public class AiProviderController {
     @Operation(summary = "获取提供商元数据", description = "根据提供商类型获取其元数据和默认配置模板")
     @ApiResponse(responseCode = "200", description = "获取成功")
     @GetMapping("/types/{typeName}")
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_PROVIDER_READ + "')")
     public PubResult<ProviderMetaData> getProviderMetadata(
             @Parameter(description = "提供商类型名称") @PathVariable String typeName) {
         ProviderMetaData metadata = aiProviderService.getProviderMetadata(typeName);

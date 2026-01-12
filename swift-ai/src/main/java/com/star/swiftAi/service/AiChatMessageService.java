@@ -42,7 +42,12 @@ public class AiChatMessageService extends ServiceImpl<AiChatMessageMapper, AiCha
         message.setTokensUsed(tokensUsed);
         
         this.save(message);
-        log.info("保存消息成功: sessionId={}, role={}", sessionId, role);
+        
+        // 重新查询以获取完整的消息信息（包括自动生成的ID和createdAt）
+        message = this.getById(message.getId());
+        
+        log.info("保存消息成功: sessionId={}, role={}, messageId={}, createdAt={}", 
+            sessionId, role, message.getId(), message.getCreatedAt());
         return message;
     }
 

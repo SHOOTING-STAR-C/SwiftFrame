@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * AI聊天会话控制器
  *
@@ -96,5 +98,18 @@ public class AiChatSessionController {
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小", example = "10") @RequestParam(defaultValue = "10") Integer size) {
         return aiChatSessionService.getSessionsByUserId(userId, page, size);
+    }
+
+    /**
+     * 获取用户的会话列表（不分页）
+     */
+    @Operation(summary = "获取用户的会话列表（不分页）", description = "获取指定用户的所有会话，不分页")
+    @ApiResponse(responseCode = "200", description = "获取成功")
+    @GetMapping("/all")
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_SESSION_READ + "')")
+    public PubResult<List<SessionDTO>> getAllSessionsByUserId(
+            @Parameter(description = "用户 ID", example = "user123") @RequestParam String userId) {
+        List<SessionDTO> sessions = aiChatSessionService.getAllSessionsByUserId(userId);
+        return PubResult.success(sessions);
     }
 }

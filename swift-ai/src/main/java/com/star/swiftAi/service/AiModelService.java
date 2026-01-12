@@ -8,7 +8,9 @@ import com.star.swiftAi.dto.ModelDTO;
 import com.star.swiftAi.dto.TestResultDTO;
 import com.star.swiftAi.entity.AiModel;
 import com.star.swiftAi.entity.AiProvider;
-import com.star.swiftAi.enums.AiProviderEnum;
+import com.star.swiftAi.core.factory.ProviderFactory;
+import com.star.swiftAi.core.provider.Provider;
+import com.star.swiftAi.core.response.ModelsResponse;
 import com.star.swiftAi.mapper.postgresql.AiModelMapper;
 import com.star.swiftCommon.domain.PageResult;
 import lombok.RequiredArgsConstructor;
@@ -181,7 +183,7 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
      * @param providerId 供应商ID
      * @return 模型列表
      */
-    public com.star.swiftAi.core.response.ModelsResponse getModelsFromProvider(Long providerId) {
+    public ModelsResponse getModelsFromProvider(Long providerId) {
         AiProvider provider = aiProviderService.getById(providerId);
         if (provider == null) {
             throw new RuntimeException("供应商不存在");
@@ -193,28 +195,37 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
         
         try {
             // 获取解密后的API密钥
-            String decryptedApiKey = provider.getApiKey();
-            if (decryptedApiKey != null) {
-                decryptedApiKey = apiKeyCryptoUtil.decryptApiKey(decryptedApiKey);
-            }
+            String decryptedApiKey = apiKeyCryptoUtil.decryptApiKeyString(provider.getApiKey());
             
-            // 创建OpenAI兼容客户端
-            com.star.swiftAi.client.OpenAiCompatibleClient.Config clientConfig = 
-                com.star.swiftAi.client.OpenAiCompatibleClient.Config.builder()
-                    .apiKey(decryptedApiKey)
-                    .baseUrl(provider.getBaseUrl())
-                    .provider(AiProviderEnum.fromCode(provider.getProviderCode()))
-                    .timeout(java.time.Duration.ofSeconds(30))
-                    .build();
+            // 创建Provider配置
+            java.util.Map<String, Object> providerConfig = new java.util.HashMap<>();
+            providerConfig.put("api_key", decryptedApiKey);
+            providerConfig.put("base_url", provider.getBaseUrl());
+            providerConfig.put("timeout", 30);
             
-            com.star.swiftAi.client.OpenAiCompatibleClient client = 
-                new com.star.swiftAi.client.OpenAiCompatibleClient(clientConfig);
+            // 创建Provider实例
+            Provider aiProvider = ProviderFactory.createProvider(
+                provider.getProviderCode(),
+                providerConfig,
+                new java.util.HashMap<>()
+            );
             
             // 获取模型列表
-            com.star.swiftAi.core.response.ModelsResponse modelsResponse = client.getModels();
+            java.util.List<String> modelIds = aiProvider.getModels();
+            
+            // 转换为ModelsResponse格式
+            ModelsResponse modelsResponse = new ModelsResponse();
+            java.util.List<ModelsResponse.Model> modelData = new java.util.ArrayList<>();
+            for (String modelId : modelIds) {
+                ModelsResponse.Model modelInfo = new ModelsResponse.Model();
+                modelInfo.setId(modelId);
+                modelInfo.setObject("model");
+                modelData.add(modelInfo);
+            }
+            modelsResponse.setData(modelData);
+            
             log.info("从供应商获取模型成功: providerCode={}, modelCount={}", 
-                    provider.getProviderCode(), 
-                    modelsResponse.getData() != null ? modelsResponse.getData().size() : 0);
+                    provider.getProviderCode(), modelIds.size());
             
             return modelsResponse;
         } catch (Exception e) {
@@ -244,33 +255,26 @@ public class AiModelService extends ServiceImpl<AiModelMapper, AiModel> {
         long startTime = System.currentTimeMillis();
         try {
             // 获取解密后的API密钥
-            String decryptedApiKey = provider.getApiKey();
-            if (decryptedApiKey != null) {
-                decryptedApiKey = apiKeyCryptoUtil.decryptApiKey(decryptedApiKey);
-            }
+            String decryptedApiKey = apiKeyCryptoUtil.decryptApiKeyString(provider.getApiKey());
             
-            // 创建OpenAI兼容客户端
-            com.star.swiftAi.client.OpenAiCompatibleClient.Config clientConfig = 
-                com.star.swiftAi.client.OpenAiCompatibleClient.Config.builder()
-                    .apiKey(decryptedApiKey)
-                    .baseUrl(provider.getBaseUrl())
-                    .model(model.getModelCode())
-                    .provider(AiProviderEnum.fromCode(provider.getProviderCode()))
-                    .timeout(java.time.Duration.ofSeconds(10))
-                    .build();
+            // 创建Provider配置
+            java.util.Map<String, Object> providerConfig = new java.util.HashMap<>();
+            providerConfig.put("api_key", decryptedApiKey);
+            providerConfig.put("base_url", provider.getBaseUrl());
+            providerConfig.put("timeout", 10);
             
-            com.star.swiftAi.client.OpenAiCompatibleClient client = 
-                new com.star.swiftAi.client.OpenAiCompatibleClient(clientConfig);
+            // 创建Provider实例
+            Provider aiProvider = ProviderFactory.createProvider(
+                provider.getProviderCode(),
+                providerConfig,
+                new java.util.HashMap<>()
+            );
             
-            // 测试连接
-            boolean isAvailable = client.isAvailable();
+            // 测试连接，使用指定的模型
+            aiProvider.test(model.getModelCode());
             long latency = System.currentTimeMillis() - startTime;
             
-            if (isAvailable) {
-                return new TestResultDTO(true, "连接成功", latency);
-            } else {
-                return new TestResultDTO(false, "连接失败：服务不可用", latency);
-            }
+            return new TestResultDTO(true, "连接成功", latency);
         } catch (Exception e) {
             long latency = System.currentTimeMillis() - startTime;
             log.error("测试模型连接失败: modelCode={}, error={}", model.getModelCode(), e.getMessage());

@@ -78,7 +78,6 @@ public class AiModelController {
     @Operation(summary = "获取模型详情", description = "根据ID获取模型详细信息")
     @ApiResponse(responseCode = "200", description = "获取成功", content = @Content(schema = @Schema(implementation = ModelDTO.class)))
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_MODEL_READ + "')")
     public PubResult<ModelDTO> getModelById(
             @Parameter(description = "模型ID") @PathVariable Long id) {
         ModelDTO model = aiModelService.getModelById(id);
@@ -91,7 +90,6 @@ public class AiModelController {
     @Operation(summary = "获取模型列表", description = "分页获取模型列表，支持按供应商 ID 和启用状态筛选")
     @ApiResponse(responseCode = "200", description = "获取成功")
     @GetMapping
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_MODEL_READ + "')")
     public PageResult<ModelDTO> getModels(
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小", example = "10") @RequestParam(defaultValue = "10") Integer size,
@@ -119,7 +117,6 @@ public class AiModelController {
     @Operation(summary = "从供应商获取所有模型", description = "调用供应商API获取所有可用模型列表")
     @ApiResponse(responseCode = "200", description = "获取成功", content = @Content(schema = @Schema(implementation = ModelsResponse.class)))
     @GetMapping("/provider/{providerId}/models")
-    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_MODEL_READ + "')")
     public PubResult<ModelsResponse> getModelsFromProvider(
             @Parameter(description = "供应商ID") @PathVariable Long providerId) {
         ModelsResponse models = aiModelService.getModelsFromProvider(providerId);

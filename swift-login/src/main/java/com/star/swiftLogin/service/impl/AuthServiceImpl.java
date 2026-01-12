@@ -1,6 +1,7 @@
 package com.star.swiftLogin.service.impl;
 
 import com.star.swiftCommon.domain.PubResult;
+import com.star.swiftSecurity.constant.TokenConstants;
 import com.star.swiftSecurity.constant.TokenReCode;
 import com.star.swiftSecurity.domain.JwtToken;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
@@ -88,14 +89,14 @@ public class AuthServiceImpl implements AuthService {
     public PubResult<JwtToken> refreshToken(String refreshToken) {
         // 验证旧的refreshToken
         log.debug("refreshToken: {}", refreshToken);
-        if (!jwtUtil.validateToken(refreshToken)) {
+        if (jwtUtil.validateToken(refreshToken)) {
             throw new InvalidTokenException(TokenReCode.TOKEN_INVALID);
         }
 
         Long userId = jwtUtil.extractUserId(refreshToken);
         
         // 检查Redis中是否存在该refreshToken
-        if (!jwtUtil.validateTokenInRedis("refresh", userId, refreshToken)) {
+        if (!jwtUtil.validateTokenInRedis(TokenConstants.refreshToken, userId, refreshToken)) {
             throw new InvalidTokenException(TokenReCode.TOKEN_INVALID);
         }
         
@@ -111,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
         String newRefreshToken = jwtUtil.generateRefreshToken(user);
 
         // 将旧的refreshToken标记为失效（从Redis删除）
-        jwtUtil.removeToken("refresh", refreshToken);
+        jwtUtil.removeToken(TokenConstants.refreshToken, refreshToken);
 
         return PubResult.success(new JwtToken(newAccessToken, newRefreshToken));
     }

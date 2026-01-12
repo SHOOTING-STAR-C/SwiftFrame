@@ -160,4 +160,33 @@ public class AiChatSessionService extends ServiceImpl<AiChatSessionMapper, AiCha
         // 转换为 PageResult
         return PageResult.success(dtoPage.getRecords(), dtoPage.getTotal(), dtoPage.getCurrent(), dtoPage.getSize());
     }
+
+    /**
+     * 获取用户的会话列表（不分页）
+     *
+     * @param userId 用户ID
+     * @return 会话列表
+     */
+    public java.util.List<SessionDTO> getAllSessionsByUserId(String userId) {
+        LambdaQueryWrapper<AiChatSession> wrapper = new LambdaQueryWrapper<>();
+        
+        wrapper.eq(AiChatSession::getUserId, userId);
+        wrapper.orderByDesc(AiChatSession::getUpdatedAt);
+        
+        java.util.List<AiChatSession> sessions = this.list(wrapper);
+        
+        // 转换为DTO
+        return sessions.stream().map(session -> {
+            SessionDTO dto = new SessionDTO();
+            BeanUtils.copyProperties(session, dto);
+            
+            // 获取模型名称
+            AiModel model = aiModelService.getById(session.getModelId());
+            if (model != null) {
+                dto.setModelName(model.getModelName());
+            }
+            
+            return dto;
+        }).collect(java.util.stream.Collectors.toList());
+    }
 }

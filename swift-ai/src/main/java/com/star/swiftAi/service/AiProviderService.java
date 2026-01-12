@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.star.swiftAi.core.factory.ProviderFactory;
 import com.star.swiftAi.core.model.ProviderMetaData;
 import com.star.swiftAi.core.provider.AbstractProvider;
@@ -34,7 +32,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider> {
 
-    private final ObjectMapper objectMapper;
     private final ApiKeyCryptoUtil apiKeyCryptoUtil;
 
     /**
@@ -164,10 +161,7 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
         long startTime = System.currentTimeMillis();
         try {
             // 解密API密钥
-            String decryptedApiKey = provider.getApiKey();
-            if (decryptedApiKey != null) {
-                decryptedApiKey = apiKeyCryptoUtil.decryptApiKey(decryptedApiKey);
-            }
+            String decryptedApiKey = apiKeyCryptoUtil.decryptApiKeyString(provider.getApiKey());
             
             // 构建配置Map（只包含连接配置）
             Map<String, Object> providerConfig = Map.of(
@@ -184,8 +178,8 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
                 Map.of() // 空的settings，测试连接不需要模型参数
             );
             
-            // 测试连接
-            abstractProvider.test();
+            // 测试连接（不指定模型，会自动使用第一个可用模型）
+            abstractProvider.test(null);
             
             long latency = System.currentTimeMillis() - startTime;
             log.info("供应商连接测试成功: {}, 耗时: {}ms", provider.getProviderName(), latency);
@@ -218,24 +212,5 @@ public class AiProviderService extends ServiceImpl<AiProviderMapper, AiProvider>
             .filter(meta -> meta.getType().equals(typeName))
             .findFirst()
             .orElse(null);
-    }
-    
-    /**
-     * 解析JSON配置
-     *
-     * @param jsonConfig JSON配置字符串
-     * @return 配置Map
-     */
-    private Map<String, Object> parseJsonConfig(String jsonConfig) {
-        try {
-            if (jsonConfig == null || jsonConfig.isEmpty()) {
-                return Map.of();
-            }
-            return objectMapper.readValue(jsonConfig, new TypeReference<>() {
-            });
-        } catch (Exception e) {
-            log.error("解析JSON配置失败", e);
-            return Map.of();
-        }
     }
 }

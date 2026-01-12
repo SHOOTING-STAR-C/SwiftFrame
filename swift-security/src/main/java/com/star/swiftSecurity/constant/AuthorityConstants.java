@@ -153,6 +153,11 @@ public class AuthorityConstants {
      */
     public static final String AI_CHAT_HISTORY = "ai:chat:history";
 
+    /**
+     * 查看聊天消息
+     */
+    public static final String AI_MESSAGE_READ = "ai:message:read";
+
     // ==================== AI会话管理权限 ====================
     
     /**

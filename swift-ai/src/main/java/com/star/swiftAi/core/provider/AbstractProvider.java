@@ -63,7 +63,8 @@ public abstract class AbstractProvider {
     /**
      * 测试提供商可用性
      *
+     * @param model 模型名称（可选，如果为空则使用供应商第一个可用模型）
      * @throws Exception 测试失败时抛出异常
      */
-    public abstract void test() throws Exception;
+    public abstract void test(String model) throws Exception;
 }
