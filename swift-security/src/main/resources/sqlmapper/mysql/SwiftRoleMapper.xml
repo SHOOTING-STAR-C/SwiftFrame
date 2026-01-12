@@ -44,7 +44,11 @@
     </insert>
 
     <update id="update">
-        UPDATE swift_roles SET name=#{name}, description=#{description} 
+        UPDATE swift_roles
+        <set>
+            <if test="name != null">name=#{name},</if>
+            <if test="description != null">description=#{description},</if>
+        </set>
         WHERE role_id=#{roleId}
     </update>
 

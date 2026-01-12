@@ -86,14 +86,8 @@ public interface SwiftUserMapper {
     int insert(SwiftUserDetails user);
 
     /**
-     * 更新用户
+     * 更新用户（使用动态SQL，只更新非null字段）
      */
-    @Update("UPDATE swift_users SET username=#{username}, full_name=#{fullName}, password=#{password}, " +
-            "email=#{email}, phone=#{phone}, enabled=#{enabled}, account_non_expired=#{accountNonExpired}, " +
-            "account_non_locked=#{accountNonLocked}, credentials_non_expired=#{credentialsNonExpired}, " +
-            "failed_login_attempts=#{failedLoginAttempts}, lock_until=#{lockUntil}, " +
-            "password_changed_at=#{passwordChangedAt}, last_login_at=#{lastLoginAt}, " +
-            "last_login_ip=#{lastLoginIp} WHERE user_id=#{userId}")
     int update(SwiftUserDetails user);
 
     /**

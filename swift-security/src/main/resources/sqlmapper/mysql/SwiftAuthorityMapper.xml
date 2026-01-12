@@ -30,7 +30,11 @@
     </insert>
 
     <update id="update">
-        UPDATE swift_authorities SET name=#{name}, description=#{description} 
+        UPDATE swift_authorities
+        <set>
+            <if test="name != null">name=#{name},</if>
+            <if test="description != null">description=#{description},</if>
+        </set>
         WHERE authority_id=#{authorityId}
     </update>
 

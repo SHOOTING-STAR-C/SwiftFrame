@@ -42,4 +42,25 @@
     <select id="findByIdWithAuthorities" resultMap="UserResultMap">
         SELECT * FROM swift_users WHERE user_id = #{userId}
     </select>
+
+    <update id="update">
+        UPDATE swift_users
+        <set>
+            <if test="username != null">username=#{username},</if>
+            <if test="fullName != null">full_name=#{fullName},</if>
+            <if test="password != null">password=#{password},</if>
+            <if test="email != null">email=#{email},</if>
+            <if test="phone != null">phone=#{phone},</if>
+            <if test="enabled != null">enabled=#{enabled},</if>
+            <if test="accountNonExpired != null">account_non_expired=#{accountNonExpired},</if>
+            <if test="accountNonLocked != null">account_non_locked=#{accountNonLocked},</if>
+            <if test="credentialsNonExpired != null">credentials_non_expired=#{credentialsNonExpired},</if>
+            <if test="failedLoginAttempts != null">failed_login_attempts=#{failedLoginAttempts},</if>
+            <if test="lockUntil != null">lock_until=#{lockUntil},</if>
+            <if test="passwordChangedAt != null">password_changed_at=#{passwordChangedAt},</if>
+            <if test="lastLoginAt != null">last_login_at=#{lastLoginAt},</if>
+            <if test="lastLoginIp != null">last_login_ip=#{lastLoginIp},</if>
+        </set>
+        WHERE user_id=#{userId}
+    </update>
 </mapper>

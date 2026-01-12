@@ -129,20 +129,16 @@ public class SwiftUserServiceImpl implements SwiftUserService {
             return restoreUserFromCache(cachedUser);
         }
 
-        // 缓存未命中，使用轻量级查询
-        SwiftUserDetails user = userMapper.findBaseById(userId);
+        // 缓存未命中，直接查询包含权限的完整用户信息
+        SwiftUserDetails user = userMapper.findByIdWithAuthorities(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
 
-        // 异步或按需加载权限信息（这里为了填充缓存，需要加载一次完整的，但后续请求将走缓存）
-        // 为了确保 cacheUser 能够拿到权限，我们需要使用带权限的查询或者手动触发加载
-        SwiftUserDetails userWithAuthorities = userMapper.findByIdWithAuthorities(userId);
-
         // 写入缓存
-        userCacheService.cacheUser(userWithAuthorities.getUsername(), userWithAuthorities);
+        userCacheService.cacheUser(user.getUsername(), user);
         
-        return userWithAuthorities;
+        return user;
     }
 
     /**
