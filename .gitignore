@@ -31,5 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-openapi-generator-cli.jar  
-docs/api-docs/ 
