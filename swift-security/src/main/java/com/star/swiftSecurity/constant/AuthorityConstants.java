@@ -180,6 +180,18 @@ public class AuthorityConstants {
      */
     public static final String AI_SESSION_DELETE = "ai:session:delete";
 
+    // ==================== AI系统提示词管理权限 ====================
+    
+    /**
+     * 查看系统提示词列表和详情
+     */
+    public static final String AI_SYSTEM_PROMPT_VIEW = "ai:system_prompt:view";
+
+    /**
+     * 管理系统提示词（创建/更新/删除）
+     */
+    public static final String AI_SYSTEM_PROMPT_MANAGE = "ai:system_prompt:manage";
+
     // ==================== 系统配置管理权限 ====================
     
     /**

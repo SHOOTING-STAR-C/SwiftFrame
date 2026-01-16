@@ -41,7 +41,6 @@ public class AiChatController {
 
     private final AiChatSessionService aiChatSessionService;
     private final AiChatMessageService aiChatMessageService;
-    private final AiModelService aiModelService;
     private final AiChatService aiChatService;
 
     /**

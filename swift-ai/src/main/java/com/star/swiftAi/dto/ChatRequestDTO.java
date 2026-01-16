@@ -39,4 +39,10 @@ public class ChatRequestDTO {
      */
     @Schema(description = "是否流式返回", defaultValue = "false")
     private Boolean stream = false;
+
+    /**
+     * 系统提示词ID（可选）
+     */
+    @Schema(description = "系统提示词ID（可选）", example = "1")
+    private Long systemPromptId;
 }

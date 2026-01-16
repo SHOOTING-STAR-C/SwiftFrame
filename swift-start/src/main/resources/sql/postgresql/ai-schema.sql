@@ -113,3 +113,25 @@ COMMENT ON COLUMN ai_chat_message.created_at IS '创建时间';
 
 CREATE INDEX IF NOT EXISTS idx_ai_chat_message_session_id ON ai_chat_message(session_id);
 CREATE INDEX IF NOT EXISTS idx_ai_chat_message_created_at ON ai_chat_message(created_at);
+
+-- 系统提示词表
+CREATE TABLE IF NOT EXISTS ai_system_prompt (
+    id BIGSERIAL PRIMARY KEY,
+    prompt_name VARCHAR(100) NOT NULL,
+    prompt_content TEXT NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE ai_system_prompt IS 'AI系统提示词表';
+COMMENT ON COLUMN ai_system_prompt.id IS '主键ID';
+COMMENT ON COLUMN ai_system_prompt.prompt_name IS '提示词名称';
+COMMENT ON COLUMN ai_system_prompt.prompt_content IS '提示词内容';
+COMMENT ON COLUMN ai_system_prompt.enabled IS '是否启用';
+COMMENT ON COLUMN ai_system_prompt.description IS '描述';
+COMMENT ON COLUMN ai_system_prompt.created_at IS '创建时间';
+COMMENT ON COLUMN ai_system_prompt.updated_at IS '更新时间';
+
+CREATE INDEX IF NOT EXISTS idx_ai_system_prompt_enabled ON ai_system_prompt(enabled);
