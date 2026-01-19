@@ -25,6 +25,7 @@ public interface SwiftUserMapper {
 
     /**
      * 根据ID查找用户（包含角色权限）
+     * 使用JOIN一次性获取所有数据，避免N+1查询问题
      */
     SwiftUserDetails findByIdWithAuthorities(@Param("userId") Long userId);
     

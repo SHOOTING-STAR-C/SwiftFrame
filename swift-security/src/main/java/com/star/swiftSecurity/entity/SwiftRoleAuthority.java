@@ -2,8 +2,6 @@ package com.star.swiftSecurity.entity;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class SwiftRoleAuthority {
 
@@ -11,8 +9,5 @@ public class SwiftRoleAuthority {
 
     private SwiftRole role;
 
-
     private SwiftAuthority authority;
-
-    private LocalDateTime grantedAt;
 }

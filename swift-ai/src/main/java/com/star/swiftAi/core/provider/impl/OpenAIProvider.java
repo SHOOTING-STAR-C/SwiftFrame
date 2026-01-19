@@ -367,6 +367,141 @@ public class OpenAIProvider extends Provider {
     }
 
     @Override
+    public void textChatStreamRealtime(
+        String prompt,
+        String sessionId,
+        List<String> imageUrls,
+        ToolSet funcTool,
+        List<Map<String, Object>> contexts,
+        String systemPrompt,
+        List<ToolCallsResult> toolCallsResult,
+        String model,
+        java.util.function.Consumer<LLMResponse> consumer
+    ) throws Exception {
+        log.info("OpenAI提供商执行textChatStreamRealtime请求: model={}", model);
+        
+        String baseUrl = getBaseUrl();
+        String apiKey = getCurrentKey();
+        
+        // 构建请求体
+        Map<String, Object> requestBody = buildChatRequestBody(
+            prompt, systemPrompt, contexts, model, funcTool, toolCallsResult
+        );
+        requestBody.put("stream", true);
+        
+        String jsonBody = objectMapper.writeValueAsString(requestBody);
+        
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(baseUrl + "/chat/completions"))
+            .header("Authorization", "Bearer " + apiKey)
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+            .build();
+        
+        // 使用流式处理，逐行接收SSE数据
+        java.util.concurrent.Flow.Subscriber<String> subscriber = new java.util.concurrent.Flow.Subscriber<String>() {
+            private java.util.concurrent.Flow.Subscription subscription;
+            private int chunkCount = 0;
+            private boolean finished = false;
+            
+            @Override
+            public void onSubscribe(java.util.concurrent.Flow.Subscription subscription) {
+                log.info("流式响应订阅已建立");
+                this.subscription = subscription;
+                subscription.request(1); // 请求第一行数据
+            }
+            
+            @Override
+            public void onNext(String line) {
+                try {
+                    log.debug("接收到流式数据行: {}", line);
+                    
+                    // 处理SSE数据
+                    line = line.trim();
+                    if (line.startsWith("data: ")) {
+                        String data = line.substring(6);
+                        log.info("解析SSE数据块 #{}: {}", ++chunkCount, data);
+                        
+                        // 结束标记
+                        if ("[DONE]".equals(data)) {
+                            log.info("接收到流式结束标记[DONE]");
+                            // 只在还未发送finished响应时才发送
+                            if (!finished) {
+                                finished = true;
+                                LLMResponse finalResponse = new LLMResponse();
+                                finalResponse.setFinished(true);
+                                consumer.accept(finalResponse);
+                            }
+                            return;
+                        }
+                        
+                        try {
+                            JsonNode root = objectMapper.readTree(data);
+                            LLMResponse response = new LLMResponse();
+                            
+                            JsonNode choices = root.get("choices");
+                            if (choices != null && choices.isArray() && choices.size() > 0) {
+                                JsonNode choice = choices.get(0);
+                                JsonNode delta = choice.get("delta");
+                                
+                                if (delta != null) {
+                                    JsonNode content = delta.get("content");
+                                    if (content != null) {
+                                        String contentText = content.asText();
+                                        response.setContent(contentText);
+                                        response.setDelta(contentText);
+                                        log.info("数据块内容: '{}'", contentText);
+                                    }
+                                }
+                                
+                                String finishReason = choice.get("finish_reason") != null ? 
+                                    choice.get("finish_reason").asText() : null;
+                                
+                                // 只在finish_reason为stop且还未发送finished响应时才设置finished=true
+                                if ("stop".equals(finishReason) && !finished) {
+                                    finished = true;
+                                    response.setFinished(true);
+                                }
+                            }
+                            
+                            // 立即传递给消费者
+                            log.info("立即传递响应块给consumer, finished={}", response.isFinished());
+                            consumer.accept(response);
+                        } catch (Exception e) {
+                            log.error("解析流式响应失败: {}", data, e);
+                        }
+                    }
+                } finally {
+                    subscription.request(1); // 请求下一行数据
+                }
+            }
+            
+            @Override
+            public void onError(Throwable throwable) {
+                log.error("流式响应发生错误", throwable);
+                // 发送一个finished=true的响应以正确结束流
+                LLMResponse errorResponse = new LLMResponse();
+                errorResponse.setFinished(true);
+                consumer.accept(errorResponse);
+            }
+            
+            @Override
+            public void onComplete() {
+                log.info("流式响应接收完成");
+            }
+        };
+        
+        HttpResponse<Void> response = httpClient.send(
+            request,
+            HttpResponse.BodyHandlers.fromLineSubscriber(subscriber)
+        );
+        
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("OpenAI流式API调用失败: " + response.statusCode());
+        }
+    }
+
+    @Override
     public ProviderMeta meta() {
         ProviderMeta meta = new ProviderMeta();
         meta.setId("openai");

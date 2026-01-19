@@ -4,7 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.star.swiftSecurity.mapper.mysql.SwiftRoleAuthorityMapper">
     <resultMap id="RoleAuthorityResultMap" type="com.star.swiftSecurity.entity.SwiftRoleAuthority">
-        <result property="grantedAt" column="granted_at"/>
         <association property="id" javaType="com.star.swiftSecurity.entity.SwiftRoleAuthorityId">
             <result property="roleId" column="role_id" javaType="java.lang.Long"/>
             <result property="authorityId" column="authority_id" javaType="java.lang.Long"/>
@@ -13,7 +12,6 @@
     </resultMap>
 
     <resultMap id="RoleAuthorityWithRoleResultMap" type="com.star.swiftSecurity.entity.SwiftRoleAuthority">
-        <result property="grantedAt" column="granted_at"/>
         <association property="id" javaType="com.star.swiftSecurity.entity.SwiftRoleAuthorityId">
             <result property="roleId" column="role_id" javaType="java.lang.Long"/>
             <result property="authorityId" column="authority_id" javaType="java.lang.Long"/>

@@ -89,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
     public PubResult<JwtToken> refreshToken(String refreshToken) {
         // 验证旧的refreshToken
         log.debug("refreshToken: {}", refreshToken);
-        if (jwtUtil.validateToken(refreshToken)) {
+        if (!jwtUtil.validateToken(refreshToken)) {
             throw new InvalidTokenException(TokenReCode.TOKEN_INVALID);
         }
 

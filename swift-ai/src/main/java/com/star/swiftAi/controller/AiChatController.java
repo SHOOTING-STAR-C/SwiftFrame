@@ -3,13 +3,11 @@ package com.star.swiftAi.controller;
 import com.star.swiftAi.dto.ChatRequestDTO;
 import com.star.swiftAi.dto.ChatResponseDTO;
 import com.star.swiftAi.dto.ImportChatRequestDTO;
-import com.star.swiftAi.entity.AiChatMessage;
+import com.star.swiftAi.dto.StreamChatResponseDTO;
 import com.star.swiftAi.entity.AiChatSession;
-import com.star.swiftAi.entity.AiModel;
 import com.star.swiftAi.service.AiChatMessageService;
 import com.star.swiftAi.service.AiChatService;
 import com.star.swiftAi.service.AiChatSessionService;
-import com.star.swiftAi.service.AiModelService;
 import com.star.swiftCommon.domain.PubResult;
 import com.star.swiftSecurity.constant.AuthorityConstants;
 import com.star.swiftSecurity.utils.SecurityUtils;
@@ -22,10 +20,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * AI聊天控制器
@@ -52,7 +55,9 @@ public class AiChatController {
     @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_CHAT_SEND + "')")
     public PubResult<ChatResponseDTO> chat(
             @Valid @RequestBody ChatRequestDTO request) {
-        return PubResult.success(aiChatService.chat(request));
+        // 获取当前登录用户ID
+        String userId = SecurityUtils.getCurrentUserId();
+        return PubResult.success(aiChatService.chat(request, userId));
     }
 
     /**
@@ -113,5 +118,66 @@ public class AiChatController {
         }).toList();
 
         return PubResult.success(history);
+    }
+
+    @Operation(summary = "流式发送聊天消息", description = "向AI模型发送消息并获取流式回复")
+    @ApiResponse(responseCode = "200", description = "流式响应", content = @Content(schema = @Schema(implementation = StreamChatResponseDTO.class)))
+    @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_CHAT_SEND + "')")
+    public SseEmitter streamChat(@Valid @RequestBody ChatRequestDTO request) {
+        String userId = SecurityUtils.getCurrentUserId();
+        SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
+        AtomicBoolean completed = new AtomicBoolean(false);
+        AtomicReference<StringBuilder> fullContentRef = new AtomicReference<>(new StringBuilder());
+        AtomicInteger totalOutputTokens = new AtomicInteger(0);
+
+        try {
+            String sessionId = aiChatService.prepareSessionAndSaveUserMessage(request, userId);
+            log.info("开始流式响应: sessionId={}, userId={}", sessionId, userId);
+            
+            aiChatService.streamChatWithEmitter(request, userId, sessionId, emitter,
+                    fullContentRef, totalOutputTokens, completed,
+                    (llmResponse) -> this.convertToStreamResponse(llmResponse, sessionId));
+        } catch (Exception e) {
+            log.error("流式聊天失败: {}", e.getMessage(), e);
+            if (completed.compareAndSet(false, true)) {
+                emitter.completeWithError(e);
+            }
+        }
+
+        return emitter;
+    }
+
+    @Operation(summary = "匿名流式聊天", description = "匿名用户流式聊天，不保存到数据库")
+    @ApiResponse(responseCode = "200", description = "流式响应", content = @Content(schema = @Schema(implementation = StreamChatResponseDTO.class)))
+    @PostMapping(value = "/anonymous/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter anonymousStreamChat(@Valid @RequestBody ChatRequestDTO request) {
+        SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
+        AtomicBoolean completed = new AtomicBoolean(false);
+
+        try {
+            aiChatService.anonymousStreamChatWithEmitter(request, emitter, completed,
+                    (llmResponse) -> this.convertToStreamResponse(llmResponse, null));
+        } catch (Exception e) {
+            log.error("匿名流式聊天失败: {}", e.getMessage(), e);
+            if (completed.compareAndSet(false, true)) {
+                emitter.completeWithError(e);
+            }
+        }
+
+        return emitter;
+    }
+
+    private StreamChatResponseDTO convertToStreamResponse(com.star.swiftAi.core.model.LLMResponse llmResponse, String sessionId) {
+        StreamChatResponseDTO dto = new StreamChatResponseDTO();
+        dto.setSessionId(sessionId);
+        dto.setMessageId(llmResponse.getId());
+        dto.setRole(llmResponse.getRole() != null ? llmResponse.getRole() : "assistant");
+        dto.setContent(llmResponse.getContent());
+        dto.setDelta(llmResponse.getDelta());
+        dto.setTokensUsed(llmResponse.getUsage() != null ? llmResponse.getUsage().getTotal() : 0);
+        dto.setCreatedAt(null);
+        dto.setFinished(llmResponse.isFinished());
+        return dto;
     }
 }

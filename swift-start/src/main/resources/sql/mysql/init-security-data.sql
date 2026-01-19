@@ -59,7 +59,11 @@ INSERT IGNORE INTO swift_authorities (authority_id, name, description, created_a
 (36, 'config:refresh', '刷新配置缓存', NOW()),
 
 -- 系统监控权限 (1个)
-(37, 'monitor:view', '查看系统监控数据', NOW());
+(37, 'monitor:view', '查看系统监控数据', NOW()),
+
+-- AI系统提示词管理权限 (2个)
+(39, 'ai:system_prompt:view', '查看系统提示词列表和详情', NOW()),
+(40, 'ai:system_prompt:manage', '管理系统提示词（创建/更新/删除）', NOW());
 
 -- 2. 初始化角色数据
 INSERT IGNORE INTO swift_roles (role_id, name, description, created_at) VALUES
@@ -69,7 +73,7 @@ INSERT IGNORE INTO swift_roles (role_id, name, description, created_at) VALUES
 (4, 'ROLE_AI_ADMIN', 'AI管理员，负责AI供应商和模型管理', NOW()),
 (5, 'ROLE_USER', '普通用户，可以使用AI聊天和会话管理功能', NOW());
 
--- 3. 为超级管理员分配所有权限 (38个权限)
+-- 3. 为超级管理员分配所有权限 (40个权限)
 INSERT IGNORE INTO swift_role_authorities (role_id, authority_id) VALUES
 (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),  -- 用户管理
 (1, 7), (1, 8), (1, 9), (1, 10), (1, 11),         -- 角色管理
@@ -79,7 +83,8 @@ INSERT IGNORE INTO swift_role_authorities (role_id, authority_id) VALUES
 (1, 26), (1, 27), (1, 38),                           -- AI聊天
 (1, 28), (1, 29), (1, 30), (1, 31),                 -- AI会话
 (1, 32), (1, 33), (1, 34), (1, 35), (1, 36),       -- 系统配置
-(1, 37);                                             -- 系统监控
+(1, 37),                                             -- 系统监控
+(1, 39), (1, 40);                                    -- AI系统提示词
 
 -- 4. 为系统管理员分配权限 (6个权限)
 INSERT IGNORE INTO swift_role_authorities (role_id, authority_id) VALUES
@@ -92,10 +97,11 @@ INSERT IGNORE INTO swift_role_authorities (role_id, authority_id) VALUES
 (3, 7), (3, 8), (3, 9), (3, 10), (3, 11),          -- 角色管理
 (3, 12), (3, 13), (3, 14), (3, 15);                 -- 权限管理
 
--- 6. 为AI管理员分配权限 (10个权限)
+-- 6. 为AI管理员分配权限 (12个权限)
 INSERT IGNORE INTO swift_role_authorities (role_id, authority_id) VALUES
 (4, 16), (4, 17), (4, 18), (4, 19), (4, 20),  -- AI供应商管理
-(4, 21), (4, 22), (4, 23), (4, 24), (4, 25);  -- AI模型管理
+(4, 21), (4, 22), (4, 23), (4, 24), (4, 25),  -- AI模型管理
+(4, 39), (4, 40);                               -- AI系统提示词管理
 
 -- 7. 为普通用户分配权限 (9个权限)
 INSERT IGNORE INTO swift_role_authorities (role_id, authority_id) VALUES
@@ -107,7 +113,7 @@ INSERT IGNORE INTO swift_role_authorities (role_id, authority_id) VALUES
 -- 执行完成说明
 -- ============================================
 -- 已初始化：
--- - 38个权限
+-- - 40个权限
 -- - 5个角色
 -- - 角色权限分配
 -- 
@@ -115,9 +121,9 @@ INSERT IGNORE INTO swift_role_authorities (role_id, authority_id) VALUES
 -- 随机生成的密码将输出到控制台日志中
 -- 
 -- 角色权限分配说明：
--- 1. 超级管理员：所有38个权限
+-- 1. 超级管理员：所有40个权限
 -- 2. 系统管理员：6个权限（系统配置+监控）
 -- 3. 用户管理员：15个权限（用户+角色+权限管理）
--- 4. AI管理员：10个权限（AI供应商+模型管理）
+-- 4. AI管理员：12个权限（AI供应商+模型+系统提示词管理）
 -- 5. 普通用户：9个权限（AI供应商查看+AI模型查看+AI聊天+AI会话管理）
 -- ============================================

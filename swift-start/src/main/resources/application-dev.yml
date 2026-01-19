@@ -4,10 +4,10 @@ server:
     context-path: /swift
 spring:
   mail:
-    host: ENC(yh+zxA7RoKSyMjbSlkC/PEKA23V2+eoI2DdwPiXusxHTps+Bbftt)
+    host: ENC(yxJQcqIxvzGL8pWafBs9bArvVHyvfS58m2TPW8sEl/kxSNniYPow)
     port: 587
-    username: ENC(1lG7ADo5wa6sUlIm3OeGetN0JxCTx/feZb0RtuqSvJ+g/Wn1jdlkOVAf2DDO)
-    password: ENC(UCVebKqWIiQirfE67vwKB0a624BKZZQlHoNTDBG81HxsUIL/U7xk2g4lypM=)
+    username: ENC(DlOg5G8S35AtmNSpVjFO9RFqNdA0jH2r5p7+ugkDfG9XgKnJxF7Tt8RkqhbG)
+    password: ENC(lL2WVY0B0ZOH6beH3XRm9+bYkgiyXqmlnETSgYz06e/oFDoD3B6BuPULRLw=)
   sql:
     init:
       mode: never
@@ -16,8 +16,8 @@ spring:
       master:
         url: jdbc:mysql://24.233.1.242:3306/swift?characterEncoding=utf8&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: ENC(oWJIOz/S4x0UHFr1hxPBqHfL0raVs2lqg3nmgKcqV69OYQClcA==)
-        password: ENC(iYapguxBOiXgGDC5Kh+3zhWHWxMZu6uCgvE/R7no/S5SttK6F6U01eezIto=)
+        username: ENC(iODyKwhtKkaDBphBS3bcYZooX0bcXlxk5ubi8ptfWLGuvvkX2Q==)
+        password: ENC(FyLto58w8IbsAKFxzbAuphe268Wj0m6iIy6LbZq4p0p9keDPk9M1OIPgzH8=)
         validation-query: SELECT 1 from dual
         filters: stat,wall,slf4j
         mapper-locations: classpath*:sqlmapper/mysql/*.xml
@@ -26,8 +26,8 @@ spring:
       pg:
         url: jdbc:postgresql://24.233.1.242:5432/swift_bus
         driver-class-name: org.postgresql.Driver
-        username: ENC(4Q6wpskhkmAMnhwMgjZ/Mmg/McrJ3vD28sWA+h0I1JA4F1WJKU1GfRo=)
-        password: ENC(gtOJQN4t2PCMvcq8r66x8fto0LP/zmwdoIlR1OnzAXRs2kF9tvVpuo3mceM=)
+        username: ENC(Dn9Gee+8+CZBaZqnLM+hBTrjGEsdzcpH+GDcc46iZA9PeTS1KdB4EHM=)
+        password: ENC(4RsTxcjLnVn66dQh4nEhmKOQwFZRZITWM0lnP1QeGh5ijFc2Fhwfn6lVet0=)
         validation-query: SELECT 1
         filters: stat,wall,slf4j
         mapper-locations: classpath*:sqlmapper/pg/*.xml
@@ -46,14 +46,14 @@ spring:
     redis:
       host: 24.233.1.242
       port: 6379
-      password: ENC(7xztLMc6V8qqfEJYn3HfJqGwXQb4W7K8RPabQiJQ7srHfj0k3x7cQg==)
+      password: ENC(aZbfStMe1WedY50qA2z3VnJ3Ok75D7PQ10zBeMkm/BqxURw9Lf5kGA==)
       database: 0
 logging:
   level:
     root: debug
 security:
   auth:
-    white-list: /auth/login,/auth/register,/auth/publicKey,/auth/forgot-password/**,/auth/refresh,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html,/ai/chat/anonymous,GET:/ai/models/**
+    white-list: /auth/login,/auth/register,/auth/publicKey,/auth/forgot-password/**,/auth/refresh,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html,/ai/chat/anonymous,GET:/ai/models/**,/error
 crypto:
   aes:
     key: Td/c5P7o1Hqp1IbQwaDw1O2DasSjkeBQSeTz4eQm96Lt0R6dEEhfJiqxpdfIrJcBLG02CkO3ELLCDTp7Chqzdx/JR0XejYgsf+7XczM4nUY2FnnqP5mdiR32+73O7sZg7RKFRDISlrHj7ptq+cnqgW2D+yQIyx9CAf2SKER424+qXgJKow6UzlaGT5UWr1I4pjCOKv1RqlfyFgTp2UKZvBAX4T4ZSoxWAL8uH91xnVtVhJsb9PnGDRdzU/nKNaVTHyyfodxxhZNI3I1osoCFzCVjWUXv3jgT9k1+NDZ+3wfPRTAK7jV6wqWS9ws7He/ZEFWlC14hRiTI+mSNfJNoVA==

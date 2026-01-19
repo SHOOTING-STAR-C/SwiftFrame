@@ -129,7 +129,8 @@ public abstract class Provider extends AbstractProvider {
     }
     
     /**
-     * 流式对话调用（便捷方法）
+     * 流式对话调用（便捷方法，非实时）
+     * 注意：此方法会等待所有响应完成后一次性返回，不是真正的实时流式
      *
      * @param request 请求参数
      * @param consumer 响应消费者
@@ -148,4 +149,53 @@ public abstract class Provider extends AbstractProvider {
         );
         responses.forEach(consumer);
     }
+    
+    /**
+     * 实时流式对话调用（真正的流式）
+     * 每接收到一个数据块就立即传递给consumer，而不是等待所有响应完成
+     *
+     * @param request 请求参数
+     * @param consumer 响应消费者
+     * @throws Exception 调用失败时抛出异常
+     */
+    public void streamChatRealtime(ProviderRequest request, java.util.function.Consumer<LLMResponse> consumer) throws Exception {
+        textChatStreamRealtime(
+            request.getPrompt(),
+            request.getSessionId(),
+            request.getImageUrls(),
+            request.getFuncTool(),
+            request.getContexts(),
+            request.getSystemPrompt(),
+            request.getToolCallsResult(),
+            request.getModel(),
+            consumer
+        );
+    }
+    
+    /**
+     * 获得LLM的实时流式文本对话结果
+     * 每接收到一个数据块就通过consumer传递，而不是等待所有响应完成
+     *
+     * @param prompt 提示词
+     * @param sessionId 会话ID（已废弃）
+     * @param imageUrls 图片URL列表
+     * @param funcTool 可用函数工具
+     * @param contexts OpenAI格式上下文
+     * @param systemPrompt 系统提示词
+     * @param toolCallsResult 工具调用结果
+     * @param model 模型名称
+     * @param consumer 响应消费者，每接收一个数据块就调用一次
+     * @throws Exception 调用失败时抛出异常
+     */
+    public abstract void textChatStreamRealtime(
+        String prompt,
+        String sessionId,
+        List<String> imageUrls,
+        ToolSet funcTool,
+        List<Map<String, Object>> contexts,
+        String systemPrompt,
+        List<ToolCallsResult> toolCallsResult,
+        String model,
+        java.util.function.Consumer<LLMResponse> consumer
+    ) throws Exception;
 }

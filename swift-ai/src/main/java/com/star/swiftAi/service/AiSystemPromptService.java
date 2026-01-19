@@ -1,7 +1,6 @@
 package com.star.swiftAi.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.star.swiftAi.dto.SystemPromptDTO;
 import com.star.swiftAi.dto.SystemPromptRequestDTO;

@@ -27,12 +27,12 @@ ON CONFLICT (config_key) DO NOTHING;
 
 -- 邮件发送用户名
 INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('spring.mail.username', 'ENC(tD42gI8jGydQz5UslRzjBlbZtILxA/mxbtdesnRHVwKGjBoBijSmf3ErLUU1)', 'MAIL', '邮件发送用户名', true, 'system', 'system')
+VALUES ('spring.mail.username', 'ENC(i3WT7+FpR1tDHAv9MxhwNJPUOW2yjNukcv7x8qphpWSTbiLwVYLH9Nr4yk8S)', 'MAIL', '邮件发送用户名', true, 'system', 'system')
 ON CONFLICT (config_key) DO NOTHING;
 
 -- 邮件发送密码
 INSERT INTO sys_config (config_key, config_value, config_type, description, is_enabled, created_by, updated_by)
-VALUES ('spring.mail.password', 'ENC(dXyKjf9+WtnVg9osFstQF4QH8Yxou4ajKGJihgdWOtlE1pyGDR0olVAZk+A=)', 'MAIL', '邮件发送密码', true, 'system', 'system')
+VALUES ('spring.mail.password', 'ENC(Q6t3OaxjTGAg75DOYiQb7ccUbnIk36WfrK6OMcfl0NaGWy4rPgXubaln/sU=)', 'MAIL', '邮件发送密码', true, 'system', 'system')
 ON CONFLICT (config_key) DO NOTHING;
 
 -- 邮件发送者（发件人）

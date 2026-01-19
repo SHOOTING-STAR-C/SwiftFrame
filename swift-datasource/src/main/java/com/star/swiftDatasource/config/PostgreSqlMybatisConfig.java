@@ -2,6 +2,7 @@ package com.star.swiftDatasource.config;
 
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
+import com.star.swiftDatasource.handler.MyMetaObjectHandler;
 import com.star.swiftDatasource.handler.UuidTypeHandler;
 import com.star.swiftDatasource.properties.DruidProperties;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,9 @@ public class PostgreSqlMybatisConfig {
     @Autowired
     private DruidProperties druidProperties;
 
+    @Autowired
+    private MyMetaObjectHandler myMetaObjectHandler;
+
     /**
      * PostgreSQL 数据源的 SqlSessionFactory
      *
@@ -48,9 +52,10 @@ public class PostgreSqlMybatisConfig {
         sessionFactory.setDataSource(pgDataSource);
         sessionFactory.setTypeHandlers(new UuidTypeHandler());
         
-        // 设置 GlobalConfig，关闭 banner
+        // 设置 GlobalConfig，关闭 banner 并配置自动填充
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setBanner(false);
+        globalConfig.setMetaObjectHandler(myMetaObjectHandler);
         sessionFactory.setGlobalConfig(globalConfig);
         
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();

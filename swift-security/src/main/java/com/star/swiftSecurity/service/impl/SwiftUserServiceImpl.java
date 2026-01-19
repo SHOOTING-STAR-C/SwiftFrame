@@ -129,13 +129,13 @@ public class SwiftUserServiceImpl implements SwiftUserService {
             return restoreUserFromCache(cachedUser);
         }
 
-        // 缓存未命中，直接查询包含权限的完整用户信息
+        // 缓存未命中，使用优化查询一次性获取所有数据（避免N+1查询）
         SwiftUserDetails user = userMapper.findByIdWithAuthorities(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
 
-        // 写入缓存
+        // 写入缓存（此时user已包含完整的角色权限信息，不会触发额外查询）
         userCacheService.cacheUser(user.getUsername(), user);
         
         return user;

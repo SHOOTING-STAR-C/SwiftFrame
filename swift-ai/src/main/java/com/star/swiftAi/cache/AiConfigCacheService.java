@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 /**
  * AI配置缓存服务
  * 用于缓存AI模块的配置数据（模型、供应商、系统提示词）
@@ -26,9 +24,6 @@ public class AiConfigCacheService {
 
     private final ConfigCacheService configCacheService;
     private final ObjectMapper objectMapper;
-    
-    // 缓存过期时间（30分钟）
-    private static final long CACHE_EXPIRE_MINUTES = 30;
     
     // 缓存Key前缀
     private static final String AI_MODEL_PREFIX = "ai:model:";

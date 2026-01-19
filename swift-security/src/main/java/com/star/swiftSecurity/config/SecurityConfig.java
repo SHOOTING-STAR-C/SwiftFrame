@@ -72,6 +72,10 @@ public class SecurityConfig {
                         auth.requestMatchers(httpMethod, paths).permitAll();
                     });
                     
+                    // SSE流式端点特殊处理：在请求进入时进行权限检查，避免响应已提交后再次检查
+                    auth.requestMatchers("/ai/chat/stream").permitAll();
+                    auth.requestMatchers("/ai/chat/anonymous/stream").permitAll();
+                    
                     // 其他所有请求需要认证
                     auth.anyRequest().authenticated();
                 })
