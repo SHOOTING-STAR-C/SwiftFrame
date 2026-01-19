@@ -124,26 +124,33 @@ public class AiChatController {
     @ApiResponse(responseCode = "200", description = "流式响应", content = @Content(schema = @Schema(implementation = StreamChatResponseDTO.class)))
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("hasAuthority('" + AuthorityConstants.AI_CHAT_SEND + "')")
-    public SseEmitter streamChat(@Valid @RequestBody ChatRequestDTO request) {
+    public SseEmitter streamChat(@Valid @RequestBody ChatRequestDTO request, jakarta.servlet.http.HttpServletResponse response) {
+        // 对于 Axios 等非原生 SSE 客户端，必须确保不被代理缓存
+        response.setHeader("X-Accel-Buffering", "no");
+        response.setHeader("Cache-Control", "no-cache");
+        
         String userId = SecurityUtils.getCurrentUserId();
         SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
         AtomicBoolean completed = new AtomicBoolean(false);
         AtomicReference<StringBuilder> fullContentRef = new AtomicReference<>(new StringBuilder());
         AtomicInteger totalOutputTokens = new AtomicInteger(0);
 
-        try {
-            String sessionId = aiChatService.prepareSessionAndSaveUserMessage(request, userId);
-            log.info("开始流式响应: sessionId={}, userId={}", sessionId, userId);
-            
-            aiChatService.streamChatWithEmitter(request, userId, sessionId, emitter,
-                    fullContentRef, totalOutputTokens, completed,
-                    (llmResponse) -> this.convertToStreamResponse(llmResponse, sessionId));
-        } catch (Exception e) {
-            log.error("流式聊天失败: {}", e.getMessage(), e);
-            if (completed.compareAndSet(false, true)) {
-                emitter.completeWithError(e);
+        // 异步执行 AI 调用，让 Controller 立即返回 Emitter
+        new Thread(() -> {
+            try {
+                String sessionId = aiChatService.prepareSessionAndSaveUserMessage(request, userId);
+                log.info("开始流式响应: sessionId={}, userId={}", sessionId, userId);
+                
+                aiChatService.streamChatWithEmitter(request, userId, sessionId, emitter,
+                        fullContentRef, totalOutputTokens, completed,
+                        (llmResponse) -> this.convertToStreamResponse(llmResponse, sessionId));
+            } catch (Exception e) {
+                log.error("流式聊天失败: {}", e.getMessage(), e);
+                if (completed.compareAndSet(false, true)) {
+                    emitter.completeWithError(e);
+                }
             }
-        }
+        }).start();
 
         return emitter;
     }
@@ -151,19 +158,26 @@ public class AiChatController {
     @Operation(summary = "匿名流式聊天", description = "匿名用户流式聊天，不保存到数据库")
     @ApiResponse(responseCode = "200", description = "流式响应", content = @Content(schema = @Schema(implementation = StreamChatResponseDTO.class)))
     @PostMapping(value = "/anonymous/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter anonymousStreamChat(@Valid @RequestBody ChatRequestDTO request) {
+    public SseEmitter anonymousStreamChat(@Valid @RequestBody ChatRequestDTO request, jakarta.servlet.http.HttpServletResponse response) {
+        // 对于 Axios 等非原生 SSE 客户端，必须确保不被代理缓存
+        response.setHeader("X-Accel-Buffering", "no");
+        response.setHeader("Cache-Control", "no-cache");
+        
         SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
         AtomicBoolean completed = new AtomicBoolean(false);
 
-        try {
-            aiChatService.anonymousStreamChatWithEmitter(request, emitter, completed,
-                    (llmResponse) -> this.convertToStreamResponse(llmResponse, null));
-        } catch (Exception e) {
-            log.error("匿名流式聊天失败: {}", e.getMessage(), e);
-            if (completed.compareAndSet(false, true)) {
-                emitter.completeWithError(e);
+        // 异步执行 AI 调用，让 Controller 立即返回 Emitter
+        new Thread(() -> {
+            try {
+                aiChatService.anonymousStreamChatWithEmitter(request, emitter, completed,
+                        (llmResponse) -> this.convertToStreamResponse(llmResponse, null));
+            } catch (Exception e) {
+                log.error("匿名流式聊天失败: {}", e.getMessage(), e);
+                if (completed.compareAndSet(false, true)) {
+                    emitter.completeWithError(e);
+                }
             }
-        }
+        }).start();
 
         return emitter;
     }

@@ -398,106 +398,89 @@ public class OpenAIProvider extends Provider {
             .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
             .build();
         
-        // 使用流式处理，逐行接收SSE数据
-        java.util.concurrent.Flow.Subscriber<String> subscriber = new java.util.concurrent.Flow.Subscriber<String>() {
-            private java.util.concurrent.Flow.Subscription subscription;
-            private int chunkCount = 0;
-            private boolean finished = false;
-            
-            @Override
-            public void onSubscribe(java.util.concurrent.Flow.Subscription subscription) {
-                log.info("流式响应订阅已建立");
-                this.subscription = subscription;
-                subscription.request(1); // 请求第一行数据
-            }
-            
-            @Override
-            public void onNext(String line) {
-                try {
-                    log.debug("接收到流式数据行: {}", line);
-                    
-                    // 处理SSE数据
-                    line = line.trim();
-                    if (line.startsWith("data: ")) {
-                        String data = line.substring(6);
-                        log.info("解析SSE数据块 #{}: {}", ++chunkCount, data);
-                        
-                        // 结束标记
-                        if ("[DONE]".equals(data)) {
-                            log.info("接收到流式结束标记[DONE]");
-                            // 只在还未发送finished响应时才发送
-                            if (!finished) {
-                                finished = true;
-                                LLMResponse finalResponse = new LLMResponse();
-                                finalResponse.setFinished(true);
-                                consumer.accept(finalResponse);
-                            }
-                            return;
-                        }
-                        
-                        try {
-                            JsonNode root = objectMapper.readTree(data);
-                            LLMResponse response = new LLMResponse();
-                            
-                            JsonNode choices = root.get("choices");
-                            if (choices != null && choices.isArray() && choices.size() > 0) {
-                                JsonNode choice = choices.get(0);
-                                JsonNode delta = choice.get("delta");
-                                
-                                if (delta != null) {
-                                    JsonNode content = delta.get("content");
-                                    if (content != null) {
-                                        String contentText = content.asText();
-                                        response.setContent(contentText);
-                                        response.setDelta(contentText);
-                                        log.info("数据块内容: '{}'", contentText);
-                                    }
-                                }
-                                
-                                String finishReason = choice.get("finish_reason") != null ? 
-                                    choice.get("finish_reason").asText() : null;
-                                
-                                // 只在finish_reason为stop且还未发送finished响应时才设置finished=true
-                                if ("stop".equals(finishReason) && !finished) {
-                                    finished = true;
-                                    response.setFinished(true);
-                                }
-                            }
-                            
-                            // 立即传递给消费者
-                            log.info("立即传递响应块给consumer, finished={}", response.isFinished());
-                            consumer.accept(response);
-                        } catch (Exception e) {
-                            log.error("解析流式响应失败: {}", data, e);
-                        }
-                    }
-                } finally {
-                    subscription.request(1); // 请求下一行数据
-                }
-            }
-            
-            @Override
-            public void onError(Throwable throwable) {
-                log.error("流式响应发生错误", throwable);
-                // 发送一个finished=true的响应以正确结束流
-                LLMResponse errorResponse = new LLMResponse();
-                errorResponse.setFinished(true);
-                consumer.accept(errorResponse);
-            }
-            
-            @Override
-            public void onComplete() {
-                log.info("流式响应接收完成");
-            }
-        };
-        
-        HttpResponse<Void> response = httpClient.send(
+        // 使用 BufferedReader 逐行读取响应，确保实时性
+        HttpResponse<java.io.InputStream> response = httpClient.send(
             request,
-            HttpResponse.BodyHandlers.fromLineSubscriber(subscriber)
+            HttpResponse.BodyHandlers.ofInputStream()
         );
         
         if (response.statusCode() != 200) {
             throw new RuntimeException("OpenAI流式API调用失败: " + response.statusCode());
+        }
+        
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.InputStreamReader(response.body(), java.nio.charset.StandardCharsets.UTF_8))) {
+            String line;
+            int chunkCount = 0;
+            boolean finished = false;
+            
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                
+                // 跳过空行
+                if (line.isEmpty()) {
+                    continue;
+                }
+                
+                // 处理SSE数据
+                if (line.startsWith("data: ")) {
+                    String data = line.substring(6);
+                    log.debug("解析SSE数据块 #{}: {}", ++chunkCount, data);
+                    
+                    // 结束标记
+                    if ("[DONE]".equals(data)) {
+                        log.debug("接收到流式结束标记[DONE]");
+                        if (!finished) {
+                            finished = true;
+                            LLMResponse finalResponse = new LLMResponse();
+                            finalResponse.setFinished(true);
+                            consumer.accept(finalResponse);
+                        }
+                        break;
+                    }
+                    
+                    try {
+                        JsonNode root = objectMapper.readTree(data);
+                        log.trace("解析到OpenAI数据: {}", data);
+                        LLMResponse llmResponse = new LLMResponse();
+                        
+                        JsonNode choices = root.get("choices");
+                        if (choices != null && choices.isArray() && choices.size() > 0) {
+                            JsonNode choice = choices.get(0);
+                            JsonNode delta = choice.get("delta");
+                            
+                            if (delta != null) {
+                                JsonNode content = delta.get("content");
+                                if (content != null) {
+                                    String contentText = content.asText();
+                                    llmResponse.setContent(contentText);
+                                    llmResponse.setDelta(contentText);
+                                }
+                            }
+                            
+                            String finishReason = choice.get("finish_reason") != null ? 
+                                choice.get("finish_reason").asText() : null;
+                            
+                            if ("stop".equals(finishReason) && !finished) {
+                                finished = true;
+                                llmResponse.setFinished(true);
+                            }
+                        }
+                        
+                        // 立即传递给消费者
+                        consumer.accept(llmResponse);
+                    } catch (Exception e) {
+                        log.error("解析流式响应失败: {}", data, e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("读取流式响应失败", e);
+            // 发送一个finished=true的响应以正确结束流
+            LLMResponse errorResponse = new LLMResponse();
+            errorResponse.setFinished(true);
+            consumer.accept(errorResponse);
+            throw e;
         }
     }
 

@@ -419,10 +419,15 @@ public class AiChatServiceImpl implements AiChatService {
             }
             
             StreamChatResponseDTO streamResponse = converter.apply(response);
+            // 不设置 .name("message")，使用默认的 onmessage 事件，提高前端兼容性
+            // 同时在日志中记录发送情况，便于排查
+            if (log.isTraceEnabled()) {
+                log.trace("发送流式数据: sessionId={}, content={}", sessionId, streamResponse.getDelta());
+            }
+            
             emitter.send(SseEmitter.event()
                 .data(streamResponse)
-                .id(String.valueOf(System.currentTimeMillis()))
-                .name("message"));
+                .id(String.valueOf(System.currentTimeMillis())));
             
             if (streamResponse.isFinished() && completed.compareAndSet(false, true)) {
                 if (saveToDb && sessionId != null) {
