@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,6 +46,7 @@ public class AiChatController {
     private final AiChatSessionService aiChatSessionService;
     private final AiChatMessageService aiChatMessageService;
     private final AiChatService aiChatService;
+    private final Executor sseStreamExecutor;
 
     /**
      * 发送聊天消息
@@ -127,7 +129,9 @@ public class AiChatController {
     public SseEmitter streamChat(@Valid @RequestBody ChatRequestDTO request, jakarta.servlet.http.HttpServletResponse response) {
         // 对于 Axios 等非原生 SSE 客户端，必须确保不被代理缓存
         response.setHeader("X-Accel-Buffering", "no");
-        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Cache-Control", "no-cache, no-transform");
+        response.setHeader("Connection", "keep-alive");
+        response.setContentType("text/event-stream;charset=UTF-8");
         
         String userId = SecurityUtils.getCurrentUserId();
         SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
@@ -135,8 +139,8 @@ public class AiChatController {
         AtomicReference<StringBuilder> fullContentRef = new AtomicReference<>(new StringBuilder());
         AtomicInteger totalOutputTokens = new AtomicInteger(0);
 
-        // 异步执行 AI 调用，让 Controller 立即返回 Emitter
-        new Thread(() -> {
+        // 使用线程池异步执行 AI 调用，让 Controller 立即返回 Emitter
+        sseStreamExecutor.execute(() -> {
             try {
                 String sessionId = aiChatService.prepareSessionAndSaveUserMessage(request, userId);
                 log.info("开始流式响应: sessionId={}, userId={}", sessionId, userId);
@@ -150,7 +154,7 @@ public class AiChatController {
                     emitter.completeWithError(e);
                 }
             }
-        }).start();
+        });
 
         return emitter;
     }
@@ -161,13 +165,15 @@ public class AiChatController {
     public SseEmitter anonymousStreamChat(@Valid @RequestBody ChatRequestDTO request, jakarta.servlet.http.HttpServletResponse response) {
         // 对于 Axios 等非原生 SSE 客户端，必须确保不被代理缓存
         response.setHeader("X-Accel-Buffering", "no");
-        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Cache-Control", "no-cache, no-transform");
+        response.setHeader("Connection", "keep-alive");
+        response.setContentType("text/event-stream;charset=UTF-8");
         
         SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
         AtomicBoolean completed = new AtomicBoolean(false);
 
-        // 异步执行 AI 调用，让 Controller 立即返回 Emitter
-        new Thread(() -> {
+        // 使用线程池异步执行 AI 调用，让 Controller 立即返回 Emitter
+        sseStreamExecutor.execute(() -> {
             try {
                 aiChatService.anonymousStreamChatWithEmitter(request, emitter, completed,
                         (llmResponse) -> this.convertToStreamResponse(llmResponse, null));
@@ -177,7 +183,7 @@ public class AiChatController {
                     emitter.completeWithError(e);
                 }
             }
-        }).start();
+        });
 
         return emitter;
     }
