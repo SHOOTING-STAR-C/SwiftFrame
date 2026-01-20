@@ -170,6 +170,50 @@ mvn spring-boot:run -P test
 mvn spring-boot:run -P prod
 ```
 
+**配置文件说明**：
+
+为了保护敏感信息，项目使用环境变量配置方式：
+
+1. **复制配置模板**：
+   ```bash
+   cp swift-start/src/main/resources/application.yml.example swift-start/src/main/resources/application-dev.yml
+   cp swift-start/src/main/resources/application.yml.example swift-start/src/main/resources/application-prod.yml
+   cp swift-start/src/main/resources/application.yml.example swift-start/src/main/resources/application-test.yml
+   ```
+
+2. **配置环境变量**：
+   - 方式一：在配置文件中直接替换占位符（不推荐用于生产环境）
+   - 方式二：设置系统环境变量（推荐）
+   - 方式三：使用 `.env` 文件（需要配置加载）
+
+3. **环境变量列表**：
+
+   | 变量名 | 说明 | 默认值 | 示例 |
+   |--------|------|--------|------|
+   | `DB_HOST` | MySQL数据库地址 | localhost | 127.0.0.1 |
+   | `DB_USERNAME` | MySQL用户名 | root | swift_user |
+   | `DB_PASSWORD` | MySQL密码 | - | your_password |
+   | `PG_HOST` | PostgreSQL数据库地址 | localhost | 127.0.0.1 |
+   | `PG_USERNAME` | PostgreSQL用户名 | postgres | postgres |
+   | `PG_PASSWORD` | PostgreSQL密码 | - | your_password |
+   | `REDIS_HOST` | Redis地址 | localhost | 127.0.0.1 |
+   | `REDIS_PORT` | Redis端口 | 6379 | 6379 |
+   | `REDIS_PASSWORD` | Redis密码 | - | your_password |
+   | `MAIL_HOST` | 邮件服务器地址 | smtp.example.com | smtp.gmail.com |
+   | `MAIL_PORT` | 邮件服务器端口 | 587 | 587 |
+   | `MAIL_USERNAME` | 邮件用户名 | your_email@example.com | your_email@gmail.com |
+   | `MAIL_PASSWORD` | 邮件密码 | - | your_app_password |
+   | `JWT_SECRET` | JWT密钥 | - | your_secret_key_change_this |
+   | `AES_KEY` | AES加密密钥 | - | your_256_bit_key |
+   | `RSA_PUBLIC_KEY` | RSA公钥 | - | MIIBIjANBgk... |
+   | `RSA_PRIVATE_KEY` | RSA私钥 | - | MIIEvQIBADANBgk... |
+
+**安全提示**：
+- ⚠️ 不要将包含真实密码的配置文件提交到Git仓库
+- ⚠️ 生产环境必须使用强密码和密钥
+- ⚠️ 建议使用密钥管理服务（如AWS Secrets Manager、HashiCorp Vault）
+- ✅ 项目已将敏感配置文件添加到 `.gitignore`
+
 ### 数据库初始化
 
 项目启动时会自动执行数据库初始化，包括表结构创建和初始数据导入，无需手动执行SQL脚本。

@@ -1,0 +1,62 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /swift
+spring:
+  mail:
+    host: ${MAIL_HOST:smtp.example.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your_email@example.com}
+    password: ${MAIL_PASSWORD:your_password}
+  sql:
+    init:
+      mode: never
+  datasource:
+    druid:
+      master:
+        url: jdbc:mysql://${DB_HOST:localhost}:3306/swift?characterEncoding=utf8&serverTimezone=UTC
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: ${DB_USERNAME:root}
+        password: ${DB_PASSWORD:}
+        validation-query: SELECT 1 from dual
+        filters: stat,wall,slf4j
+        mapper-locations: classpath*:sqlmapper/mysql/*.xml
+        initialize-schema: true
+        sql-scripts: classpath:sql/mysql/schema.sql,classpath:sql/mysql/init-security-data.sql
+      pg:
+        url: jdbc:postgresql://${PG_HOST:localhost}:5432/swift_bus
+        driver-class-name: org.postgresql.Driver
+        username: ${PG_USERNAME:postgres}
+        password: ${PG_PASSWORD:}
+        validation-query: SELECT 1
+        filters: stat,wall,slf4j
+        mapper-locations: classpath*:sqlmapper/pg/*.xml
+        initialize-schema: true
+        sql-scripts: classpath:sql/postgresql/schema.sql,classpath:sql/postgresql/ai-schema.sql,classpath:sql/postgresql/data.sql
+  security:
+    jwt:
+      secret: ${JWT_SECRET:your_jwt_secret_key_change_this_in_production}
+      expiration: 86400000
+      refresh-expiration: 2592000000
+    account:
+      maxLoginAttempts: 5
+      lockDurationMinutes: 30
+      passwordExpiryDays: 30
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+logging:
+  level:
+    root: info
+security:
+  auth:
+    white-list: /auth/login,/auth/register,/auth/publicKey,/auth/forgot-password/**,/auth/refresh,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html,/ai/chat/anonymous,GET:/ai/models/**,/error
+crypto:
+  aes:
+    key: ${AES_KEY:your_aes_key_256_bits_long_change_this}
+  rsa:
+    public-key: ${RSA_PUBLIC_KEY:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkZLxJwVoj0SSQt32J4MpSXet3JUiq+qDkEXjdJvLfG4DieYJowKrnnkUXTdqVwptPoArBrWdoJUVBwsUxUrycTDGdf6WYt1/KY6g+UuuzuuHOdftSTi+YV42ZMww4Xs7lo66jYODlkgYwkK4V/p/10QrFzyi/nIOW5QPaTeKpmdGv2m+Jh8xJuOhLMVDmYAkakdf7cOpb6p31LfmB9Nrra+F1gNG93BAvdoi+Hj+VCuQ3eLToJzclnmHPZhZckwKoWfhgTZfJyKrLrxB6/CZr56d8440evVEgWmMYjKn+X/8ukZ6PP0Yh6j5kEC4R933PyMjS2dOPtRIaD1l1QAKEwIDAQAB}
+    private-key: ${RSA_PRIVATE_KEY:MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCRkvEnBWiPRJJC3fYngylJd63clSKr6oOQReN0m8t8bgOJ5gmjAqueeRRdN2pXCm0+gCsGtZ2glRUHCxTFSvJxMMZ1/pZi3X8pjqD5S67O64c51+1JOL5hXjZkzDDhezuWjrqNg4OWSBjCQrhX+n/XRCsXPKL+cg5blA9pN4qmZ0a/ab4mHzEm46EsxUOZgCRqR1/tw6lvqnfUt+YH02utr4XWA0b3cEC92iL4eP5UK5Dd4tOgnNyWeYc9mFlyTAqhZ+GBNl8nIqsuvEHr8Jmvnp3zjjR69USBaYxiMqf5f/y6Rno8/RiHqPmQQLhH3fc/IyNLZ04+1EhoPWXVAAoTAgMBAAECggEAHII05OnrvKb2p861Lq7Cjqc37stsE1PleQMe1M7P7mnTGpXozDoxJuNaaBj6o9ogY82Q34sAuBqKGCuE4VBYo28kZqY5iFoNVbOfdcLrFI3OmTbeuui4a/QZ3eqZJgdOt6DzCtS3F969romHdX9SuvMYJ0BSQVdP1YJs9DOS3Rxv7ryBHKqbkAHE6e54K822ROCFR1XEL6attmpEra5MrUIImHhWi9EGXtIaBFDgY4r0rhvC6cAhFwxdtcTxVavZUubFVeireWUeEyqZefsO2eFFtBDr8idyYdneIpTcQ9HaayR6snvH/IACotFquQWxGdlxHjANvMQtGjuae/S2qQKBgQDKJyfEPtlz1HYY9rMVeHyo71QWpZty4lEKOI5D0sFLVXJJJbvOurTx1L6E+64I4pUZj73kHy+ShMm/WIZ7NI4C/cICMvPv7DfPxDiBZIF7Hpq+W9xSL0WEW8+aaWySFXue9mhd5GrpOEHSoauCAgKTwW19hc96uHzP+g9YE2ePWwKBgQC4Wahfi8jcjjXIrvUgXt6FQI1MS++dfw+ACdjt5PJ8BsO8yxF8H6ia2+Tgv8oTuUSFvrtjvfaAsDXTCsPgUsMQ/THXHTtGsCjZwT9VZ/poR25VtRpkXRJiTcm8ljCIG/bCGEMfJi/wsX0XGRtwfLiHtm0Dk5CB6xeD838XShLlqQKBgHSClLzarGHB9j71EMozI0YKiiBzWmCgZ6zIY9ZbReSxXqkiAlhn65nlz9i9ZdThIqYU3pD4GGcN+Wk7EGc6Jw86SfMSgt2o+5HXuel5j9byEKXeM+F6NUrPz5tjX5vindlEk2pqF+RK9ET9wOexWOLn/L73vFkys1z69pUAuhM5AoGALHa7jKgLf17xjADe8LrREvS53+Ak4CjoVSqK3v4smkuLZHraMcT1Brzo3GiF1fIGm/ef/POxg+J8aPWcvvtXPz7Cia7sQCV3BOZ+XxwgIoywCQ4QWoq0R2+Zq9nRxNJx1ujBL78nKve0QyD0JFKAs4MFkipCXYOVfWb6jWR5YFkCgYEAinS9dQSx28jx9YodMXAZSrLxLqdDoNT2GBThbc2qY7Ji4PSfHsYdyR8ogCdufnXB0IZM543zjQmqqZ3nHvT2F026S/lvIS7wts/fRpKcSkj0zsT76uUyNVixTmblP2PR5HErxMJ4MjQo/jIPxWQRHaDDwMGfTIvkDRuj17wUOdQ=}

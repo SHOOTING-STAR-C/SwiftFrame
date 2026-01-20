@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Configuration Files ###
+# Environment-specific configuration files
+swift-start/src/main/resources/application-dev.yml
+swift-start/src/main/resources/application-prod.yml
+swift-start/src/main/resources/application-test.yml
+
+# Environment variables file
+.env
