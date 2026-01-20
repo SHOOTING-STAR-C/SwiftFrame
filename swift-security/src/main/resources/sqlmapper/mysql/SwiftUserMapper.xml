@@ -42,7 +42,7 @@
         <result property="createdAt" column="created_at"/>
         <collection property="userRoles" ofType="com.star.swiftSecurity.entity.SwiftUserRole">
             <result property="assignedAt" column="assigned_at"/>
-            <result property="assignedBy" column="user_id"/>
+            <result property="assignedBy" column="assigned_by"/>
             <association property="userId" javaType="com.star.swiftSecurity.entity.SwiftUserRoleId">
                 <result property="userId" column="user_id" javaType="java.lang.Long"/>
                 <result property="roleId" column="role_id" javaType="java.lang.Long"/>
@@ -73,7 +73,7 @@
             u.failed_login_attempts, u.lock_until, u.password_changed_at, u.last_login_at, 
             u.last_login_ip, u.created_at,
             r.role_id, r.name as role_name, r.description as role_description,
-            ur.assigned_at as assigned_at,
+            ur.assigned_at, ur.assigned_by,
             a.authority_id, a.name as authority_name, a.description as authority_description
         FROM swift_users u
         LEFT JOIN swift_user_roles ur ON u.user_id = ur.user_id
@@ -98,7 +98,7 @@
             u.failed_login_attempts, u.lock_until, u.password_changed_at, u.last_login_at, 
             u.last_login_ip, u.created_at,
             r.role_id, r.name as role_name, r.description as role_description,
-            ur.assigned_at as assigned_at,
+            ur.assigned_at, ur.assigned_by,
             a.authority_id, a.name as authority_name, a.description as authority_description
         FROM swift_users u
         LEFT JOIN swift_user_roles ur ON u.user_id = ur.user_id

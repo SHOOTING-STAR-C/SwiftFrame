@@ -70,12 +70,14 @@ public class UserCacheServiceImpl implements UserCacheService {
             
             // 提取角色名称
             Set<String> roleNames = user.getUserRoles().stream()
+                    .filter(userRole -> userRole.getRole() != null)
                     .map(userRole -> userRole.getRole().getName())
                     .collect(Collectors.toSet());
             cacheDTO.setRoleNames(roleNames);
             
             // 提取权限名称
             Set<String> authorityNames = user.getUserRoles().stream()
+                    .filter(userRole -> userRole.getRole() != null)
                     .flatMap(userRole -> userRole.getRole().getRoleAuthorities().stream())
                     .map(roleAuth -> roleAuth.getAuthority().getName())
                     .collect(Collectors.toSet());

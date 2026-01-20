@@ -160,6 +160,7 @@ public class SwiftUserDetails implements UserDetails {
         
         // 否则从 userRoles 中提取
         return userRoles.stream()
+                .filter(userRole -> userRole.getRole() != null) // 过滤掉role为null的情况
                 .flatMap(userRole -> userRole.getRole().getRoleAuthorities().stream())
                 .map(roleAuth -> new SimpleGrantedAuthority(roleAuth.getAuthority().getName()))
                 .collect(Collectors.toSet());

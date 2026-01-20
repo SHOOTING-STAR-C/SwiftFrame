@@ -16,6 +16,7 @@ import com.star.swiftSecurity.service.SwiftUserService;
 import com.star.swiftSecurity.service.UserCacheService;
 import com.star.swiftCommon.utils.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author SHOOTING_STAR_C
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -65,6 +67,15 @@ public class SwiftUserServiceImpl implements SwiftUserService {
             user.setUserId(SnowflakeIdGenerator.generateId());
         }
         userMapper.insert(user);
+        
+        // 自动为新用户分配普通用户角色（ROLE_USER）
+        try {
+            assignRoleToUser(user.getUserId(), 5L, "SYSTEM");
+        } catch (Exception e) {
+            // 如果分配角色失败，记录警告但不影响用户创建
+            log.warn("为新用户分配默认角色失败: {}", user.getUsername(), e);
+        }
+        
         return user;
     }
 
