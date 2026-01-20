@@ -1,9 +1,14 @@
 services:
   swift-frame:
-    build: .
+    build:
+      context: .
+      args:
+        - APP_ENV=prod
     container_name: swift-frame
     ports:
       - "8081:8081"
+    volumes:
+      - ./logs/prod:/app/logs/prod
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_DRUID_MASTER_URL=jdbc:mysql://mysql:3306/swift?characterEncoding=utf8&serverTimezone=UTC

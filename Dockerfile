@@ -11,22 +11,36 @@ COPY swift-encrypt-plugin/pom.xml swift-encrypt-plugin/
 COPY swift-login/pom.xml swift-login/
 COPY swift-redis/pom.xml swift-redis/
 COPY swift-security/pom.xml swift-security/
+COPY swift-config/pom.xml swift-config/
+COPY swift-monitor/pom.xml swift-monitor/
+COPY swift-ai/pom.xml swift-ai/
+COPY swift-business/pom.xml swift-business/
+COPY swift-mail/pom.xml swift-mail/
 COPY swift-start/pom.xml swift-start/
+
+COPY swift-encrypt-plugin/src swift-encrypt-plugin/src
+COPY swift-encrypt/src swift-encrypt/src
+RUN mvn clean install -pl swift-encrypt-plugin -am -DskipTests
 
 # 下载依赖
 RUN mvn dependency:go-offline -B
 
 # 复制源代码并进行构建
 COPY . .
-RUN mvn clean package -DskipTests
+# 设置构建环境变量，使用 prod 配置
+ARG APP_ENV=prod
+ENV APP_ENV=${APP_ENV}
+RUN mvn clean package -DskipTests -Dapp.env=${APP_ENV}
 
 # 使用 JRE 镜像进行运行
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
-# 从构建阶段复制打包好的 jar 文件
-# 假设最终启动模块是 swift-start，生成的文件名可能需要根据实际 pom.xml 配置调整
-COPY --from=build /app/swift-start/target/*.jar app.jar
+# 创建 mime.types 文件以避免 FileNotFoundException 警告
+RUN mkdir -p /root && touch /root/.mime.types
+
+# 从构建阶段复制打包好的可执行 jar 文件
+COPY --from=build /app/swift-start/target/swift-start-*-exec.jar app.jar
 
 # 设置环境变量
 ENV JAVA_OPTS="-Xms512m -Xmx512m"

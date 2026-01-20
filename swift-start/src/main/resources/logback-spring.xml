@@ -14,7 +14,7 @@
         <property name="ENV_LOG_PATH" value="E:\workspace\logs\SwiftFrame\test"/>
     </springProfile>
     <springProfile name="prod">
-        <property name="ENV_LOG_PATH" value="E:\workspace\logs\SwiftFrame\prod"/>
+        <property name="ENV_LOG_PATH" value="logs/prod"/>
     </springProfile>
 
     <!-- 基础配置 -->

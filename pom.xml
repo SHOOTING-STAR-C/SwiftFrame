@@ -15,6 +15,7 @@
         <module>swift-common</module>
         <module>swift-datasource</module>
         <module>swift-encrypt</module>
+        <module>swift-encrypt-plugin</module>
         <module>swift-redis</module>
         <module>swift-config</module>
         <module>swift-monitor</module>
