@@ -355,15 +355,6 @@ docker build -t swiftframe:latest .
 docker run -p 8081:8081 swiftframe:latest
 ```
 
-## 📝 文档
-
-更多详细文档请参考：
-
-- [AI模块文档](swift-ai/README.md)
-- [登录查询优化说明](docs/登录查询优化说明.md)
-- [匿名聊天功能设计说明](docs/匿名聊天功能设计说明.md)
-- [AI模块Service层重构方案](docs/ai模块service层重构方案.md)
-
 ## 🤝 贡献
 
 欢迎贡献代码、报告问题或提出建议！
