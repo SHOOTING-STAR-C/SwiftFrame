@@ -16,13 +16,133 @@
 
 ## 📖 简介
 
-SwiftFrame是一个轻量级但功能强大的企业级开发框架，采用模块化设计理念，将常用功能封装为独立模块，开发者可以根据需求灵活组合使用。框架集成了认证授权、数据访问、缓存、监控、AI等企业应用所需的核心能力，帮助开发者快速构建高质量的应用程序。
+SwiftFrame是一个轻量级但功能强大的企业级开发框架，采用模块化设计理念，将常用功能封装为独立模块。开发者可以根据需求灵活组合使用，无需引入不必要的依赖。框架集成了认证授权、数据访问、缓存、监控、AI等企业应用所需的核心能力，帮助开发者快速构建高质量的应用程序。
+
+## 🏗️ 项目架构
+
+### 整体架构图
+
+```mermaid
+graph TB
+    subgraph "应用层"
+        A[swift-start<br/>应用启动模块]
+    end
+    
+    subgraph "核心模块"
+        B[swift-common<br/>公共模块]
+        C[swift-security<br/>安全认证]
+        D[swift-datasource<br/>数据源管理]
+        E[swift-redis<br/>缓存服务]
+    end
+    
+    subgraph "扩展模块"
+        F[swift-config<br/>配置管理]
+        G[swift-encrypt<br/>加密服务]
+        H[swift-monitor<br/>监控服务]
+        I[swift-ai<br/>AI集成]
+        J[swift-mail<br/>邮件服务]
+    end
+    
+    subgraph "业务模块"
+        K[swift-login<br/>登录模块]
+        L[swift-business<br/>业务模块]
+    end
+    
+    A --> B
+    A --> C
+    A --> D
+    A --> E
+    A --> F
+    A --> G
+    A --> H
+    A --> I
+    A --> J
+    A --> K
+    A --> L
+    
+    C --> B
+    D --> B
+    E --> B
+    I --> B
+    K --> C
+    L --> D
+    L --> E
+```
+
+### 模块依赖关系
+
+```mermaid
+graph LR
+    swift-common[swift-common<br/>基础模块]
+    
+    swift-security[swift-security]
+    swift-datasource[swift-datasource]
+    swift-redis[swift-redis]
+    
+    swift-config[swift-config]
+    swift-encrypt[swift-encrypt]
+    swift-monitor[swift-monitor]
+    swift-ai[swift-ai]
+    swift-mail[swift-mail]
+    
+    swift-login[swift-login]
+    swift-business[swift-business]
+    
+    swift-start[swift-start<br/>启动模块]
+    
+    swift-common --> swift-security
+    swift-common --> swift-datasource
+    swift-common --> swift-redis
+    swift-common --> swift-config
+    swift-common --> swift-encrypt
+    swift-common --> swift-monitor
+    swift-common --> swift-ai
+    swift-common --> swift-mail
+    
+    swift-security --> swift-login
+    swift-datasource --> swift-business
+    swift-redis --> swift-business
+    
+    swift-security --> swift-start
+    swift-datasource --> swift-start
+    swift-redis --> swift-start
+    swift-config --> swift-start
+    swift-encrypt --> swift-start
+    swift-monitor --> swift-start
+    swift-ai --> swift-start
+    swift-mail --> swift-start
+    swift-login --> swift-start
+    swift-business --> swift-start
+```
+
+### 项目目录结构
+
+```
+SwiftFrame/
+├── swift-common/          # 公共模块（基础工具类、响应封装等）
+├── swift-security/        # 安全认证模块（JWT、RBAC权限控制）
+├── swift-datasource/      # 数据源模块（多数据源、MyBatis Plus）
+├── swift-redis/          # Redis缓存模块
+├── swift-config/         # 配置管理模块
+├── swift-encrypt/        # 加密服务模块（AES、RSA）
+├── swift-monitor/        # 监控服务模块（Actuator、Prometheus）
+├── swift-ai/             # AI集成模块（OpenAI等）
+├── swift-mail/           # 邮件服务模块
+├── swift-login/          # 登录模块
+├── swift-business/       # 业务模块
+├── swift-start/          # 启动模块（应用入口）
+├── swift-encrypt-plugin/ # 加密插件
+├── pom.xml               # Maven父POM
+├── docker-compose.yml    # Docker编排文件
+├── Dockerfile            # Docker镜像构建文件
+└── README.md             # 项目文档
+```
 
 ## ✨ 特性
 
 - 🧩 **模块化设计** - 各功能模块独立，按需引入，降低项目复杂度
 - 🔐 **完善的安全体系** - 基于JWT和RBAC的认证授权机制
-- 🤖 **AI能力集成** - 支持多种AI提供商（OpenAI、Anthropic、Ollama等）
+- 🤖 **AI能力集成** - 支持多种AI提供商（OpenAI等）
 - 📊 **监控与健康检查** - 集成Actuator，提供全面的系统监控
 - 🔒 **配置加密** - 支持敏感配置加密存储
 - 📧 **邮件服务** - 统一的邮件发送接口
@@ -49,7 +169,7 @@ SwiftFrame是一个轻量级但功能强大的企业级开发框架，采用模�
 
 ## 📦 模块介绍
 
-### 核心模块
+### 核心模块（必选）
 
 #### swift-common
 公共模块，提供通用功能和工具类
@@ -81,6 +201,8 @@ Redis缓存模块
 - 缓存操作工具
 - 分布式锁支持
 
+### 扩展模块（可选）
+
 #### swift-encrypt
 加密模块，提供数据加密能力
 - AES加密
@@ -103,16 +225,10 @@ Redis缓存模块
 #### swift-ai
 AI集成模块，支持多种AI提供商
 - 统一的AI服务接口
-- 支持OpenAI、Anthropic、Ollama等
+- 支持OpenAI等
 - 流式对话支持
 - 工具调用能力
 - 提供商注册和管理机制
-
-#### swift-login
-登录模块
-- 统一登录接口
-- 多种登录方式支持
-- 登录状态管理
 
 #### swift-mail
 邮件服务模块
@@ -120,10 +236,20 @@ AI集成模块，支持多种AI提供商
 - 支持SMTP协议
 - 邮件模板支持
 
+### 业务模块（可选）
+
+#### swift-login
+登录模块
+- 统一登录接口
+- 多种登录方式支持
+- 登录状态管理
+
 #### swift-business
 业务模块
 - 提供业务实体和服务
 - 业务逻辑封装
+
+### 启动模块（必选）
 
 #### swift-start
 启动模块，应用入口
@@ -237,71 +363,6 @@ java -jar swift-start/target/swift-start-1.0.jar
 - 健康检查: http://localhost:8081/swift/actuator/health
 - Prometheus指标: http://localhost:8081/swift/actuator/prometheus
 
-## 📖 使用示例
-
-### 1. 使用AI模块
-
-```java
-@Service
-@RequiredArgsConstructor
-public class ChatService {
-    
-    private final ProviderClient providerClient;
-    
-    public String chat(String message) {
-        Conversation conversation = new Conversation();
-        MessageChain msg = new MessageChain();
-        msg.setRole("user");
-        msg.setContent(message);
-        conversation.setMessages(List.of(msg));
-        
-        LLMResponse response = providerClient.chat(providerId, conversation);
-        return response.getContent();
-    }
-}
-```
-
-### 2. 使用安全模块
-
-```java
-@RestController
-@RequestMapping("/api")
-public class DemoController {
-    
-    @GetMapping("/admin/data")
-    @PreAuthorize("hasRole('ADMIN')")
-    public PubResult<String> getAdminData() {
-        return PubResult.success("Admin data");
-    }
-    
-    @GetMapping("/user/profile")
-    public PubResult<String> getUserProfile() {
-        String username = SecurityUtils.getCurrentUsername();
-        return PubResult.success("User: " + username);
-    }
-}
-```
-
-### 3. 使用邮件模块
-
-```java
-@Service
-@RequiredArgsConstructor
-public class NotificationService {
-    
-    private final MailService mailService;
-    
-    public void sendWelcomeEmail(String to, String username) {
-        MailMessage message = new MailMessage();
-        message.setTo(to);
-        message.setSubject("Welcome to SwiftFrame");
-        message.setText("Hello " + username + ", welcome!");
-        
-        mailService.sendMail(message);
-    }
-}
-```
-
 ## 🔧 配置说明
 
 ### 应用配置（application.yml）
@@ -354,6 +415,34 @@ docker-compose up -d
 docker build -t swiftframe:latest .
 docker run -p 8081:8081 swiftframe:latest
 ```
+
+## ❓ 常见问题
+
+### 1. 如何快速创建一个新的模块？
+
+在项目根目录下执行：
+```bash
+# 创建新模块目录
+mkdir swift-new-module
+
+# 添加到父POM的modules中
+# 创建pom.xml，继承父POM
+# 实现模块功能
+```
+
+### 2. 如何自定义AI提供商？
+
+参考`swift-ai`模块中的示例，实现`Provider`接口并添加`@ProviderAdapter`注解。
+
+### 3. 如何配置多数据源？
+
+在`application.yml`中配置多个数据源，具体配置示例请参考配置文件模板。
+
+### 4. 如何启用监控功能？
+
+监控功能默认开启，访问以下端点查看：
+- 健康检查：`http://localhost:8081/swift/actuator/health`
+- 指标数据：`http://localhost:8081/swift/actuator/metrics`
 
 ## 🤝 贡献
 
