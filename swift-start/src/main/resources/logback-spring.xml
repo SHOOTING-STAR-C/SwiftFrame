@@ -109,5 +109,6 @@
     <logger name="druid.sql.ResultSet" level="info"/>
     <logger name="io.lettuce.core" level="info"/>
     <logger name="angus.activation" level="info"/>
+    <logger name="jakarta.activation" level="info"/>
     <logger name="org.eclipse.angus.mail.smtp" level="info"/>
 </configuration>
