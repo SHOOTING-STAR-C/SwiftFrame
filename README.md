@@ -69,52 +69,6 @@ graph TB
     L --> E
 ```
 
-### 模块依赖关系
-
-```mermaid
-graph LR
-    swift-common[swift-common<br/>基础模块]
-    
-    swift-security[swift-security]
-    swift-datasource[swift-datasource]
-    swift-redis[swift-redis]
-    
-    swift-config[swift-config]
-    swift-encrypt[swift-encrypt]
-    swift-monitor[swift-monitor]
-    swift-ai[swift-ai]
-    swift-mail[swift-mail]
-    
-    swift-login[swift-login]
-    swift-business[swift-business]
-    
-    swift-start[swift-start<br/>启动模块]
-    
-    swift-common --> swift-security
-    swift-common --> swift-datasource
-    swift-common --> swift-redis
-    swift-common --> swift-config
-    swift-common --> swift-encrypt
-    swift-common --> swift-monitor
-    swift-common --> swift-ai
-    swift-common --> swift-mail
-    
-    swift-security --> swift-login
-    swift-datasource --> swift-business
-    swift-redis --> swift-business
-    
-    swift-security --> swift-start
-    swift-datasource --> swift-start
-    swift-redis --> swift-start
-    swift-config --> swift-start
-    swift-encrypt --> swift-start
-    swift-monitor --> swift-start
-    swift-ai --> swift-start
-    swift-mail --> swift-start
-    swift-login --> swift-start
-    swift-business --> swift-start
-```
-
 ### 项目目录结构
 
 ```
