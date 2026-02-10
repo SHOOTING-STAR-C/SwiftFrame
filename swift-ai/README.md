@@ -24,7 +24,7 @@
    - `ProviderRequest`: 提供商请求模型
    - `LLMResponse`: LLM响应模型
    - `Conversation`: 对话上下文模型
-   - `MessageChain`: 消息链模型
+   - `MessageChain`: chain-based消息管理模型
    - `TokenUsage`: Token使用统计
    - `ToolSet`: 工具集模型
 
