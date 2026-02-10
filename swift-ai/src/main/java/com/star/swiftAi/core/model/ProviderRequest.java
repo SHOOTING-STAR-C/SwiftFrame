@@ -49,11 +49,6 @@ public class ProviderRequest {
     private String systemPrompt = "";
     
     /**
-     * 关联的对话对象
-     */
-    private Conversation conversation;
-    
-    /**
      * 工具调用结果
      */
     private List<ToolCallsResult> toolCallsResult;

@@ -69,6 +69,9 @@ public class AiProviderServiceImpl extends ServiceImpl<AiProviderMapper, AiProvi
             throw new RuntimeException("未知的提供商类型: " + provider.getProviderCode());
         }
         
+        // 清除旧的Provider实例缓存（配置已变更）
+        ProviderFactory.clearProviderCache(provider.getProviderCode());
+        
         // 前端传递的密钥已加密，直接存储
         provider.setId(id);
         this.updateById(provider);
@@ -92,6 +95,9 @@ public class AiProviderServiceImpl extends ServiceImpl<AiProviderMapper, AiProvi
         if (provider == null) {
             throw new RuntimeException("供应商不存在");
         }
+        
+        // 清除Provider实例缓存
+        ProviderFactory.clearProviderCache(provider.getProviderCode());
         
         this.removeById(id);
         

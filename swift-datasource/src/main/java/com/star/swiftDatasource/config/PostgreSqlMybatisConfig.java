@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.star.swiftDatasource.handler.MyMetaObjectHandler;
 import com.star.swiftDatasource.handler.UuidTypeHandler;
-import com.star.swiftDatasource.properties.DruidProperties;
+import com.star.swiftDatasource.properties.PgDruidProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
@@ -32,7 +32,7 @@ import javax.sql.DataSource;
 public class PostgreSqlMybatisConfig {
 
     @Autowired
-    private DruidProperties druidProperties;
+    private PgDruidProperties pgDruidProperties;
 
     @Autowired
     private MyMetaObjectHandler myMetaObjectHandler;
@@ -62,8 +62,8 @@ public class PostgreSqlMybatisConfig {
 
         // 从 PostgreSQL 数据源配置中读取 mapper-locations
         String location = "classpath*:sqlmapper/postgresql/*.xml";
-        if (druidProperties.getMapperLocations() != null && !druidProperties.getMapperLocations().isEmpty()) {
-            location = druidProperties.getMapperLocations();
+        if (pgDruidProperties.getMapperLocations() != null && !pgDruidProperties.getMapperLocations().isEmpty()) {
+            location = pgDruidProperties.getMapperLocations();
         }
         sessionFactory.setMapperLocations(resolver.getResources(location));
 

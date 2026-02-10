@@ -8,11 +8,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
- * 对话消息实体
+ * 对话消息实体（增强版）
  * 遵循 OpenAI API 格式
  */
 @Data
@@ -53,6 +55,32 @@ public class Message {
      */
     @JsonProperty("name")
     private String name;
+
+    /**
+     * 消息ID
+     */
+    private String messageId;
+
+    /**
+     * 时间戳
+     */
+    private Long timestamp;
+
+    /**
+     * Token数量
+     */
+    private Integer tokens;
+
+    /**
+     * 消息状态
+     */
+    private MessageStatus status;
+
+    /**
+     * 元数据
+     */
+    @Builder.Default
+    private Map<String, Object> metadata = new HashMap<>();
 
     /**
      * 工具调用实体
@@ -122,5 +150,66 @@ public class Message {
      */
     public static Message assistant(String content) {
         return of("assistant", content);
+    }
+
+    /**
+     * 初始化消息
+     * 设置默认值
+     */
+    public void init() {
+        if (this.messageId == null) {
+            this.messageId = UUID.randomUUID().toString();
+        }
+        if (this.timestamp == null) {
+            this.timestamp = System.currentTimeMillis();
+        }
+        if (this.status == null) {
+            this.status = MessageStatus.PENDING;
+        }
+        if (this.metadata == null) {
+            this.metadata = new HashMap<>();
+        }
+    }
+
+    /**
+     * 添加元数据
+     *
+     * @param key   键
+     * @param value 值
+     */
+    public void putMetadata(String key, Object value) {
+        if (this.metadata == null) {
+            this.metadata = new HashMap<>();
+        }
+        this.metadata.put(key, value);
+    }
+
+    /**
+     * 获取元数据
+     *
+     * @param key  键
+     * @param type 类型
+     * @param <T>  泛型类型
+     * @return 值
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getMetadata(String key, Class<T> type) {
+        if (this.metadata == null) {
+            return null;
+        }
+        Object value = this.metadata.get(key);
+        return value != null ? (T) value : null;
+    }
+
+    /**
+     * 获取工具调用的参数映射
+     *
+     * @return 参数映射
+     */
+    public Map<String, Object> getToolCallArgumentsMap() {
+        if (this.toolCalls != null && !this.toolCalls.isEmpty()) {
+            return this.toolCalls.get(0).getFunction().getArgumentsMap();
+        }
+        return null;
     }
 }

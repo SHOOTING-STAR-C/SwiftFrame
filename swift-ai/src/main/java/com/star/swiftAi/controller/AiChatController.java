@@ -70,7 +70,7 @@ public class AiChatController {
     @ApiResponse(responseCode = "200", description = "聊天成功", content = @Content(schema = @Schema(implementation = ChatResponseDTO.class)))
     @PostMapping("/anonymous")
     public PubResult<ChatResponseDTO> anonymousChat(
-            @Valid @RequestBody ChatRequestDTO request) {
+            @Valid @RequestBody ChatRequestDTO request) throws Exception {
         return PubResult.success(aiChatService.anonymousChat(request));
     }
 

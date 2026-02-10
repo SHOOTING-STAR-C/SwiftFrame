@@ -229,7 +229,7 @@ public class OpenAIProvider extends Provider {
         
         // 获取内容
         JsonNode choices = root.get("choices");
-        if (choices != null && choices.isArray() && choices.size() > 0) {
+        if (choices != null && choices.isArray() && !choices.isEmpty()) {
             JsonNode choice = choices.get(0);
             JsonNode message = choice.get("message");
             if (message != null) {
@@ -338,7 +338,7 @@ public class OpenAIProvider extends Provider {
                     LLMResponse response = new LLMResponse();
                     
                     JsonNode choices = root.get("choices");
-                    if (choices != null && choices.isArray() && choices.size() > 0) {
+                    if (choices != null && choices.isArray() && !choices.isEmpty()) {
                         JsonNode choice = choices.get(0);
                         JsonNode delta = choice.get("delta");
                         
@@ -453,21 +453,24 @@ public class OpenAIProvider extends Provider {
                                 JsonNode content = delta.get("content");
                                 if (content != null) {
                                     String contentText = content.asText();
-                                    llmResponse.setContent(contentText);
+                                    // 流式响应中，只设置delta，不设置content
                                     llmResponse.setDelta(contentText);
+                                    log.debug("流式响应数据块 #{}: delta='{}'", chunkCount, contentText);
                                 }
                             }
                             
                             String finishReason = choice.get("finish_reason") != null ? 
                                 choice.get("finish_reason").asText() : null;
                             
-                            if ("stop".equals(finishReason) && !finished) {
+                            // 只有当finish_reason为stop时才设置finished=true
+                            if ("stop".equals(finishReason)) {
                                 finished = true;
                                 llmResponse.setFinished(true);
+                                log.debug("流式响应完成: finishReason=stop");
                             }
                         }
                         
-                        // 立即传递给消费者
+                        // 立即传递给消费者（即使delta为空也要传递，以保持流式响应的连续性）
                         consumer.accept(llmResponse);
                     } catch (Exception e) {
                         log.error("解析流式响应失败: {}", data, e);

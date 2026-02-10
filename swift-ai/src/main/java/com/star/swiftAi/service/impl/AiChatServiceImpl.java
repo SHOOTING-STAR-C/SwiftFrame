@@ -1,6 +1,21 @@
 package com.star.swiftAi.service.impl;
 
-import com.star.swiftAi.dto.*;
+import com.star.swiftAi.core.adapter.MessageChainAdapter;
+import com.star.swiftAi.core.adapter.ProviderAiClientAdapter;
+import com.star.swiftAi.core.factory.MessagePipelineFactory;
+import com.star.swiftAi.core.model.*;
+import com.star.swiftAi.core.pipeline.ProcessingContext;
+import com.star.swiftAi.core.provider.Provider;
+import com.star.swiftAi.core.request.ChatRequest;
+import com.star.swiftAi.core.response.ChatResponse;
+import com.star.swiftAi.client.AiClient;
+import com.star.swiftAi.dto.ChatRequestDTO;
+import com.star.swiftAi.dto.ChatResponseDTO;
+import com.star.swiftAi.dto.StreamChatResponseDTO;
+import com.star.swiftAi.dto.ImportChatRequestDTO;
+import com.star.swiftAi.dto.ChatSessionDataDTO;
+import com.star.swiftAi.dto.MessageDataDTO;
+import com.star.swiftAi.dto.MessageDTO;
 import com.star.swiftAi.service.AiChatService;
 import com.star.swiftAi.service.AiChatSessionService;
 import com.star.swiftAi.service.AiChatMessageService;
@@ -8,9 +23,6 @@ import com.star.swiftAi.service.AiModelService;
 import com.star.swiftAi.service.AiProviderService;
 import com.star.swiftAi.service.AiSystemPromptService;
 import com.star.swiftAi.entity.*;
-import com.star.swiftAi.core.model.LLMResponse;
-import com.star.swiftAi.core.model.ProviderRequest;
-import com.star.swiftAi.core.provider.Provider;
 import com.star.swiftAi.core.factory.ProviderFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,13 +63,18 @@ public class AiChatServiceImpl implements AiChatService {
         AiProvider provider = validateAndGetProvider(model.getProviderId());
         AiChatSession session = getOrCreateSession(request, model, userId);
         
-        List<Map<String, Object>> contexts = buildContexts(session.getSessionId(), request.getSystemPromptId());
-        LLMResponse aiResponse = callAI(model, provider, request.getMessage(), contexts);
+        // 使用流水线处理消息
+        ChatResponse chatResponse = processWithPipeline(session, request, model, provider);
         
-        saveUserMessage(session, request.getMessage(), aiResponse);
-        AiChatMessage assistantMessage = saveAssistantMessage(session, aiResponse);
+        // 提取响应内容
+        String content = extractContentFromResponse(chatResponse);
+        int totalTokens = extractTokensFromResponse(chatResponse);
         
-        return buildChatResponse(session, aiResponse, assistantMessage);
+        // 保存消息
+        saveUserMessage(session, request.getMessage(), totalTokens);
+        AiChatMessage assistantMessage = saveAssistantMessage(session, content, totalTokens);
+        
+        return buildChatResponse(session, content, totalTokens, assistantMessage);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -66,39 +83,55 @@ public class AiChatServiceImpl implements AiChatService {
         AiProvider provider = validateAndGetProvider(model.getProviderId());
         AiChatSession session = getOrCreateSession(request, model, userId);
         
-        List<Map<String, Object>> contexts = buildContexts(session.getSessionId(), request.getSystemPromptId());
+        // 保存用户消息
         aiChatMessageService.saveMessage(session.getSessionId(), "user", request.getMessage(), 0);
 
         String sessionId = session.getSessionId();
-        Provider aiProvider = createProvider(provider);
-        ProviderRequest providerRequest = buildProviderRequest(request, model, contexts);
-        
         log.info("流式调用AI: sessionId={}, model={}", sessionId, model.getModelCode());
-        aiProvider.streamChatRealtime(providerRequest, response -> consumer.accept(sessionId, response));
+        
+        // 构建MessageChain
+        MessageChain messageChain = buildMessageChain(session.getSessionId(), request.getSystemPromptId());
+        messageChain.addUser(request.getMessage());
+        
+        // 使用辅助方法执行流式调用
+        executeStreamChat(model, provider, messageChain, response -> {
+            LLMResponse llmResponse = convertToLLMResponse(response);
+            consumer.accept(sessionId, llmResponse);
+        });
     }
 
     public void anonymousStreamChat(ChatRequestDTO request, java.util.function.Consumer<LLMResponse> consumer) throws Exception {
         AiModel model = validateAndGetModel(request.getModelId());
         AiProvider provider = validateAndGetProvider(model.getProviderId());
-        
-        Provider aiProvider = createProvider(provider);
-        ProviderRequest providerRequest = buildProviderRequest(request, model, new ArrayList<>());
-        
+
         log.info("匿名流式调用AI: model={}", model.getModelCode());
-        aiProvider.streamChatRealtime(providerRequest, consumer::accept);
+        
+        // 构建MessageChain
+        MessageChain messageChain = new MessageChain();
+        messageChain.addUser(request.getMessage());
+        
+        // 使用辅助方法执行流式调用
+        executeStreamChat(model, provider, messageChain, response -> {
+            LLMResponse llmResponse = convertToLLMResponse(response);
+            consumer.accept(llmResponse);
+        });
     }
 
     public void streamChatWithoutDb(ChatRequestDTO request, String userId, String sessionId, Consumer<LLMResponse> consumer) throws Exception {
         AiModel model = validateAndGetModel(request.getModelId());
         AiProvider provider = validateAndGetProvider(model.getProviderId());
-        
-        List<Map<String, Object>> contexts = buildContexts(sessionId, request.getSystemPromptId());
-        
-        Provider aiProvider = createProvider(provider);
-        ProviderRequest providerRequest = buildProviderRequest(request, model, contexts);
-        
+
         log.info("流式调用AI（无DB）: sessionId={}, model={}", sessionId, model.getModelCode());
-        aiProvider.streamChatRealtime(providerRequest, consumer::accept);
+        
+        // 构建消息链
+        MessageChain messageChain = buildMessageChain(sessionId, request.getSystemPromptId());
+        messageChain.addUser(request.getMessage());
+        
+        // 使用辅助方法执行流式调用
+        executeStreamChat(model, provider, messageChain, response -> {
+            LLMResponse llmResponse = convertToLLMResponse(response);
+            consumer.accept(llmResponse);
+        });
     }
 
     public void streamChatWithEmitter(ChatRequestDTO request, String userId, String sessionId, 
@@ -110,17 +143,18 @@ public class AiChatServiceImpl implements AiChatService {
         try {
             AiModel model = validateAndGetModel(request.getModelId());
             AiProvider provider = validateAndGetProvider(model.getProviderId());
-            
-            List<Map<String, Object>> contexts = buildContexts(sessionId, request.getSystemPromptId());
-            
-            Provider aiProvider = createProvider(provider);
-            ProviderRequest providerRequest = buildProviderRequest(request, model, contexts);
-            
+
             log.info("流式调用AI（SSE）: sessionId={}, model={}", sessionId, model.getModelCode());
             
-            aiProvider.streamChatRealtime(providerRequest, response -> handleStreamResponse(
-                response, sessionId, emitter, fullContentRef, totalOutputTokens, completed, converter, true
-            ));
+            // 构建消息链
+            MessageChain messageChain = buildMessageChain(sessionId, request.getSystemPromptId());
+            messageChain.addUser(request.getMessage());
+            
+            // 使用辅助方法执行流式调用
+            executeStreamChat(model, provider, messageChain, response -> {
+                LLMResponse llmResponse = convertToLLMResponse(response);
+                handleStreamResponse(llmResponse, sessionId, emitter, fullContentRef, totalOutputTokens, completed, converter, true);
+            });
             
         } catch (Exception e) {
             log.error("流式调用AI失败（SSE）: sessionId={}, error={}", sessionId, e.getMessage(), e);
@@ -138,15 +172,18 @@ public class AiChatServiceImpl implements AiChatService {
         try {
             AiModel model = validateAndGetModel(request.getModelId());
             AiProvider provider = validateAndGetProvider(model.getProviderId());
-            
-            Provider aiProvider = createProvider(provider);
-            ProviderRequest providerRequest = buildProviderRequest(request, model, new ArrayList<>());
-            
+
             log.info("匿名流式调用AI（SSE）: model={}", model.getModelCode());
             
-            aiProvider.streamChatRealtime(providerRequest, response -> handleStreamResponse(
-                response, null, emitter, null, null, completed, converter, false
-            ));
+            // 构建消息链
+            MessageChain messageChain = new MessageChain();
+            messageChain.addUser(request.getMessage());
+            
+            // 使用辅助方法执行流式调用
+            executeStreamChat(model, provider, messageChain, response -> {
+                LLMResponse llmResponse = convertToLLMResponse(response);
+                handleStreamResponse(llmResponse, null, emitter, null, null, completed, converter, false);
+            });
             
         } catch (Exception e) {
             log.error("匿名流式调用AI失败（SSE）: error={}", e.getMessage(), e);
@@ -182,19 +219,47 @@ public class AiChatServiceImpl implements AiChatService {
         return session.getSessionId();
     }
 
-    public ChatResponseDTO anonymousChat(ChatRequestDTO request) {
+    public ChatResponseDTO anonymousChat(ChatRequestDTO request) throws Exception {
         AiModel model = validateAndGetModel(request.getModelId());
         AiProvider provider = validateAndGetProvider(model.getProviderId());
         
-        LLMResponse aiResponse = callAI(model, provider, request.getMessage(), new ArrayList<>());
+        // 构建消息链
+        MessageChain messageChain = new MessageChain();
+        messageChain.addUser(request.getMessage());
+        
+        // 构建模型配置
+        ModelConfig modelConfig = ModelConfig.builder()
+                .model(model.getModelCode())
+                .build();
+        
+        // 创建适配器
+        Provider aiProvider = createProvider(provider);
+        AiClient adapter = new ProviderAiClientAdapter(aiProvider, provider.getBaseUrl(), model.getModelCode());
+        
+        // 构建处理上下文
+        ProcessingContext context = ProcessingContext.builder()
+                .messageChain(messageChain)
+                .modelConfig(modelConfig)
+                .build();
+        
+        // 使用流水线处理
+        com.star.swiftAi.core.pipeline.MessagePipeline pipeline = 
+            MessagePipelineFactory.createStandardPipeline(adapter);
+        
+        ProcessingContext result = pipeline.process(context);
+        
+        // 提取响应
+        Message responseMessage = result.getMessageChain().getLastAssistantMessage();
+        String content = responseMessage != null ? responseMessage.getContent().toString() : "";
+        int tokens = result.getMessageChain().getTotalTokens();
         
         ChatResponseDTO response = new ChatResponseDTO();
         response.setSessionId(null);
         response.setRole("assistant");
-        response.setContent(aiResponse.getContent());
-        response.setTokensUsed(aiResponse.getUsage() != null ? aiResponse.getUsage().getTotal() : 0);
+        response.setContent(content);
+        response.setTokensUsed(tokens);
         
-        log.info("匿名聊天成功: modelId={}, tokens={}", model.getId(), response.getTokensUsed());
+        log.info("匿名聊天成功: modelId={}, tokens={}", model.getId(), tokens);
         return response;
     }
 
@@ -289,18 +354,16 @@ public class AiChatServiceImpl implements AiChatService {
         return message;
     }
 
-    private void saveUserMessage(AiChatSession session, String message, LLMResponse aiResponse) {
-        int inputTokens = aiResponse.getUsage() != null ? aiResponse.getUsage().getInputOther() : 0;
-        aiChatMessageService.saveMessage(session.getSessionId(), "user", message, inputTokens);
-        log.debug("保存用户消息: sessionId={}, inputTokens={}", session.getSessionId(), inputTokens);
+    private void saveUserMessage(AiChatSession session, String message, int tokens) {
+        aiChatMessageService.saveMessage(session.getSessionId(), "user", message, tokens);
+        log.debug("保存用户消息: sessionId={}, tokens={}", session.getSessionId(), tokens);
     }
 
-    private AiChatMessage saveAssistantMessage(AiChatSession session, LLMResponse aiResponse) {
-        int outputTokens = aiResponse.getUsage() != null ? aiResponse.getUsage().getOutput() : 0;
+    private AiChatMessage saveAssistantMessage(AiChatSession session, String content, int tokens) {
         AiChatMessage assistantMessage = aiChatMessageService.saveMessage(
-            session.getSessionId(), "assistant", aiResponse.getContent(), outputTokens
+            session.getSessionId(), "assistant", content, tokens
         );
-        log.debug("保存AI回复: sessionId={}, outputTokens={}", session.getSessionId(), outputTokens);
+        log.debug("保存AI回复: sessionId={}, outputTokens={}", session.getSessionId(), tokens);
         return assistantMessage;
     }
 
@@ -343,35 +406,17 @@ public class AiChatServiceImpl implements AiChatService {
         return contexts;
     }
 
-    private LLMResponse callAI(AiModel model, AiProvider provider, String message, List<Map<String, Object>> contexts) {
-        try {
-            Provider aiProvider = createProvider(provider);
-            ProviderRequest request = buildProviderRequest(message, model.getModelCode(), contexts);
-            
-            log.info("调用AI模型: model={}, message={}", model.getModelCode(), message);
-            LLMResponse response = aiProvider.chat(request);
-            log.info("AI响应: content={}, tokens={}", 
-                response.getContent(), 
-                response.getUsage() != null ? response.getUsage().getTotal() : 0);
-            
-            return response;
-        } catch (Exception e) {
-            log.error("调用AI模型失败: model={}, error={}", model.getModelCode(), e.getMessage(), e);
-            throw new RuntimeException("调用AI模型失败: " + e.getMessage(), e);
-        }
-    }
-
-    private ChatResponseDTO buildChatResponse(AiChatSession session, LLMResponse aiResponse, AiChatMessage assistantMessage) {
+    private ChatResponseDTO buildChatResponse(AiChatSession session, String content, int tokens, AiChatMessage assistantMessage) {
         ChatResponseDTO response = new ChatResponseDTO();
         response.setSessionId(session.getSessionId());
         response.setMessageId(assistantMessage.getId());
         response.setRole("assistant");
-        response.setContent(aiResponse.getContent());
-        response.setTokensUsed(aiResponse.getUsage() != null ? aiResponse.getUsage().getTotal() : 0);
+        response.setContent(content);
+        response.setTokensUsed(tokens);
         response.setCreatedAt(assistantMessage.getCreatedAt());
         
         log.info("聊天成功: sessionId={}, messageId={}, tokens={}", 
-            session.getSessionId(), assistantMessage.getId(), response.getTokensUsed());
+            session.getSessionId(), assistantMessage.getId(), tokens);
         
         return response;
     }
@@ -387,16 +432,176 @@ public class AiChatServiceImpl implements AiChatService {
         return ProviderFactory.createProvider(provider.getProviderCode(), providerConfig, new HashMap<>());
     }
 
-    private ProviderRequest buildProviderRequest(ChatRequestDTO request, AiModel model, List<Map<String, Object>> contexts) {
-        return buildProviderRequest(request.getMessage(), model.getModelCode(), contexts);
+    /**
+     * 创建AI客户端适配器
+     */
+    private AiClient createAiClientAdapter(AiProvider provider, String modelCode) throws Exception {
+        Provider aiProvider = createProvider(provider);
+        return new ProviderAiClientAdapter(aiProvider, provider.getBaseUrl(), modelCode);
     }
 
-    private ProviderRequest buildProviderRequest(String message, String modelCode, List<Map<String, Object>> contexts) {
-        ProviderRequest request = new ProviderRequest();
-        request.setPrompt(message);
-        request.setModel(modelCode);
-        request.setContexts(contexts);
-        return request;
+    /**
+     * 构建流式ChatRequest
+     */
+    private ChatRequest buildStreamChatRequest(String modelCode, List<Message> messages) {
+        return ChatRequest.builder()
+                .model(modelCode)
+                .messages(messages)
+                .stream(true)
+                .build();
+    }
+
+    /**
+     * 执行流式调用
+     */
+    private void executeStreamChat(AiModel model, AiProvider provider, MessageChain messageChain, 
+                                   Consumer<ChatResponse> responseHandler) throws Exception {
+        AiClient adapter = createAiClientAdapter(provider, model.getModelCode());
+        ChatRequest chatRequest = buildStreamChatRequest(model.getModelCode(), messageChain.getMessages());
+        adapter.streamChat(chatRequest, responseHandler);
+    }
+
+    /**
+     * 使用流水线处理消息
+     */
+    private ChatResponse processWithPipeline(AiChatSession session, ChatRequestDTO request, 
+                                            AiModel model, AiProvider provider) {
+        try {
+            // 构建消息链
+            MessageChain messageChain = buildMessageChain(session.getSessionId(), request.getSystemPromptId());
+            messageChain.addUser(request.getMessage());
+            
+            // 构建模型配置
+            ModelConfig modelConfig = ModelConfig.builder()
+                    .model(model.getModelCode())
+                    .build();
+            
+            // 创建适配器
+            Provider aiProvider = createProvider(provider);
+            AiClient adapter = new ProviderAiClientAdapter(aiProvider, provider.getBaseUrl(), model.getModelCode());
+            
+            // 构建处理上下文
+            ProcessingContext context = ProcessingContext.builder()
+                    .messageChain(messageChain)
+                    .modelConfig(modelConfig)
+                    .conversationId(session.getSessionId())
+                    .build();
+            
+            // 使用流水线处理
+            com.star.swiftAi.core.pipeline.MessagePipeline pipeline = 
+                MessagePipelineFactory.createStandardPipeline(adapter);
+            
+            ProcessingContext result = pipeline.process(context);
+            
+            // 获取ChatResponse
+            return result.getSharedData("chatResponse", ChatResponse.class);
+            
+        } catch (Exception e) {
+            log.error("流水线处理失败: sessionId={}, error={}", session.getSessionId(), e.getMessage(), e);
+            throw new RuntimeException("消息处理失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 构建MessageChain
+     */
+    private MessageChain buildMessageChain(String sessionId, Long systemPromptId) {
+        // 获取历史消息
+        List<Map<String, Object>> contexts = buildContexts(sessionId, systemPromptId);
+        
+        // 转换为MessageChain
+        return MessageChainAdapter.fromContexts(contexts);
+    }
+
+    /**
+     * 从ChatResponse中提取内容
+     */
+    private String extractContentFromResponse(ChatResponse response) {
+        if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
+            return "";
+        }
+        
+        Message message = response.getChoices().get(0).getMessage();
+        if (message == null || message.getContent() == null) {
+            return "";
+        }
+        
+        return message.getContent().toString();
+    }
+
+    /**
+     * 从ChatResponse中提取token数
+     */
+    private int extractTokensFromResponse(ChatResponse response) {
+        if (response == null || response.getUsage() == null) {
+            return 0;
+        }
+        
+        return response.getUsage().getTotalTokens() != null ? response.getUsage().getTotalTokens() : 0;
+    }
+
+    /**
+     * 从ChatResponse中提取增量内容（流式响应）
+     */
+    private String extractDeltaFromResponse(ChatResponse response) {
+        if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
+            return null;
+        }
+        
+        ChatResponse.Choice choice = response.getChoices().get(0);
+        if (choice == null || choice.getDelta() == null) {
+            return null;
+        }
+        
+        Object deltaContent = choice.getDelta().getContent();
+        return deltaContent != null ? deltaContent.toString() : null;
+    }
+
+    /**
+     * 将ChatResponse转换为LLMResponse
+     */
+    private LLMResponse convertToLLMResponse(ChatResponse chatResponse) {
+        LLMResponse llmResponse = new LLMResponse();
+        
+        // 提取增量内容（流式响应）
+        String delta = extractDeltaFromResponse(chatResponse);
+        llmResponse.setDelta(delta);
+        
+        // 提取内容
+        // 对于流式响应，delta就是内容；对于非流式响应，从message.content中提取
+        String content = (delta != null) ? delta : extractContentFromResponse(chatResponse);
+        llmResponse.setContent(content);
+        
+        // 提取token使用情况
+        if (chatResponse.getUsage() != null) {
+            TokenUsage usage = new TokenUsage();
+            usage.setInputOther(chatResponse.getUsage().getPromptTokens() != null ? chatResponse.getUsage().getPromptTokens() : 0);
+            usage.setOutput(chatResponse.getUsage().getCompletionTokens() != null ? chatResponse.getUsage().getCompletionTokens() : 0);
+            // total是计算属性，不需要设置
+            llmResponse.setUsage(usage);
+        }
+        
+        // 设置ID
+        llmResponse.setId(chatResponse.getId());
+        
+        // 设置是否完成
+        // 对于流式响应，只有在finishReason为"stop"时才设置finished=true
+        // "length"表示因为长度限制被截断，但流式响应还未完成
+        if (chatResponse.getChoices() != null && !chatResponse.getChoices().isEmpty()) {
+            String finishReason = chatResponse.getChoices().get(0).getFinishReason();
+            boolean hasDelta = (delta != null && !delta.isEmpty());
+            // 流式响应：只有在明确收到stop且没有新内容时才算完成
+            // 非流式响应：收到stop或length都算完成
+            if (hasDelta) {
+                // 流式响应，只有stop才表示完成
+                llmResponse.setFinished("stop".equals(finishReason));
+            } else {
+                // 非流式响应，stop或length都算完成
+                llmResponse.setFinished("stop".equals(finishReason) || "length".equals(finishReason));
+            }
+        }
+        
+        return llmResponse;
     }
 
     private void handleStreamResponse(LLMResponse response, String sessionId, SseEmitter emitter,
@@ -410,8 +615,17 @@ public class AiChatServiceImpl implements AiChatService {
         }
         
         try {
-            if (fullContentRef != null && response.getContent() != null) {
-                fullContentRef.get().append(response.getContent());
+            // 记录响应信息
+            log.debug("处理流式响应: sessionId={}, delta={}, content={}, finished={}", 
+                sessionId, response.getDelta(), response.getContent(), response.isFinished());
+            
+            // 拼接完整内容（优先使用delta，如果没有delta则使用content）
+            if (fullContentRef != null) {
+                if (response.getDelta() != null) {
+                    fullContentRef.get().append(response.getDelta());
+                } else if (response.getContent() != null) {
+                    fullContentRef.get().append(response.getContent());
+                }
             }
             
             if (totalOutputTokens != null && response.getUsage() != null && response.getUsage().getOutput() > 0) {

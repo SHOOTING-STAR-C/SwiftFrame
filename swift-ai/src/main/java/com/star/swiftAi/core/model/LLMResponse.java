@@ -19,7 +19,7 @@ public class LLMResponse {
     private String role;
     
     /**
-     * 消息链
+     * 响应消息链（chain-based消息管理模型）
      */
     private MessageChain resultChain;
     

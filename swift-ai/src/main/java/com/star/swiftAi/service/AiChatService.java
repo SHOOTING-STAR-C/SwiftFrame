@@ -33,7 +33,7 @@ public interface AiChatService {
      * @param request 聊天请求
      * @return 聊天响应
      */
-    ChatResponseDTO anonymousChat(ChatRequestDTO request);
+    ChatResponseDTO anonymousChat(ChatRequestDTO request) throws Exception;
 
     /**
      * 导入聊天记录
