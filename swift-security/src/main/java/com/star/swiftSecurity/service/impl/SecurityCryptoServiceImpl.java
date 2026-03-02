@@ -3,6 +3,7 @@ package com.star.swiftSecurity.service.impl;
 import com.star.swiftEncrypt.properties.CryptoEncryptProperties;
 import com.star.swiftEncrypt.utils.RsaUtil;
 import com.star.swiftSecurity.service.CryptoService;
+import com.star.swiftSecurity.service.DecryptionResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class SecurityCryptoServiceImpl implements CryptoService {
         try {
             return RsaUtil.decrypt(ciphertext, cryptoEncryptProperties.getRsaPrivateKey());
         } catch (Exception e) {
-            log.error("解密失败: {}", e.getMessage());
+            log.error("解密失败：{}", e.getMessage());
             throw new RuntimeException("解密失败", e);
         }
     }
@@ -35,7 +36,7 @@ public class SecurityCryptoServiceImpl implements CryptoService {
         try {
             return RsaUtil.encrypt(plaintext, cryptoEncryptProperties.getRsaPublicKey());
         } catch (Exception e) {
-            log.error("加密失败: {}", e.getMessage());
+            log.error("加密失败：{}", e.getMessage());
             throw new RuntimeException("加密失败", e);
         }
     }
@@ -45,7 +46,7 @@ public class SecurityCryptoServiceImpl implements CryptoService {
         try {
             return RsaUtil.decrypt(encryptedUsername, cryptoEncryptProperties.getRsaPrivateKey());
         } catch (Exception e) {
-            log.error("用户名解密失败: {}", e.getMessage());
+            log.error("用户名解密失败：{}", e.getMessage());
             throw new RuntimeException("用户名解密失败", e);
         }
     }
@@ -55,32 +56,26 @@ public class SecurityCryptoServiceImpl implements CryptoService {
         try {
             return RsaUtil.decrypt(encryptedPassword, cryptoEncryptProperties.getRsaPrivateKey());
         } catch (Exception e) {
-            log.error("密码解密失败: {}", e.getMessage());
+            log.error("密码解密失败：{}", e.getMessage());
             throw new RuntimeException("密码解密失败", e);
         }
     }
 
     @Override
-    public String[] decryptRegistrationInfo(String encryptedUsername, String encryptedPassword,
+    public DecryptionResult decryptRegistrationInfo(String encryptedUsername, String encryptedPassword,
                                            String encryptedEmail, String encryptedPhone) {
-        String[] result = new String[4];
-        
         try {
-            result[0] = RsaUtil.decrypt(encryptedUsername, cryptoEncryptProperties.getRsaPrivateKey());
-            result[1] = RsaUtil.decrypt(encryptedPassword, cryptoEncryptProperties.getRsaPrivateKey());
-            
-            if (encryptedEmail != null && !encryptedEmail.isEmpty()) {
-                result[2] = RsaUtil.decrypt(encryptedEmail, cryptoEncryptProperties.getRsaPrivateKey());
-            }
-            
-            if (encryptedPhone != null && !encryptedPhone.isEmpty()) {
-                result[3] = RsaUtil.decrypt(encryptedPhone, cryptoEncryptProperties.getRsaPrivateKey());
-            }
+            return DecryptionResult.builder()
+                .username(RsaUtil.decrypt(encryptedUsername, cryptoEncryptProperties.getRsaPrivateKey()))
+                .password(RsaUtil.decrypt(encryptedPassword, cryptoEncryptProperties.getRsaPrivateKey()))
+                .email((encryptedEmail != null && !encryptedEmail.isEmpty())
+                    ? RsaUtil.decrypt(encryptedEmail, cryptoEncryptProperties.getRsaPrivateKey()) : null)
+                .phone((encryptedPhone != null && !encryptedPhone.isEmpty())
+                    ? RsaUtil.decrypt(encryptedPhone, cryptoEncryptProperties.getRsaPrivateKey()) : null)
+                .build();
         } catch (Exception e) {
-            log.error("注册信息解密失败: {}", e.getMessage());
+            log.error("注册信息解密失败：{}", e.getMessage());
             throw new RuntimeException("注册信息解密失败", e);
         }
-        
-        return result;
     }
 }

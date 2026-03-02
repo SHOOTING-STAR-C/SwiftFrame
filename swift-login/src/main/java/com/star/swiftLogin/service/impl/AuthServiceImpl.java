@@ -7,6 +7,7 @@ import com.star.swiftSecurity.domain.JwtToken;
 import com.star.swiftSecurity.entity.SwiftUserDetails;
 import com.star.swiftSecurity.exception.InvalidTokenException;
 import com.star.swiftSecurity.service.CryptoService;
+import com.star.swiftSecurity.service.DecryptionResult;
 import com.star.swiftSecurity.service.SwiftUserService;
 import com.star.swiftSecurity.utils.JwtUtil;
 import com.star.swiftLogin.service.AuthService;
@@ -137,20 +138,20 @@ public class AuthServiceImpl implements AuthService {
     public SwiftUserDetails createUser(SwiftUserDetails userDetails) {
         // 解密注册字段
         try {
-            String[] decryptedInfo = cryptoService.decryptRegistrationInfo(
+            DecryptionResult decryptedInfo = cryptoService.decryptRegistrationInfo(
                     userDetails.getUsername(),
                     userDetails.getPassword(),
                     userDetails.getEmail(),
                     userDetails.getPhone()
             );
-            
-            userDetails.setUsername(decryptedInfo[0]);
-            userDetails.setPassword(decryptedInfo[1]);
-            if (decryptedInfo[2] != null) {
-                userDetails.setEmail(decryptedInfo[2]);
+
+            userDetails.setUsername(decryptedInfo.getUsername());
+            userDetails.setPassword(decryptedInfo.getPassword());
+            if (decryptedInfo.getEmail() != null) {
+                userDetails.setEmail(decryptedInfo.getEmail());
             }
-            if (decryptedInfo[3] != null) {
-                userDetails.setPhone(decryptedInfo[3]);
+            if (decryptedInfo.getPhone() != null) {
+                userDetails.setPhone(decryptedInfo.getPhone());
             }
         } catch (Exception e) {
             log.error("注册信息解密失败: {}", e.getMessage());

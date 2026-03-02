@@ -47,8 +47,8 @@ public interface CryptoService {
      * @param encryptedPassword 加密的密码
      * @param encryptedEmail    加密的邮箱（可选）
      * @param encryptedPhone    加密的手机号（可选）
-     * @return 解密后的信息数组 [username, password, email, phone]
+     * @return 解密结果 DTO
      */
-    String[] decryptRegistrationInfo(String encryptedUsername, String encryptedPassword,
+    DecryptionResult decryptRegistrationInfo(String encryptedUsername, String encryptedPassword,
                                      String encryptedEmail, String encryptedPhone);
 }
