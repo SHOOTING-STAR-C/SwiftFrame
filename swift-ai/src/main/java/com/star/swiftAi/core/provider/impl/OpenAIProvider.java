@@ -16,36 +16,51 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * OpenAI提供商实现
- * 支持OpenAI API及其兼容接口
+ * OpenAI 提供商实现
+ * 支持 OpenAI API 及其兼容接口
  *
  * @author SHOOTING_STAR_C
  */
 @Slf4j
 @ProviderAdapter(
     typeName = "openai",
-    desc = "OpenAI提供商，支持GPT系列模型",
+    desc = "OpenAI 提供商，支持 GPT 系列模型",
     displayName = "OpenAI"
 )
 public class OpenAIProvider extends Provider {
 
+    /**
+     * 共享 HttpClient 单例（按超时时间分组）
+     */
+    private static final Map<Integer, HttpClient> HTTP_CLIENT_CACHE = new ConcurrentHashMap<>();
+
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 获取或创建 HttpClient（单例模式，按超时时间缓存）
+     */
+    private static HttpClient getHttpClient(int timeoutSeconds) {
+        return HTTP_CLIENT_CACHE.computeIfAbsent(timeoutSeconds, timeout ->
+            HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(timeout))
+                .build()
+        );
+    }
+
     public OpenAIProvider(Map<String, Object> providerConfig, Map<String, Object> providerSettings) {
         super(providerConfig, providerSettings);
-        
-        // 初始化HttpClient
+
+        // 初始化 HttpClient（使用共享单例）
         int timeout = getTimeout();
-        this.httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(timeout))
-            .build();
-        
+        this.httpClient = getHttpClient(timeout);
+
         this.objectMapper = new ObjectMapper();
     }
-    
+
     /**
      * 获取超时时间
      */
@@ -54,11 +69,11 @@ public class OpenAIProvider extends Provider {
         if (timeoutObj instanceof Number) {
             return ((Number) timeoutObj).intValue();
         }
-        return 60; // 默认60秒
+        return 60; // 默认 60 秒
     }
-    
+
     /**
-     * 获取Base URL
+     * 获取 Base URL
      */
     private String getBaseUrl() {
         Object baseUrlObj = providerConfig.get("base_url");
@@ -93,25 +108,25 @@ public class OpenAIProvider extends Provider {
     public List<String> getModels() throws Exception {
         String baseUrl = getBaseUrl();
         String apiKey = getCurrentKey();
-        
+
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + "/models"))
             .header("Authorization", "Bearer " + apiKey)
             .GET()
             .build();
-        
+
         HttpResponse<String> response = httpClient.send(
             request,
             HttpResponse.BodyHandlers.ofString()
         );
-        
+
         if (response.statusCode() != 200) {
-            throw new RuntimeException("获取模型列表失败: " + response.body());
+            throw new RuntimeException("获取模型列表失败：" + response.body());
         }
-        
+
         JsonNode root = objectMapper.readTree(response.body());
         JsonNode data = root.get("data");
-        
+
         List<String> models = new ArrayList<>();
         if (data != null && data.isArray()) {
             for (JsonNode modelNode : data) {
@@ -119,7 +134,7 @@ public class OpenAIProvider extends Provider {
                 models.add(modelId);
             }
         }
-        
+
         return models;
     }
 
@@ -135,37 +150,37 @@ public class OpenAIProvider extends Provider {
         String model,
         List<ContentPart> extraUserContentParts
     ) throws Exception {
-        log.info("OpenAI提供商执行textChat请求: model={}", model);
-        
+        log.info("OpenAI 提供商执行 textChat 请求：model={}", model);
+
         String baseUrl = getBaseUrl();
         String apiKey = getCurrentKey();
-        
+
         // 构建请求体
         Map<String, Object> requestBody = buildChatRequestBody(
             prompt, systemPrompt, contexts, model, funcTool, toolCallsResult
         );
-        
+
         String jsonBody = objectMapper.writeValueAsString(requestBody);
-        
+
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + "/chat/completions"))
             .header("Authorization", "Bearer " + apiKey)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
             .build();
-        
+
         HttpResponse<String> response = httpClient.send(
             request,
             HttpResponse.BodyHandlers.ofString()
         );
-        
+
         if (response.statusCode() != 200) {
-            throw new RuntimeException("OpenAI API调用失败: " + response.body());
+            throw new RuntimeException("OpenAI API 调用失败：" + response.body());
         }
-        
+
         return parseChatResponse(response.body());
     }
-    
+
     /**
      * 构建聊天请求体
      */
@@ -179,10 +194,10 @@ public class OpenAIProvider extends Provider {
     ) {
         Map<String, Object> body = new java.util.HashMap<>();
         body.put("model", model);
-        
+
         // 构建消息列表
         List<Map<String, Object>> messages = new ArrayList<>();
-        
+
         // 添加系统提示
         if (systemPrompt != null && !systemPrompt.isEmpty()) {
             Map<String, Object> systemMsg = new java.util.HashMap<>();
@@ -190,43 +205,43 @@ public class OpenAIProvider extends Provider {
             systemMsg.put("content", systemPrompt);
             messages.add(systemMsg);
         }
-        
+
         // 添加历史上下文
         if (contexts != null && !contexts.isEmpty()) {
             messages.addAll(contexts);
         }
-        
+
         // 添加用户消息
         Map<String, Object> userMsg = new java.util.HashMap<>();
         userMsg.put("role", "user");
         userMsg.put("content", prompt);
         messages.add(userMsg);
-        
+
         body.put("messages", messages);
-        
+
         // 添加工具（如果有）
         if (funcTool != null && funcTool.getTools() != null && !funcTool.getTools().isEmpty()) {
             body.put("tools", funcTool.getTools());
         }
-        
+
         // 添加工具调用结果（如果有）
         if (toolCallsResult != null && !toolCallsResult.isEmpty()) {
             for (ToolCallsResult result : toolCallsResult) {
                 messages.addAll(result.toOpenAiMessages());
             }
         }
-        
+
         return body;
     }
-    
+
     /**
      * 解析聊天响应
      */
     private LLMResponse parseChatResponse(String responseBody) throws Exception {
         JsonNode root = objectMapper.readTree(responseBody);
-        
+
         LLMResponse response = new LLMResponse();
-        
+
         // 获取内容
         JsonNode choices = root.get("choices");
         if (choices != null && choices.isArray() && !choices.isEmpty()) {
@@ -237,7 +252,7 @@ public class OpenAIProvider extends Provider {
                 if (content != null) {
                     response.setContent(content.asText());
                 }
-                
+
                 // 获取工具调用
                 JsonNode toolCalls = message.get("tool_calls");
                 if (toolCalls != null && toolCalls.isArray()) {
@@ -247,7 +262,7 @@ public class OpenAIProvider extends Provider {
                             String toolCallId = toolCall.get("id") != null ? toolCall.get("id").asText() : "";
                             String toolName = function.get("name") != null ? function.get("name").asText() : "";
                             String toolArgs = function.get("arguments") != null ? function.get("arguments").asText() : "{}";
-                            
+
                             response.getToolsCallIds().add(toolCallId);
                             response.getToolsCallName().add(toolName);
                             response.getToolsCallArgs().add(objectMapper.readValue(toolArgs, Map.class));
@@ -256,7 +271,7 @@ public class OpenAIProvider extends Provider {
                 }
             }
         }
-        
+
         // 获取使用量
         JsonNode usage = root.get("usage");
         if (usage != null) {
@@ -265,7 +280,7 @@ public class OpenAIProvider extends Provider {
             tokenUsage.setOutput(usage.get("completion_tokens").asInt());
             response.setUsage(tokenUsage);
         }
-        
+
         return response;
     }
 
@@ -280,51 +295,51 @@ public class OpenAIProvider extends Provider {
         List<ToolCallsResult> toolCallsResult,
         String model
     ) throws Exception {
-        log.info("OpenAI提供商执行textChatStream请求: model={}", model);
-        
+        log.info("OpenAI 提供商执行 textChatStream 请求：model={}", model);
+
         String baseUrl = getBaseUrl();
         String apiKey = getCurrentKey();
-        
+
         // 构建请求体
         Map<String, Object> requestBody = buildChatRequestBody(
             prompt, systemPrompt, contexts, model, funcTool, toolCallsResult
         );
         requestBody.put("stream", true);
-        
+
         String jsonBody = objectMapper.writeValueAsString(requestBody);
-        
+
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + "/chat/completions"))
             .header("Authorization", "Bearer " + apiKey)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
             .build();
-        
+
         HttpResponse<String> response = httpClient.send(
             request,
             HttpResponse.BodyHandlers.ofString()
         );
-        
+
         if (response.statusCode() != 200) {
-            throw new RuntimeException("OpenAI流式API调用失败: " + response.body());
+            throw new RuntimeException("OpenAI 流式 API 调用失败：" + response.body());
         }
-        
+
         return parseStreamResponse(response.body());
     }
-    
+
     /**
      * 解析流式响应
      */
     private List<LLMResponse> parseStreamResponse(String responseBody) throws Exception {
         List<LLMResponse> responses = new ArrayList<>();
-        
-        // SSE格式：每行以"data: "开头
+
+        // SSE 格式：每行以"data: "开头
         String[] lines = responseBody.split("\n");
         for (String line : lines) {
             line = line.trim();
             if (line.startsWith("data: ")) {
                 String data = line.substring(6);
-                
+
                 // 结束标记
                 if ("[DONE]".equals(data)) {
                     LLMResponse finalResponse = new LLMResponse();
@@ -332,16 +347,16 @@ public class OpenAIProvider extends Provider {
                     responses.add(finalResponse);
                     break;
                 }
-                
+
                 try {
                     JsonNode root = objectMapper.readTree(data);
                     LLMResponse response = new LLMResponse();
-                    
+
                     JsonNode choices = root.get("choices");
                     if (choices != null && choices.isArray() && !choices.isEmpty()) {
                         JsonNode choice = choices.get(0);
                         JsonNode delta = choice.get("delta");
-                        
+
                         if (delta != null) {
                             JsonNode content = delta.get("content");
                             if (content != null) {
@@ -350,19 +365,19 @@ public class OpenAIProvider extends Provider {
                                 response.setDelta(contentText);
                             }
                         }
-                        
-                        String finishReason = choice.get("finish_reason") != null ? 
+
+                        String finishReason = choice.get("finish_reason") != null ?
                             choice.get("finish_reason").asText() : null;
                         response.setFinished("stop".equals(finishReason));
                     }
-                    
+
                     responses.add(response);
                 } catch (Exception e) {
-                    log.error("解析流式响应失败: {}", data, e);
+                    log.error("解析流式响应失败：{}", data, e);
                 }
             }
         }
-        
+
         return responses;
     }
 
@@ -378,58 +393,58 @@ public class OpenAIProvider extends Provider {
         String model,
         java.util.function.Consumer<LLMResponse> consumer
     ) throws Exception {
-        log.info("OpenAI提供商执行textChatStreamRealtime请求: model={}", model);
-        
+        log.info("OpenAI 提供商执行 textChatStreamRealtime 请求：model={}", model);
+
         String baseUrl = getBaseUrl();
         String apiKey = getCurrentKey();
-        
+
         // 构建请求体
         Map<String, Object> requestBody = buildChatRequestBody(
             prompt, systemPrompt, contexts, model, funcTool, toolCallsResult
         );
         requestBody.put("stream", true);
-        
+
         String jsonBody = objectMapper.writeValueAsString(requestBody);
-        
+
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + "/chat/completions"))
             .header("Authorization", "Bearer " + apiKey)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
             .build();
-        
+
         // 使用 BufferedReader 逐行读取响应，确保实时性
         HttpResponse<java.io.InputStream> response = httpClient.send(
             request,
             HttpResponse.BodyHandlers.ofInputStream()
         );
-        
+
         if (response.statusCode() != 200) {
-            throw new RuntimeException("OpenAI流式API调用失败: " + response.statusCode());
+            throw new RuntimeException("OpenAI 流式 API 调用失败：" + response.statusCode());
         }
-        
+
         try (java.io.BufferedReader reader = new java.io.BufferedReader(
                 new java.io.InputStreamReader(response.body(), java.nio.charset.StandardCharsets.UTF_8))) {
             String line;
             int chunkCount = 0;
             boolean finished = false;
-            
+            // 日志采样：只记录前 10 个和最后 10 个数据块，避免高并发下日志过多
+            int loggedChunkCount = 0;
+
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                
+
                 // 跳过空行
                 if (line.isEmpty()) {
                     continue;
                 }
-                
-                // 处理SSE数据
+
+                // 处理 SSE 数据
                 if (line.startsWith("data: ")) {
                     String data = line.substring(6);
-                    log.debug("解析SSE数据块 #{}: {}", ++chunkCount, data);
-                    
+
                     // 结束标记
                     if ("[DONE]".equals(data)) {
-                        log.debug("接收到流式结束标记[DONE]");
                         if (!finished) {
                             finished = true;
                             LLMResponse finalResponse = new LLMResponse();
@@ -438,48 +453,49 @@ public class OpenAIProvider extends Provider {
                         }
                         break;
                     }
-                    
+
                     try {
                         JsonNode root = objectMapper.readTree(data);
-                        log.trace("解析到OpenAI数据: {}", data);
                         LLMResponse llmResponse = new LLMResponse();
-                        
+
                         JsonNode choices = root.get("choices");
-                        if (choices != null && choices.isArray() && choices.size() > 0) {
+                        if (choices != null && choices.isArray() && !choices.isEmpty()) {
                             JsonNode choice = choices.get(0);
                             JsonNode delta = choice.get("delta");
-                            
+
                             if (delta != null) {
                                 JsonNode content = delta.get("content");
                                 if (content != null) {
                                     String contentText = content.asText();
-                                    // 流式响应中，只设置delta，不设置content
+                                    // 流式响应中，只设置 delta，不设置 content
                                     llmResponse.setDelta(contentText);
-                                    log.debug("流式响应数据块 #{}: delta='{}'", chunkCount, contentText);
+                                    // 日志采样：只记录前 10 个数据块
+                                    if (loggedChunkCount < 10) {
+                                        log.debug("流式响应数据块 #{}: delta='{}'", ++loggedChunkCount, contentText);
+                                    }
                                 }
                             }
-                            
-                            String finishReason = choice.get("finish_reason") != null ? 
+
+                            String finishReason = choice.get("finish_reason") != null ?
                                 choice.get("finish_reason").asText() : null;
-                            
-                            // 只有当finish_reason为stop时才设置finished=true
+
+                            // 只有当 finish_reason 为 stop 时才设置 finished=true
                             if ("stop".equals(finishReason)) {
                                 finished = true;
                                 llmResponse.setFinished(true);
-                                log.debug("流式响应完成: finishReason=stop");
                             }
                         }
-                        
-                        // 立即传递给消费者（即使delta为空也要传递，以保持流式响应的连续性）
+
+                        // 立即传递给消费者（即使 delta 为空也要传递，以保持流式响应的连续性）
                         consumer.accept(llmResponse);
                     } catch (Exception e) {
-                        log.error("解析流式响应失败: {}", data, e);
+                        log.error("解析流式响应失败：{}", data, e);
                     }
                 }
             }
         } catch (Exception e) {
             log.error("读取流式响应失败", e);
-            // 发送一个finished=true的响应以正确结束流
+            // 发送一个 finished=true 的响应以正确结束流
             LLMResponse errorResponse = new LLMResponse();
             errorResponse.setFinished(true);
             consumer.accept(errorResponse);
@@ -498,12 +514,12 @@ public class OpenAIProvider extends Provider {
 
     @Override
     public void test(String model) {
-        log.info("OpenAI提供商测试连接: model={}", model);
-        
+        log.info("OpenAI 提供商测试连接：model={}", model);
+
         try {
             String baseUrl = getBaseUrl();
             String apiKey = getCurrentKey();
-            
+
             // 如果没有指定模型，从模型列表中获取第一个
             if (model == null || model.isEmpty()) {
                 HttpRequest modelsRequest = HttpRequest.newBuilder()
@@ -512,28 +528,28 @@ public class OpenAIProvider extends Provider {
                     .GET()
                     .timeout(Duration.ofSeconds(10))
                     .build();
-                
+
                 HttpResponse<String> modelsResponse = httpClient.send(
                     modelsRequest,
                     HttpResponse.BodyHandlers.ofString()
                 );
-                
+
                 if (modelsResponse.statusCode() == 200) {
                     JsonNode root = objectMapper.readTree(modelsResponse.body());
                     JsonNode data = root.get("data");
-                    if (data != null && data.isArray() && data.size() > 0) {
+                    if (data != null && data.isArray() && !data.isEmpty()) {
                         model = data.get(0).get("id").asText();
-                        log.info("使用第一个模型进行测试: {}", model);
+                        log.info("使用第一个模型进行测试：{}", model);
                     }
                 }
             }
-            
+
             // 如果还是没有模型，使用默认值
             if (model == null || model.isEmpty()) {
                 model = "gpt-3.5-turbo";
-                log.warn("无法获取模型列表，使用默认模型: {}", model);
+                log.warn("无法获取模型列表，使用默认模型：{}", model);
             }
-            
+
             // 使用模型测试连接
             Map<String, Object> requestBody = new java.util.HashMap<>();
             requestBody.put("model", model);
@@ -541,9 +557,9 @@ public class OpenAIProvider extends Provider {
                 Map.of("role", "user", "content", "Hi")
             ));
             requestBody.put("max_tokens", 5);
-            
+
             String jsonBody = objectMapper.writeValueAsString(requestBody);
-            
+
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/chat/completions"))
                 .header("Authorization", "Bearer " + apiKey)
@@ -551,20 +567,20 @@ public class OpenAIProvider extends Provider {
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .timeout(Duration.ofSeconds(10))
                 .build();
-            
+
             HttpResponse<String> response = httpClient.send(
                 request,
                 HttpResponse.BodyHandlers.ofString()
             );
-            
+
             if (response.statusCode() == 200) {
-                log.info("OpenAI提供商连接测试成功");
+                log.info("OpenAI 提供商连接测试成功");
             } else {
-                throw new RuntimeException("OpenAI提供商连接测试失败: " + response.body());
+                throw new RuntimeException("OpenAI 提供商连接测试失败：" + response.body());
             }
         } catch (Exception e) {
-            log.error("OpenAI提供商连接测试失败", e);
-            throw new RuntimeException("OpenAI提供商连接测试失败: " + e.getMessage(), e);
+            log.error("OpenAI 提供商连接测试失败", e);
+            throw new RuntimeException("OpenAI 提供商连接测试失败：" + e.getMessage(), e);
         }
     }
 
