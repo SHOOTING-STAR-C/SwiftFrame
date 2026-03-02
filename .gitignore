@@ -15,6 +15,7 @@ target/
 
 ### IntelliJ IDEA ###
 .idea
+.claude
 docs
 *.iws
 *.iml
@@ -41,3 +42,4 @@ swift-start/src/main/resources/application-test.yml
 
 # Environment variables file
 .env
+CLAUDE.md
