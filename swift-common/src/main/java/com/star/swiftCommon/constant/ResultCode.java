@@ -27,7 +27,7 @@ public enum ResultCode {
     FORBIDDEN("BUS-403-00", "禁止访问"),
     NOT_FOUND("BUS-404-00", "资源不存在"),
     METHOD_NOT_ALLOWED("BUS-405-00", "请求方法不允许"),
-    BUSINESS_NOT_ALLOWED("BUS-405-00", "业务不允许");
+    BUSINESS_NOT_ALLOWED("BUS-406-00", "业务操作不允许");
 
 
     private final String code;

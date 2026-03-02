@@ -23,6 +23,11 @@
             <groupId>com.github.ulisesbocchio</groupId>
             <artifactId>jasypt-spring-boot-starter</artifactId>
         </dependency>
+        <!-- 依赖 swift-common 以使用 ResultCode -->
+        <dependency>
+            <groupId>com.star</groupId>
+            <artifactId>swift-common</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -35,20 +35,8 @@ public class PubResult<T> {
         return new PubResult<>(ResultCode.SUCCESS);
     }
 
-
     /**
-     * 失败响应
-     *
-     * @param code 响应码
-     * @param msg  错误消息
-     * @return PubResult
-     */
-    public static <T> PubResult<T> error(String code, String msg) {
-        return new PubResult<>(code, msg, null);
-    }
-
-    /**
-     * 失败响应
+     * 失败响应（使用默认服务器错误码）
      *
      * @return PubResult
      */
@@ -57,7 +45,7 @@ public class PubResult<T> {
     }
 
     /**
-     * 失败响应
+     * 失败响应（自定义消息，使用默认服务器错误码）
      *
      * @param msg 错误消息
      * @return PubResult
@@ -67,22 +55,42 @@ public class PubResult<T> {
     }
 
     /**
-     * 失败响应（业务异常）
+     * 失败响应（自定义错误码和消息）
      *
-     * @param msg 错误消息
+     * @param code 错误码
+     * @param msg  错误消息
+     * @return PubResult
+     */
+    public static <T> PubResult<T> error(String code, String msg) {
+        return new PubResult<>(code, msg, null);
+    }
+
+    /**
+     * 失败响应（使用 ResultCode 枚举）
+     *
+     * @param resultCode 错误码枚举
+     * @param msg        错误消息（可选，为 null 时使用枚举默认消息）
      * @return PubResult
      */
     public static <T> PubResult<T> error(ResultCode resultCode, String msg) {
-        return new PubResult<>(resultCode, msg);
+        return new PubResult<>(resultCode.getCode(), msg != null ? msg : resultCode.getMessage(), null);
     }
 
+    /**
+     * 失败响应（使用 ResultCode 枚举）
+     *
+     * @param resultCode 错误码枚举
+     * @return PubResult
+     */
+    public static <T> PubResult<T> error(ResultCode resultCode) {
+        return new PubResult<>(resultCode);
+    }
 
     public PubResult(String code, String msg, T data) {
         this.code = code;
         this.msg = msg;
         this.data = data;
     }
-
 
     public PubResult(ResultCode resultCode, String msg) {
         this.code = resultCode.getCode();
