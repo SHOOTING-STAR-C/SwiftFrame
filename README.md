@@ -112,7 +112,7 @@ SwiftFrame/
 | Spring Boot | 3.5.1 | 应用框架 |
 | MyBatis Plus | 3.5.12 | ORM框架 |
 | MySQL | 9.3.0 | 关系型数据库 |
-| PostgreSQL | 12+ | 关系型数据库 |
+| PostgreSQL | 15+ | 关系型数据库 |
 | Druid | 1.2.23 | 数据库连接池 |
 | Redis | - | 缓存和会话存储 |
 | Spring Security | 6.5.0 | 安全框架 |
