@@ -246,4 +246,52 @@ public class SnowflakeIdGenerator {
     public static long generateId() {
         return getInstance().nextId();
     }
+
+    /**
+     * 批量生成 ID
+     *
+     * @param count 生成数量
+     * @return ID 数组
+     */
+    public long[] nextIds(int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("count must be greater than 0");
+        }
+        if (count > MAX_SEQUENCE) {
+            throw new IllegalArgumentException("count can't be greater than " + MAX_SEQUENCE);
+        }
+        long[] ids = new long[count];
+        for (int i = 0; i < count; i++) {
+            ids[i] = nextId();
+        }
+        return ids;
+    }
+
+    /**
+     * 批量生成 ID（静态便捷方法）
+     *
+     * @param count 生成数量
+     * @return ID 数组
+     */
+    public static long[] generateIds(int count) {
+        return getInstance().nextIds(count);
+    }
+
+    /**
+     * 生成字符串格式的 ID
+     *
+     * @return 字符串 ID
+     */
+    public String nextIdStr() {
+        return String.valueOf(nextId());
+    }
+
+    /**
+     * 生成字符串格式的 ID（静态便捷方法）
+     *
+     * @return 字符串 ID
+     */
+    public static String generateIdStr() {
+        return getInstance().nextIdStr();
+    }
 }
