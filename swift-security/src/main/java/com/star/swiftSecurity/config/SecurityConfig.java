@@ -4,9 +4,8 @@ import com.star.swiftSecurity.filter.JwtAuthenticationFilter;
 import com.star.swiftSecurity.handler.CustomAccessDeniedHandler;
 import com.star.swiftSecurity.handler.CustomAuthenticationEntryPoint;
 import com.star.swiftSecurity.properties.SecurityProperties;
+import com.star.swiftSecurity.service.JwtValidator;
 import com.star.swiftSecurity.service.SwiftUserService;
-import com.star.swiftSecurity.utils.JwtUtil;
-import com.star.swiftredis.service.TokenStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -89,9 +88,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil, SwiftUserService userDetailsService, 
-                                                           TokenStorageService tokenStorageService, SecurityProperties securityProperties) {
-        return new JwtAuthenticationFilter(jwtUtil, userDetailsService, tokenStorageService, securityProperties);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtValidator jwtValidator, SwiftUserService userDetailsService,
+                                                           SecurityProperties securityProperties) {
+        return new JwtAuthenticationFilter(jwtValidator, userDetailsService, securityProperties);
     }
 
     @Bean

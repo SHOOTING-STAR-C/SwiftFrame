@@ -2,24 +2,21 @@ package com.star.swiftSecurity.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.star.swiftCommon.domain.PubResult;
-import com.star.swiftSecurity.constant.TokenConstants;
 import com.star.swiftSecurity.constant.TokenReCode;
 import com.star.swiftSecurity.properties.SecurityProperties;
+import com.star.swiftSecurity.service.JwtValidator;
 import com.star.swiftSecurity.service.SwiftUserService;
-import com.star.swiftSecurity.utils.JwtUtil;
-import com.star.swiftredis.service.TokenStorageService;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -32,18 +29,16 @@ import java.util.Arrays;
  */
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtUtil jwtUtil;
+    private final JwtValidator jwtValidator;
     private final SwiftUserService userDetailsService;
-    private final TokenStorageService tokenStorageService;
     private final SecurityProperties securityProperties;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, SwiftUserService userDetailsService, 
-                                   TokenStorageService tokenStorageService, SecurityProperties securityProperties) {
-        this.jwtUtil = jwtUtil;
+    public JwtAuthenticationFilter(JwtValidator jwtValidator, SwiftUserService userDetailsService,
+                                   SecurityProperties securityProperties) {
+        this.jwtValidator = jwtValidator;
         this.userDetailsService = userDetailsService;
-        this.tokenStorageService = tokenStorageService;
         this.securityProperties = securityProperties;
     }
 
@@ -68,45 +63,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
-        Long userId;
-        
-        // 提取用户ID，捕获JWT过期异常
-        try {
-            userId = jwtUtil.extractUserId(jwt);
-        } catch (ExpiredJwtException e) {
-            log.error("JWT expired during userId extraction: {}", e.getMessage());
-            sendErrorResponse(response, TokenReCode.TOKEN_EXPIRED);
-            return;
-        } catch (Exception e) {
-            log.error("JWT extraction error: {}", e.getMessage());
-            sendErrorResponse(response, TokenReCode.TOKEN_INVALID);
+
+        // 使用 JwtValidator 进行统一鉴权
+        JwtValidator.ValidationResult result = jwtValidator.validate(jwt);
+
+        if (!result.valid()) {
+            log.warn("请求 {} JWT 验证失败: {}", requestURI, result.errorMessage());
+            sendErrorResponse(response, result.errorCode());
             return;
         }
 
-        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        Long userId = result.userId();
+
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUserId(userId);
 
-            // 验证JWT签名和Redis中的令牌有效性
-            try {
-                if (!jwtUtil.validateToken(jwt)) {
-                    sendErrorResponse(response, TokenReCode.TOKEN_INVALID);
-                    return;
-                }
-            } catch (ExpiredJwtException e) {
-                log.error("JWT expired: {}", e.getMessage());
-                sendErrorResponse(response, TokenReCode.TOKEN_EXPIRED);
-                return;
-            } catch (Exception e) {
-                log.error("JWT validation error: {}", e.getMessage());
-                sendErrorResponse(response, TokenReCode.TOKEN_INVALID);
-                return;
-            }
-            
-            if (!tokenStorageService.validateToken(TokenConstants.accessToken, userId, jwt)) {
-                sendErrorResponse(response, TokenReCode.TOKEN_NOT_FOUND);
-                return;
-            }
-            
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
